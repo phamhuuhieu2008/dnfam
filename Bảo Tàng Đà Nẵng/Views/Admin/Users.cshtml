@@ -1,0 +1,75 @@
+@model List<Bảo_Tàng_Đà_Nẵng.Models.User>
+@{
+    ViewData["Title"] = "Quản lý Người dùng";
+}
+
+<div class="page-wrapper animate-fadeInUp mt-24" style="max-width: 1000px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="section-title text-dark mb-0">Danh sách Người dùng</h2>
+            <p class="section-subtitle mt-1">Quản lý tài khoản người chơi & Quản trị viên</p>
+        </div>
+        <a asp-action="Index" class="btn-secondary-museum px-4 py-2 text-decoration-none" style="width: auto;">Quay lại Dashboard</a>
+    </div>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success mb-4" style="border-radius: 8px;">
+            @TempData["SuccessMsg"]
+        </div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger mb-4" style="border-radius: 8px;">
+            @TempData["ErrorMsg"]
+        </div>
+    }
+
+    <div class="museum-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size: 0.95rem;">
+                <thead style="background: rgba(10, 25, 47, 0.04);">
+                    <tr>
+                        <th class="px-4 py-3" style="width: 5%;">ID</th>
+                        <th class="px-4 py-3">Tên đăng nhập</th>
+                        <th class="px-4 py-3">Họ và Tên</th>
+                        <th class="px-4 py-3">Vai trò</th>
+                        <th class="px-4 py-3">Ngày đăng ký</th>
+                        <th class="px-4 py-3 text-center">Trạng thái</th>
+                        <th class="px-4 py-3 text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var u in Model)
+                    {
+                        <tr>
+                            <td class="px-4 py-3 text-muted">#@u.Id</td>
+                            <td class="px-4 py-3" style="color: var(--text-dark); font-weight: 500;">@u.Username</td>
+                            <td class="px-4 py-3" style="color: var(--text-dark);">@u.FullName</td>
+                            <td class="px-4 py-3">
+                                @if(u.Role == "Admin") { <span style="color: var(--primary); font-weight: bold;">👑 Admin</span> }
+                                else { <span class="text-muted">Player</span> }
+                            </td>
+                            <td class="px-4 py-3 text-muted">@u.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 text-center">
+                                @if(u.IsActive) { <span class="badge" style="background: var(--success); color: white; padding: 4px 8px; border-radius: 4px;">Hoạt động</span> }
+                                else { <span class="badge" style="background: var(--error); color: white; padding: 4px 8px; border-radius: 4px;">Bị khóa</span> }
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                @if (u.Role != "Admin")
+                                {
+                                    <form asp-action="ToggleUserStatus" asp-route-id="@u.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm @(u.IsActive ? "btn-outline-danger" : "btn-outline-success")" style="font-size: 0.8rem; padding: 2px 8px;" onclick="return confirm('Bạn có chắc muốn @(u.IsActive ? "khóa" : "mở khóa") tài khoản này?');">
+                                            @(u.IsActive ? "🔒 Khóa" : "🔓 Mở Khóa")
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

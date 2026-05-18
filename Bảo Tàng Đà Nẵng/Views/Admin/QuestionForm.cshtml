@@ -1,0 +1,83 @@
+@model Bảo_Tàng_Đà_Nẵng.Models.Question
+@{
+    bool isCreate = Model.Id == 0;
+    ViewData["Title"] = isCreate ? "Thêm mới Câu hỏi" : "Chỉnh sửa Câu hỏi";
+}
+
+<div class="page-wrapper animate-fadeInUp mt-24" style="max-width: 800px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="section-title mb-0">@(isCreate ? "Thêm Mới Câu Hỏi" : "Chỉnh Sửa Câu Hỏi")</h2>
+            <p class="section-subtitle mt-1">@if(!isCreate) { <span>Câu hỏi ID: #@Model.Id</span> }</p>
+        </div>
+        <a asp-action="Questions" class="btn-secondary-museum px-4 py-2 text-decoration-none" style="width: auto;">Hủy & Quay lại</a>
+    </div>
+
+    <div class="museum-card p-4">
+        <form asp-action="@(isCreate ? "CreateQuestion" : "EditQuestion")" method="post">
+            @Html.AntiForgeryToken()
+            @if (!isCreate)
+            {
+                <input type="hidden" asp-for="Id" />
+            }
+
+            <div class="mb-4">
+                <label asp-for="Content" class="form-label font-weight-bold">Nội dung Câu hỏi <span class="text-danger">*</span></label>
+                <textarea asp-for="Content" class="form-control auth-input" rows="3" required placeholder="Nhập nội dung câu hỏi..."></textarea>
+                <span asp-validation-for="Content" class="text-danger small"></span>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="OptionA" class="form-label font-weight-bold">Đáp án A <span class="text-danger">*</span></label>
+                    <input asp-for="OptionA" class="form-control auth-input" required />
+                    <span asp-validation-for="OptionA" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="OptionB" class="form-label font-weight-bold">Đáp án B <span class="text-danger">*</span></label>
+                    <input asp-for="OptionB" class="form-control auth-input" required />
+                    <span asp-validation-for="OptionB" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="OptionC" class="form-label font-weight-bold">Đáp án C <span class="text-danger">*</span></label>
+                    <input asp-for="OptionC" class="form-control auth-input" required />
+                    <span asp-validation-for="OptionC" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="OptionD" class="form-label font-weight-bold">Đáp án D <span class="text-danger">*</span></label>
+                    <input asp-for="OptionD" class="form-control auth-input" required />
+                    <span asp-validation-for="OptionD" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="CorrectOption" class="form-label font-weight-bold">Đáp án Đúng <span class="text-danger">*</span></label>
+                    <select asp-for="CorrectOption" class="form-select auth-input" required style="height: 52px;">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Points" class="form-label font-weight-bold">Điểm thưởng <span class="text-danger">*</span></label>
+                    <input asp-for="Points" class="form-control auth-input" type="number" min="1" value="@(isCreate ? 10 : Model.Points)" required />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="LocationName" class="form-label font-weight-bold">Địa điểm (Tuỳ chọn)</label>
+                    <input asp-for="LocationName" class="form-control auth-input" placeholder="VD: Bảo Tàng Đà Nẵng" />
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label asp-for="ImageUrl" class="form-label font-weight-bold">URL Hình ảnh minh hoạ (Tuỳ chọn)</label>
+                <input asp-for="ImageUrl" class="form-control auth-input" placeholder="https://example.com/image.jpg" />
+            </div>
+
+            <button type="submit" class="btn-primary-museum w-100">
+                @(isCreate ? "LƯU CÂU HỎI MỚI" : "CẬP NHẬT CÂU HỎI")
+            </button>
+        </form>
+    </div>
+</div>

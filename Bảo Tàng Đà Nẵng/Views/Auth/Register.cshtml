@@ -1,0 +1,95 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+    ViewData["HideNav"] = true;
+}
+
+<div class="auth-page animate-fadeInUp">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+        <div class="logo-icon">🏛️</div>
+        <h1>Giải Mã Di Sản</h1>
+        <p>Bảo Tàng Đà Nẵng</p>
+    </div>
+
+    <!-- Card đăng ký -->
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <h2>Tạo tài khoản mới</h2>
+            <p>Bắt đầu hành trình khám phá di sản</p>
+        </div>
+        <div class="auth-card-body">
+
+            <form asp-controller="Auth" asp-action="Register" method="post" id="registerForm">
+                @Html.AntiForgeryToken()
+
+                @* Lỗi tổng quát *@
+                <div asp-validation-summary="ModelOnly" class="alert-museum error" id="summaryError"
+                     style="display:none"></div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="FullName">Họ và tên</label>
+                    <input asp-for="FullName" class="form-input"
+                           placeholder="Nhập họ và tên của bạn" autocomplete="name" />
+                    <span asp-validation-for="FullName" class="form-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Username">Tên đăng nhập</label>
+                    <input asp-for="Username" class="form-input"
+                           placeholder="Chọn tên đăng nhập" autocomplete="username"
+                           inputmode="text" autocapitalize="none" spellcheck="false" />
+                    <span asp-validation-for="Username" class="form-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Password">Mật khẩu</label>
+                    <input asp-for="Password" class="form-input"
+                           type="password" placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="form-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="ConfirmPassword">Xác nhận mật khẩu</label>
+                    <input asp-for="ConfirmPassword" class="form-input"
+                           type="password" placeholder="Nhập lại mật khẩu"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="form-validation-error"></span>
+                </div>
+
+                <div class="mt-24">
+                    <button type="submit" id="btnRegister" class="btn-primary-museum">
+                        Đăng ký
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer-link mt-16">
+                Đã có tài khoản?
+                <a asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+(function() {
+    var summary = document.querySelector('#summaryError ul');
+    if (summary && summary.children.length > 0) {
+        document.getElementById('summaryError').style.display = 'flex';
+    }
+
+    var form = document.getElementById('registerForm');
+    var btn  = document.getElementById('btnRegister');
+    form.addEventListener('submit', function() {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>&nbsp; Đang xử lý...';
+    });
+})();
+</script>
+}

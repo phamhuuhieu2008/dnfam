@@ -1,0 +1,80 @@
+@model QuizResultViewModel
+@{
+    ViewData["Title"] = "Kết quả Giải Mã";
+}
+
+<div class="page-wrapper animate-fadeInUp mt-24">
+    <div class="museum-card">
+        
+        <!-- Header -->
+        <div class="result-header">
+            <h2 class="section-title text-dark mb-0">Hoàn thành xuất sắc!</h2>
+            <p class="section-subtitle mt-8">Hành trình khám phá của bạn</p>
+        </div>
+
+        <!-- Vòng cung Điểm số -->
+        <div class="result-score-ring">
+            <div class="score-display">
+                <div class="score-number">@Model.TotalScore</div>
+                <div class="score-unit">ĐIỂM</div>
+            </div>
+        </div>
+
+        <div class="text-center mb-24">
+            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-dark);">
+                @Model.PlayerName
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Đã trả lời đúng @Model.CorrectAnswers / @Model.TotalQuestions câu 
+                (@Model.AccuracyRate%)
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                Thời gian: @Model.Duration.Minutes phút @Model.Duration.Seconds giây
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider">Chi tiết bài làm</div>
+
+        <!-- Danh sách câu hỏi review -->
+        <div class="px-3 pb-4">
+            @for (int i = 0; i < Model.Answers.Count; i++)
+            {
+                var ans = Model.Answers[i];
+                <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #fafafa;">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">
+                        Câu @(i + 1): @ans.QuestionContent
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                        <div>
+                            @if (ans.IsCorrect)
+                            {
+                                <span style="color: var(--success); font-weight: 600;">✅ Đúng</span>
+                            }
+                            else
+                            {
+                                <span style="color: var(--error); font-weight: 600;">❌ Sai</span>
+                                <span style="color: var(--text-muted);"> (Đúng: @ans.CorrectOption)</span>
+                            }
+                        </div>
+                        <div style="color: var(--accent); font-weight: 600;">
+                            +@(ans.IsCorrect ? ans.Points : 0) điểm
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Các nút hành động -->
+        <div class="p-3" style="background: rgba(10, 25, 47, 0.02); border-top: 1px solid #eee;">
+            <a asp-controller="Home" asp-action="Index" class="btn-primary-museum text-center" style="display: block; text-decoration: none; margin-bottom: 12px;">
+                Về trang chủ
+            </a>
+            
+            <a asp-controller="Quiz" asp-action="StartSession" class="btn-secondary-museum text-center" style="display: block; text-decoration: none;">
+                Chơi lại lần nữa
+            </a>
+        </div>
+    </div>
+</div>

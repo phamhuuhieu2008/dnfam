@@ -1,0 +1,95 @@
+@{
+    ViewData["Title"] = "Bảng điều khiển Quản trị";
+}
+
+<div class="page-wrapper animate-fadeInUp mt-24">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="section-title text-dark mb-0">Quản trị hệ thống</h2>
+            <p class="section-subtitle mt-1">Tổng quan dữ liệu "Giải Mã Di Sản"</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <a asp-action="Users" class="text-decoration-none">
+                <div class="museum-card p-4 text-center" style="cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 2rem; color: var(--primary);">👥</div>
+                    <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.TotalUsers</h3>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Người chơi</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="Questions" class="text-decoration-none">
+                <div class="museum-card p-4 text-center" style="cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 2rem; color: var(--accent);">📚</div>
+                    <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.TotalQuestions</h3>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Câu hỏi</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <div class="museum-card p-4 text-center">
+                <div style="font-size: 2rem; color: var(--success);">🎮</div>
+                <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.TotalSessions</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Lượt chơi</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="museum-card p-4 text-center">
+                <div style="font-size: 2rem; color: var(--secondary);">✅</div>
+                <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.CompletedSessions</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Lượt hoàn thành</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top Players -->
+        <div class="col-12">
+            <h3 class="section-title mb-3" style="font-size: 1.2rem;">Top 5 Người chơi xuất sắc</h3>
+            <div class="museum-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="font-size: 0.95rem;">
+                        <thead style="background: rgba(10, 25, 47, 0.04);">
+                            <tr>
+                                <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Hạng</th>
+                                <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Họ và Tên</th>
+                                <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Điểm</th>
+                                <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Ngày chơi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int rank = 1;
+                                foreach(var player in ViewBag.TopPlayers)
+                                {
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            @if(rank == 1) { <span class="rank-badge gold d-inline-flex">1</span> }
+                                            else if(rank == 2) { <span class="rank-badge silver d-inline-flex">2</span> }
+                                            else if(rank == 3) { <span class="rank-badge bronze d-inline-flex">3</span> }
+                                            else { <span class="rank-badge normal d-inline-flex">@rank</span> }
+                                        </td>
+                                        <td class="px-4 py-3 font-weight-bold" style="color: var(--text-dark);">@player.FullName</td>
+                                        <td class="px-4 py-3" style="color: var(--primary); font-weight: 600;">@player.TotalScore</td>
+                                        <td class="px-4 py-3" style="color: var(--text-muted);">@player.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                                    </tr>
+                                    rank++;
+                                }
+                            }
+                            @if(ViewBag.TopPlayers.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Chưa có lượt thi nào hoàn thành</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

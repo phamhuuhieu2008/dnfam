@@ -1,0 +1,97 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var fullName = Context.Session.GetString("UserFullName");
+}
+
+<div class="page-wrapper animate-fadeInUp">
+    
+    <!-- Hero Section -->
+    <div class="hero-section">
+        @if (fullName != null)
+        {
+            <div class="hero-greeting">Xin chào,</div>
+            <h1 class="hero-name">@fullName</h1>
+            <p class="hero-tagline">Tiếp tục hành trình khám phá di sản Đà Nẵng</p>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Đã chơi</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Tỷ lệ đúng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number text-primary">Top 5</div>
+                    <div class="stat-label">Xếp hạng</div>
+                </div>
+            </div>
+            
+            <a asp-controller="Quiz" asp-action="StartSession" class="btn-primary-museum" style="display:block; text-align:center; text-decoration:none">
+                Bắt đầu chơi ngay
+            </a>
+            
+            <div class="mt-16 text-center">
+                <a asp-controller="Auth" asp-action="ChangePassword" class="text-muted" style="text-decoration:none;font-size:0.85rem">
+                    Đổi mật khẩu
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="hero-greeting">Chào mừng đến với</div>
+            <h1 class="hero-name">Giải Mã <span>Di Sản</span></h1>
+            <p class="hero-tagline">Hành trình khám phá lịch sử và văn hóa Đà Nẵng</p>
+            
+            <img src="https://baotangdanang.vn/wp-content/uploads/2021/04/bao-tang-da-nang.jpg" 
+                 alt="Bảo tàng Đà Nẵng" 
+                 style="width:100%; border-radius:16px; margin-bottom:24px; box-shadow:var(--shadow-md); height:200px; object-fit:cover;" />
+
+            <a asp-controller="Auth" asp-action="Login" class="btn-primary-museum" style="display:block; text-align:center; text-decoration:none">
+                Đăng nhập để chơi
+            </a>
+        }
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-museum error mt-16">
+            <span>⚠️</span>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <!-- Leaderboard Preview -->
+    <div class="mt-24">
+        <h2 class="section-title text-dark" style="font-size:1.2rem">Bảng vàng</h2>
+        <p class="section-subtitle">Top người chơi xuất sắc nhất</p>
+        
+        <div class="museum-card p-3">
+            <div class="leaderboard-item top-1">
+                <div class="rank-badge gold">1</div>
+                <div style="flex:1">
+                    <div style="font-weight:600; color:var(--text-dark); font-size:0.95rem">Nguyễn Văn A</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted)">1250 điểm</div>
+                </div>
+                <div style="font-size:1.2rem">🏆</div>
+            </div>
+            
+            <div class="leaderboard-item top-2">
+                <div class="rank-badge silver">2</div>
+                <div style="flex:1">
+                    <div style="font-weight:600; color:var(--text-dark); font-size:0.95rem">Trần Thị B</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted)">1100 điểm</div>
+                </div>
+            </div>
+            
+            <div class="leaderboard-item top-3 mb-0">
+                <div class="rank-badge bronze">3</div>
+                <div style="flex:1">
+                    <div style="font-weight:600; color:var(--text-dark); font-size:0.95rem">Lê Hoàng C</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted)">950 điểm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

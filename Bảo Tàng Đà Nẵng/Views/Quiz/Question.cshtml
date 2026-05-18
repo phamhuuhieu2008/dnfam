@@ -1,0 +1,200 @@
+@model QuestionViewModel
+@{
+    ViewData["Title"] = $"Câu {Model.CurrentIndex}/{Model.TotalQuestions}";
+    double progressPercent = ((double)Model.CurrentIndex / Model.TotalQuestions) * 100;
+}
+
+<!-- Toast thông báo kết quả (ẩn mặc định) -->
+<div id="feedbackToast" class="feedback-toast"></div>
+
+<div class="page-wrapper animate-fadeInUp pb-5 mb-5">
+    
+    <!-- Progress Header -->
+    <div class="quiz-progress-wrapper">
+        <div class="quiz-progress-info">
+            <div class="q-counter">Câu @Model.CurrentIndex / @Model.TotalQuestions</div>
+            <div class="q-score" id="scoreDisplay">@Model.CurrentScore điểm</div>
+        </div>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: @progressPercent%"></div>
+        </div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="question-card">
+        @if (!string.IsNullOrEmpty(Model.LocationName))
+        {
+            <div class="location-badge">📍 @Model.LocationName</div>
+        }
+        
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="Hình ảnh câu hỏi" class="question-image" />
+        }
+        
+        <div class="question-content">
+            @Model.Content
+        </div>
+        
+        <div class="question-points">
+            ✨ Điểm thưởng: @Model.Points điểm
+        </div>
+    </div>
+
+    <!-- Answers Grid -->
+    <div class="answers-grid" id="answersGrid">
+        <div class="answer-option" data-option="A">
+            <div class="answer-letter">A</div>
+            <div class="answer-text">@Model.OptionA</div>
+        </div>
+        
+        <div class="answer-option" data-option="B">
+            <div class="answer-letter">B</div>
+            <div class="answer-text">@Model.OptionB</div>
+        </div>
+        
+        <div class="answer-option" data-option="C">
+            <div class="answer-letter">C</div>
+            <div class="answer-text">@Model.OptionC</div>
+        </div>
+        
+        <div class="answer-option" data-option="D">
+            <div class="answer-letter">D</div>
+            <div class="answer-text">@Model.OptionD</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Fixed Bottom Button -->
+<div class="bottom-action" style="display: none;" id="bottomActionContainer">
+    <button type="button" class="btn-primary-museum" id="btnNext">
+        Tiếp tục <span style="font-size: 1.2em; vertical-align: middle;">→</span>
+    </button>
+</div>
+
+<!-- Form ảo chứa AntiForgeryToken (bảo mật) -->
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const optionsGrid = document.getElementById('answersGrid');
+    const options     = document.querySelectorAll('.answer-option');
+    const btnNext     = document.getElementById('btnNext');
+    const bottomAction= document.getElementById('bottomActionContainer');
+    const toast       = document.getElementById('feedbackToast');
+    const scoreDisplay= document.getElementById('scoreDisplay');
+    const afToken     = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    
+    let isAnswered = false;
+    let nextUrl    = '@Url.Action("Question", "Quiz")';
+
+    // ── Touch Optimization: Ripple effect ──
+    options.forEach(opt => {
+        opt.addEventListener('touchstart', () => {
+            if(!isAnswered) opt.classList.add('touching');
+        }, {passive: true});
+        
+        opt.addEventListener('touchend', () => {
+            opt.classList.remove('touching');
+        }, {passive: true});
+
+        // Click handler
+        opt.addEventListener('click', async function() {
+            if (isAnswered) return;
+            
+            const selectedOpt = this.dataset.option;
+            
+            // UI Update (Optimistic)
+            isAnswered = true;
+            this.classList.add('selected');
+            options.forEach(o => o.classList.add('disabled')); // Disable all
+            
+            // Xóa background cũ
+            optionsGrid.style.opacity = '0.8';
+
+            // API Call (AJAX fetch)
+            try {
+                const response = await fetch('@Url.Action("SubmitAnswer", "Quiz")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': afToken
+                    },
+                    body: JSON.stringify({
+                        SessionId: @Model.SessionId,
+                        QuestionId: @Model.QuestionId,
+                        SelectedOption: selectedOpt
+                    })
+                });
+                
+                if (!response.ok) {
+                    let errMsg = 'Network response was not ok';
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.details || errData.error || errMsg;
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                }
+                
+                const result = await response.json();
+                
+                // Khôi phục opacity
+                optionsGrid.style.opacity = '1';
+                this.classList.remove('selected');
+                
+                // Cập nhật giao diện đúng/sai
+                if (result.isCorrect) {
+                    this.classList.add('correct');
+                    showToast('🎉 Chính xác! +' + result.pointsEarned + ' điểm', 'correct');
+                } else {
+                    this.classList.add('wrong');
+                    // Highlight đáp án đúng
+                    document.querySelector(`.answer-option[data-option="${result.correctOption}"]`)
+                            .classList.add('correct');
+                            
+                    showToast('❌ Sai rồi! Đáp án đúng là ' + result.correctOption, 'wrong');
+                }
+                
+                // Cập nhật điểm
+                scoreDisplay.textContent = result.newTotalScore + ' điểm';
+                
+                // Chuẩn bị URL tiếp theo
+                if (result.isLastQuestion) {
+                    nextUrl = '@Url.Action("FinishQuiz", "Quiz")';
+                    btnNext.innerHTML = 'Xem kết quả <span style="font-size: 1.2em; vertical-align: middle;">🏆</span>';
+                }
+                
+                // Hiển thị nút Next với animation trượt lên
+                bottomAction.style.display = 'block';
+                bottomAction.style.animation = 'fadeInUp 0.3s ease forwards';
+                
+            } catch (error) {
+                console.error('Error submitting answer:', error);
+                alert('Lỗi: ' + error.message);
+                // Revert trạng thái
+                isAnswered = false;
+                optionsGrid.style.opacity = '1';
+                this.classList.remove('selected');
+                options.forEach(o => o.classList.remove('disabled'));
+            }
+        });
+    });
+    
+    // Nút Next
+    btnNext.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner"></span>';
+        window.location.href = nextUrl;
+    });
+
+    function showToast(message, type) {
+        toast.textContent = message;
+        toast.className = 'feedback-toast ' + type + ' show';
+    }
+});
+</script>
+}
