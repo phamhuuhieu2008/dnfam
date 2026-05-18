@@ -219,4 +219,5 @@ C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\bin\Deb
 C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\obj\Debug\net9.0\Bảo Tàng Đà Nẵng.csproj.AssemblyReference.cache
 C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\obj\Debug\net9.0\B_o T_ng.3F6CBF89.Up2Date
-C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\obj\Debug\net9.0\compressed\njoh4aum4k-{0}-eqbhmjm0q5-eqbhmjm0q5.gz
+C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\obj\Debug\net9.0\Bảo Tàng Đà Nẵng.sourcelink.json
+C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\Bảo Tàng Đà Nẵng\obj\Debug\net9.0\compressed\njoh4aum4k-{0}-zp0owl99vo-zp0owl99vo.gz

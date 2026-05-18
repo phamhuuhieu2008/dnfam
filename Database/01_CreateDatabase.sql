@@ -1,5 +1,5 @@
 -- ============================================================
--- HỆ THỐNG: Giải Mã Di Sản - Bảo Tàng Đà Nẵng
+-- HỆ THỐNG: Giải Mã Di Sản - Bảo Tàng Mỹ Thuật Đà Nẵng
 -- Script:    01_CreateDatabase.sql
 -- Mục đích:  Tạo CSDL, các bảng, khóa ngoại, ràng buộc
 -- Tác giả:   Senior Full-stack Architect
@@ -183,43 +183,43 @@ INSERT INTO dbo.Users (Username, PasswordHash, FullName, Role)
 VALUES (
     N'admin',
     N'$2a$11$ExampleHashPlaceholderReplaceWithRealBCryptHash000000000',
-    N'Quản Trị Viên Bảo Tàng',
+    N'Quản Trị Viên Mỹ Thuật',
     N'Admin'
 );
 GO
 
--- Câu hỏi mẫu về di sản Đà Nẵng
+-- Câu hỏi mẫu về Mỹ thuật Đà Nẵng
 INSERT INTO dbo.Questions (Content, OptionA, OptionB, OptionC, OptionD, CorrectOption, Points, LocationName)
 VALUES
 (
-    N'Thành Điện Hải được xây dựng vào năm nào?',
-    N'Năm 1812', N'Năm 1825', N'Năm 1835', N'Năm 1858',
-    'A', 10,
-    N'Thành Điện Hải'
-),
-(
-    N'Bảo tàng Điêu khắc Chăm Đà Nẵng được thành lập vào năm nào?',
-    N'Năm 1902', N'Năm 1915', N'Năm 1936', N'Năm 1956',
-    'A', 10,
-    N'Bảo tàng Điêu khắc Chăm'
-),
-(
-    N'Cầu Rồng Đà Nẵng phun lửa vào tối thứ mấy trong tuần?',
-    N'Thứ Sáu và Thứ Bảy', N'Thứ Bảy và Chủ Nhật', N'Chỉ Chủ Nhật', N'Thứ Sáu, Thứ Bảy và Chủ Nhật',
-    'B', 10,
-    N'Cầu Rồng'
-),
-(
-    N'Ngũ Hành Sơn gồm bao nhiêu ngọn núi đá cẩm thạch?',
-    N'3 ngọn', N'4 ngọn', N'5 ngọn', N'6 ngọn',
+    N'Bảo tàng Mỹ thuật Đà Nẵng khánh thành và đi vào hoạt động vào năm nào?',
+    N'Năm 2014', N'Năm 2015', N'Năm 2016', N'Năm 2017',
     'C', 10,
-    N'Ngũ Hành Sơn'
+    N'Bảo tàng Mỹ thuật'
 ),
 (
-    N'Bảo tàng Đà Nẵng nằm ở địa điểm nào sau đây?',
-    N'Số 24 Trần Phú', N'Số 78 Lê Duẩn', N'Số 24 Lê Lợi', N'Thành Điện Hải',
-    'D', 15,
-    N'Bảo tàng Đà Nẵng'
+    N'Bảo tàng Mỹ thuật Đà Nẵng tọa lạc tại địa chỉ nào?',
+    N'Số 24 Trần Phú', N'Số 78 Lê Duẩn', N'Số 42 Bạch Đằng', N'Số 01 Phan Bội Châu',
+    'B', 10,
+    N'Bảo tàng Mỹ thuật'
+),
+(
+    N'Không gian trưng bày của Bảo tàng Mỹ thuật Đà Nẵng bao gồm mấy tầng?',
+    N'2 tầng', N'3 tầng', N'4 tầng', N'5 tầng',
+    'B', 10,
+    N'Không gian trưng bày'
+),
+(
+    N'Bảo tàng Mỹ thuật Đà Nẵng trưng bày loại hình nghệ thuật nào là chủ yếu?',
+    N'Khảo cổ học', N'Mỹ thuật hiện đại và dân gian', N'Lịch sử quân sự', N'Sinh học tự nhiên',
+    'B', 10,
+    N'Nội dung trưng bày'
+),
+(
+    N'Tác phẩm "Bình minh trên công trường" tại bảo tàng thuộc thể loại nào?',
+    N'Tranh sơn dầu', N'Tranh lụa', N'Tranh sơn mài', N'Điêu khắc gỗ',
+    'C', 15,
+    N'Tác phẩm tiêu biểu'
 );
 GO
 

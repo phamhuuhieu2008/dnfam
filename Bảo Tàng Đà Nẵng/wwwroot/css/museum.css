@@ -1,6 +1,6 @@
 /* 
  * =========================================================================
- * BẢO TÀNG ĐÀ NẴNG - GIẢI MÃ DI SẢN (PREMIUM DARK LUXURY THEME)
+ * BẢO TÀNG MỸ THUẬT ĐÀ NẴNG - GIẢI MÃ DI SẢN (PREMIUM DARK LUXURY THEME)
  * =========================================================================
  */
 
@@ -960,4 +960,25 @@ select.form-input option {
 .alert-museum span:first-child {
   font-size: 1.3rem;
   flex-shrink: 0;
+}
+
+/* ── Topic Selector ── */
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.topic-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.topic-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  line-height: 1.3;
 }
