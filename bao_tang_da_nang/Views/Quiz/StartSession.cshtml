@@ -1,0 +1,55 @@
+@model StartSessionViewModel
+@{
+    ViewData["Title"] = "Bắt đầu phiên chơi";
+}
+
+<div class="kid-quiz-page animate-fadeInUp">
+    <div class="kid-quiz-banner text-center">
+        <div class="kid-eyebrow">🎈 Sẵn sàng khám phá</div>
+        <h1 class="kid-title">Chơi quiz cùng Bảo tàng</h1>
+        <p class="kid-subtitle">Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.</p>
+    </div>
+
+    <div class="kid-quiz-card museum-card" style="max-width: 720px; margin: 0 auto;">
+        @if (TempData["ErrorMessage"] is string errorMessage && !string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert-museum error" role="alert">
+                <span>⚠️</span>
+                <span>@errorMessage</span>
+            </div>
+        }
+
+        <div class="mb-3">
+            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700;">
+                Chủ đề em đã chọn
+            </div>
+            <div style="padding: 14px 16px; border: 3px solid #D4AF37; border-radius: 16px; background: #FFFDF5; font-weight: 800; color: #8B1E19; font-size: 1.05rem;">
+                @Model.Topic
+            </div>
+        </div>
+
+        <form asp-action="StartSession" asp-controller="Quiz" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Topic" />
+
+            <div class="mb-3">
+                <label asp-for="PlayerName" class="form-label" style="font-weight: 800; color: #8B1E19;"></label>
+                <input asp-for="PlayerName" class="form-control" placeholder="Ví dụ: Minh Anh" autocomplete="name" />
+                <span asp-validation-for="PlayerName" class="text-danger" style="font-size: 0.9rem; font-weight: 700;"></span>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn-primary-museum">
+                    🚀 Bắt đầu ngay
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="btn-secondary-museum text-center" style="display: block; text-decoration: none;">
+                    🏠 Quay lại trang chủ
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

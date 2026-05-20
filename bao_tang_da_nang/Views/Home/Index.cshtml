@@ -1,0 +1,550 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ - Hệ thống Thi Trắc Nghiệm";
+    var fullName = Context.Session.GetString("UserFullName");
+    var selectedCategoryFromUrl = ViewBag.SelectedCategory as string;
+    var categories = ViewBag.Categories as List<Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel>;
+
+    var icons = new Dictionary<string, string>
+    {
+        { "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", "🏛️" },
+        { "Chủ đề 2: Thiên nhiên & Con người", "🌳" },
+        { "Chủ đề 3: Địa chất & Hệ sinh thái biển", "🌊" },
+        { "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", "🏺" },
+        { "Chủ đề 5: Dấu ấn Văn hóa Champa", "🧱" },
+        { "Chủ đề 6: Làng xã & Đô thị Phong kiến", "🏮" },
+        { "Chủ đề 7: Đà Nẵng thời Pháp thuộc", "🗼" },
+        { "Chủ đề 8: Giai đoạn 1945 - 1975", "🎖️" },
+        { "Chủ đề 9: Chứng tích & Phát triển", "📈" },
+        { "Chủ đề 10: Văn hóa & Di sản Quảng Nam", "🎭" }
+    };
+
+    if (categories == null || categories.Count == 0)
+    {
+        categories = new List<Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel>
+        {
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng",
+QuestionCount
+= 30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người",
+QuestionCount =
+30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển",
+QuestionCount = 30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh",
+QuestionCount =
+30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 5: Dấu ấn Văn hóa Champa",
+QuestionCount = 30
+},
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 6: Làng xã & Đô thị Phong kiến",
+QuestionCount = 30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 7: Đà Nẵng thời Pháp thuộc",
+QuestionCount =
+30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 8: Giai đoạn 1945 - 1975",
+QuestionCount = 30
+},
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 9: Chứng tích & Phát triển",
+QuestionCount =
+30 },
+            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 10: Văn hóa & Di sản Quảng Nam",
+QuestionCount = 30 }
+        };
+    }
+
+    var mainCategories = new List<(string Name, string Description, List<string> TopicPrefixes)>
+    {
+        ("📚 Danh mục 1: TỰ NHIÊN VÀ CON NGƯỜI ĐÀ NẴNG", "Khám phá vị trí địa lý, hệ sinh thái và văn hóa tiền sử.", new
+List<string> { "Chủ đề 1", "Chủ đề 2", "Chủ đề 3" }),
+        ("📚 Danh mục 2: LỊCH SỬ ĐÔ THỊ VÀ KHÁNG CHIẾN", "Tiến trình lịch sử từ thời phong kiến đến hai cuộc kháng chiến chống Pháp - Mỹ.", new List<string> { "Chủ đề 4", "Chủ đề 5", "Chủ đề 6", "Chủ đề 7", "Chủ đề 8" }),
+        ("📚 Danh mục 3: VĂN HÓA VÀ DI SẢN TRUYỀN THỐNG", "Đời sống văn hóa, phong tục và các bộ sưu tập kỷ vật quý hiếm.", new
+List<string> { "Chủ đề 9", "Chủ đề 10" })
+    };
+}
+
+@section Styles {
+    <style>
+        /* Hiệu ứng 3D cho các cột danh mục (Pillar 3D) */
+        .category-pillar-wrapper {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .category-pillar-3d {
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 40px 25px;
+            height: 100%;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            border: none !important;
+            /* Tạo độ dày 3D ở đáy */
+            box-shadow:
+                0 15px 0 var(--pillar-depth),
+                0 25px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-pillar-wrapper:hover .category-pillar-3d {
+            transform: translateY(-15px) rotateX(8deg);
+            box-shadow:
+                0 30px 0 var(--pillar-depth),
+                0 40px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .pillar-icon-3d {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
+            transition: transform 0.4s ease;
+        }
+
+        .category-pillar-wrapper:hover .pillar-icon-3d {
+            transform: translateZ(50px) scale(1.1);
+        }
+
+        .pillar-title {
+            font-weight: 900 !important;
+            font-size: 1.3rem !important;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pillar-btn {
+            background: var(--gold-primary);
+            color: white !important;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            margin-top: 20px;
+        }
+
+        /* Responsive Hero Section & Content */
+        @@media (max-width: 992px) {
+            .hero-name {
+                font-size: 2.2rem !important;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .hero-section {
+                padding: 30px 15px !important;
+                border-radius: 15px !important;
+            }
+
+            .hero-name {
+                font-size: 1.8rem !important;
+            }
+
+            .hero-tagline {
+                font-size: 1rem !important;
+            }
+
+            .stat-card {
+                flex: 1 1 calc(50% - 10px) !important;
+                min-width: 120px !important;
+                padding: 12px !important;
+            }
+
+            .stat-number {
+                font-size: 1.3rem !important;
+            }
+
+            .section-title {
+                font-size: 1.3rem !important;
+            }
+
+            .topic-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+                gap: 15px !important;
+            }
+
+            .leaderboard-item {
+                padding: 12px 10px !important;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .hero-name {
+                font-size: 1.5rem !important;
+            }
+
+            .stat-card {
+                flex: 1 1 100% !important;
+            }
+        }
+    </style>
+}
+
+<div class="page-wrapper animate-fadeInUp">
+
+    <div class="hero-section mb-16"
+         style="border: 1px solid rgba(212, 175, 55, 0.3); background: linear-gradient(145deg, rgba(139, 30, 25, 0.05) 0%, rgba(212, 175, 55, 0.1) 100%); padding: 40px 24px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        @if (!string.IsNullOrWhiteSpace(fullName))
+        {
+            <div class="hero-greeting"
+                 style="color: var(--gold-primary); font-weight: 700; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase;">
+                HỆ THỐNG THI TRẮC NGHIỆM TRỰC TUYẾN</div>
+                <h1 class="hero-name"
+                    style="color: var(--gold-primary); font-size: 2.8rem; font-weight: 800; margin: 10px 0 15px 0;">THÍ SINH:
+                    @fullName</h1>
+                    <p class="hero-tagline mb-4"
+                       style="color: var(--text-muted); font-size: 1.15rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        Hãy chọn bộ đề thi dưới đây để thử thách kiến thức, rèn luyện tư duy và chinh phục vị trí dẫn đầu trên Bảng
+                        vàng trắc nghiệm!</p>
+
+                        <div class="stats-row mb-4" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="stat-card"
+                                 style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                <div class="stat-number" style="font-size: 1.8rem; font-weight: 800; color: var(--gold-primary);">
+                                    @((object)(ViewBag.UserStats?.TotalPlayed ?? 0))</div>
+                                    <div class="stat-label"
+                                         style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+                                        Số đề đã thi</div>
+                                    </div>
+                                    <div class="stat-card"
+                                         style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                        <div class="stat-number" style="font-size: 1.8rem; font-weight: 800; color: #27AE60;">
+                                            @((object)(ViewBag.UserStats?.WinRate ?? 0))%</div>
+                                            <div class="stat-label"
+                                                 style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+                                                Tỷ lệ trả lời đúng</div>
+                                            </div>
+                                            <div class="stat-card"
+                                                 style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                                <div class="stat-number text-primary"
+                                                     style="font-size: 1.8rem; font-weight: 800; color: var(--gold-light);">@((ViewBag.UserStats?.Rank >
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           0) ? $"Top {ViewBag.UserStats.Rank}" : "-")</div>
+                                                    <div class="stat-label"
+                                                         style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+                                                        Xếp hạng hiện tại</div>
+                                                    </div>
+                                                    <div class="stat-card"
+                                                         style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                                        <div class="stat-number" style="font-size: 1.8rem; font-weight: 800; color: #E67E22;">
+                                                            @(ViewBag.UserStats?.TotalScore ?? 0)</div>
+                                                            <div class="stat-label"
+                                                                 style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+                                                                Điểm tích lũy</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                                                            <a href="#topicSection" class="btn-primary-museum px-5 py-3 text-decoration-none"
+                                                               style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; box-shadow: 0 8px 25px rgba(139, 30, 25, 0.3);">
+                                                                🚀 CHỌN CHỦ ĐỀ NGAY
+                                                            </a>
+                                                            <span class="btn-secondary-museum px-5 py-3"
+                                                                  style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; cursor: default;">
+                                                                ✍️ Vào chủ đề rồi nhập tên ở bước tiếp theo
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="text-center mt-4">
+                                                            <span class="text-muted" style="font-size:0.9rem; font-weight: 500;">
+                                                                💡 Bạn không cần tài khoản — chỉ chọn chủ đề và nhập tên để bắt đầu.
+                                                            </span>
+                                                        </div>
+                                                    }
+        else
+                                                    {
+                                                        <div class="hero-greeting"
+                                                             style="color: var(--gold-primary); font-weight: 700; font-size: 1.3rem; letter-spacing: 3px; text-transform: uppercase;">
+                                                            NỀN TẢNG THI TRẮC NGHIỆM TRỰC TUYẾN</div>
+                                                            <h1 class="hero-name"
+                                                                style="color: var(--gold-primary); font-size: 3.5rem; font-weight: 800; margin: 15px 0 20px 0; line-height: 1.2;">
+                                                                Khám Phá Di Sản, Chinh Phục Tri Thức</h1>
+                                                                <p class="hero-tagline mb-4"
+                                                                   style="color: var(--text-muted); font-size: 1.2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                                                                    Hệ thống thi trắc nghiệm tương tác giúp bạn kiểm tra kiến thức, khám phá các giá trị Văn hóa, Lịch sử và Hội
+                                                                    họa xứ Quảng một cách đầy hứng khởi.</p>
+
+                                                                    <img src="~/lib/dnfam.png" alt="Bảo tàng Mỹ thuật Đà Nẵng"
+                                                                         style="width: 100%; max-width: 320px; height: auto; max-height: 150px; object-fit: contain; margin: 0 auto 35px auto; display: block; filter: drop-shadow(0 10px 20px rgba(139, 30, 25, 0.15));" />
+
+                                                                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                                                        <a href="#topicSection" class="btn-primary-museum px-5 py-3 text-decoration-none"
+                                                                           style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; box-shadow: 0 8px 25px rgba(139, 30, 25, 0.3);">
+                                                                            🚀 CHỌN CHỦ ĐỀ
+                                                                        </a>
+                                                                        <span class="btn-secondary-museum px-5 py-3"
+                                                                              style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; cursor: default;">
+                                                                            ✍️ Nhập tên ở màn tiếp theo
+                                                                        </span>
+                                                                    </div>
+                                                                }
+                                                            </div>
+
+                                                            @if (TempData["ErrorMessage"] != null)
+                                                            {
+                                                                <div class="alert-museum error mt-16 mb-16" style="border-radius: 12px;">
+                                                                    <span>⚠️</span>
+                                                                    <span>@TempData["ErrorMessage"]</span>
+                                                                </div>
+                                                            }
+
+                                                            <div class="mt-24 mb-24 text-start">
+                                                                <h2 class="section-title mb-1" style="font-size:1.4rem; text-align:left; font-weight: 700;">Quy chế & Thể lệ thi
+                                                                    trắc nghiệm</h2>
+                                                                    <p class="section-subtitle mb-4" style="text-align:left;">Thông tin cần biết trước khi bắt đầu thử thách</p>
+
+                                                                    <div class="row g-4">
+                                                                        <div class="col-md-4">
+                                                                            <div class="museum-card p-4 h-100"
+                                                                                 style="background: rgba(255,255,255,0.6); border: 1px solid rgba(212, 175, 55, 0.3);">
+                                                                                <div style="font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 15px;">⏱️</div>
+                                                                                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Cấu
+                                                                                    trúc Bộ Đề</h3>
+                                                                                    <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Mỗi bộ đề thi
+                                                                                        gồm các câu hỏi trắc nghiệm được chọn lọc ngẫu nhiên từ ngân hàng đề thi chính thức của Bảo
+                                                                                        tàng.</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-md-4">
+                                                                                    <div class="museum-card p-4 h-100"
+                                                                                         style="background: rgba(255,255,255,0.6); border: 1px solid rgba(212, 175, 55, 0.3);">
+                                                                                        <div style="font-size: 2.2rem; color: #27AE60; margin-bottom: 15px;">🎯</div>
+                                                                                        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Chấm
+                                                                                            Điểm & Thưởng</h3>
+                                                                                            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Mỗi câu trả
+                                                                                                lời đúng sẽ mang lại điểm thưởng tương ứng. Trả lời càng nhanh và chính xác, điểm tích lũy càng
+                                                                                                cao.</p>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <div class="museum-card p-4 h-100"
+                                                                                                 style="background: rgba(255,255,255,0.6); border: 1px solid rgba(212, 175, 55, 0.3);">
+                                                                                                <div style="font-size: 2.2rem; color: #E67E22; margin-bottom: 15px;">🏆</div>
+                                                                                                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Bảng
+                                                                                                    vàng Vinh danh</h3>
+                                                                                                    <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Hệ thống tự
+                                                                                                        động xếp hạng thí sinh theo thời gian thực dựa trên tổng điểm tích lũy đạt được qua các lần thi.
+                                                                                                    </p>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div id="topicSection" class="mt-24 mb-24 text-start">
+                                                                                        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-2">
+                                                                                            <div>
+                                                                                                <h2 class="section-title mb-1" style="font-size:1.5rem; text-align:left; font-weight: 800;">Các Bộ Đề
+                                                                                                    Thi Trắc Nghiệm</h2>
+                                                                                                    <p class="section-subtitle mb-0" style="text-align:left;">Chọn một bộ đề bên dưới, sau đó nhập tên để
+                                                                                                        bắt đầu làm bài</p>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <span id="categoryCountBadge" class="badge"
+                                                                                                      style="background: var(--gold-primary); color: white; font-size: 0.9rem; padding: 8px 16px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 10px rgba(139, 30, 25, 0.2);">
+                                                                                                    @categories.Count bộ đề thi
+                                                                                                </span>
+                                                                                            </div>
+
+                                                                                            @foreach (var mainCat in mainCategories)
+                                                                                            {
+                                                                                                <div class="main-category-block mb-5">
+                                                                                                    <div class="category-header p-3 mb-4"
+                                                                                                         style="border-left: 5px solid var(--gold-primary); background: rgba(212, 175, 55, 0.05); border-radius: 0 12px 12px 0;"
+                                                                                                         id="cat-block-@mainCategories.IndexOf(mainCat)">
+                                                                                                        <h3 style="font-weight: 800; color: var(--gold-primary); margin-bottom: 5px;">@mainCat.Name</h3>
+                                                                                                        <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.5;">@mainCat.Description</p>
+                                                                                                    </div>
+
+                                                                                                    <div class="topic-grid">
+                                                                                                        @foreach (var prefix in mainCat.TopicPrefixes)
+                                                                                                        {
+                                                                                                            var cat = categories.FirstOrDefault(c => c.Name.StartsWith(prefix));
+                                                                                                            if (cat != null)
+                                                                                                            {
+                                                                                                                string icon = icons.ContainsKey(cat.Name) ? icons[cat.Name] : "🏛️";
+                                                                                                                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@cat.Name"
+                                                                                                                   class="text-decoration-none topic-card-item">
+                                                                                                                    <div class="museum-card text-center p-4 h-100 d-flex flex-column justify-content-between align-items-center"
+                                                                                                                         style="transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(252,248,242,0.9) 100%); box-shadow: 0 10px 30px rgba(197, 160, 89, 0.15);">
+                                                                                                                        <div class="w-100">
+                                                                                                                            <span class="topic-icon"
+                                                                                                                                  style="font-size: 3rem; margin-bottom: 16px; display: inline-block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">@icon</span>
+                                                                                                                            <div class="topic-card-title mb-2"
+                                                                                                                                 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); letter-spacing: 0.5px; line-height: 1.3;">
+                                                                                                                                @cat.Name.ToUpper()</div>
+                                                                                                                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Ngân hàng câu hỏi
+                                                                                                                                    trắc nghiệm chuẩn hóa</p>
+                                                                                                                                </div>
+
+                                                                                                                                <div class="w-100">
+                                                                                                                                    <div class="badge mb-3"
+                                                                                                                                         style="background: rgba(212, 175, 55, 0.15); color: var(--gold-primary); border: 1px solid var(--gold-primary); padding: 6px 14px; border-radius: 12px; font-size: 0.85rem; font-weight: 700;">
+                                                                                                                                        📝 @(cat.QuestionCount > 0 ? $"{cat.QuestionCount} câu hỏi" : "Đang cập nhật đề")
+                                                                                                                                    </div>
+
+                                                                                                                                    <div class="btn-primary-museum w-100 py-2 text-center"
+                                                                                                                                         style="font-size: 0.9rem; font-weight: 700; border-radius: 12px; transition: all 0.2s;">
+                                                                                                                                        ⚡ BẮT ĐẦU LÀM BÀI →
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                        </a>
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    }
+
+                                                                                                    <div id="noResultsMessage" class="text-center py-5 museum-card"
+                                                                                                         style="display: none; border-radius: 30px; border: none; background: transparent; box-shadow: none;">
+                                                                                                        <div class="row g-5 px-4 justify-content-center">
+                                                                                                            @for (int i = 0; i < mainCategories.Count; i++)
+                                                                                                            {
+                                                                                                                var mainCat = mainCategories[i];
+                                                                                                                var categoryTitle = mainCat.Name.Contains(":") ? mainCat.Name.Split(':')[1].Trim() : mainCat.Name;
+                                                                                                                var pillarColor = (i == 0 ? "#4CAF50" : (i == 1 ? "#D4AF37" : "#FF7043"));
+                                                                                                                var depthColor = (i == 0 ? "#388E3C" : (i == 1 ? "#B8860B" : "#E64A19"));
+
+                                                                                                                <div class="col-lg-4 col-md-6 category-pillar-wrapper">
+                                                                                                                    <a asp-controller="Quiz" asp-action="BrowseCategory" asp-route-id="@i"
+                                                                                                                       class="text-decoration-none h-100 d-block">
+                                                                                                                        <div class="category-pillar-3d" style="--pillar-depth: @depthColor;">
+                                                                                                                            <div class="pillar-content">
+                                                                                                                                <div class="pillar-icon-3d">
+                                                                                                                                    @(i == 0 ? "🌿" : (i == 1 ? "📜" : "🏛️"))
+                                                                                                                                </div>
+                                                                                                                                <h3 class="pillar-title" style="color: @pillarColor;">@categoryTitle</h3>
+                                                                                                                                <p class="text-muted" style="font-size: 0.95rem; font-weight: 500;">@mainCat.Description</p>
+                                                                                                                            </div>
+                                                                                                                            <div class="pillar-btn" style="background: @pillarColor;">
+                                                                                                                                BẮT ĐẦU KHÁM PHÁ <i class="fa-solid fa-rocket ms-2"></i>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                    </a>
+                                                                                                                </div>
+                                                                                                            }
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div class="mt-24 mb-24">
+                                                                                                        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-2">
+                                                                                                            <div>
+                                                                                                                <h2 class="section-title mb-1" style="font-size:1.5rem; text-align:left; font-weight: 800;">Bảng Vàng
+                                                                                                                    Thành Tích Trắc Nghiệm</h2>
+                                                                                                                    <p class="section-subtitle mb-0" style="text-align:left;">Top thí sinh có tổng điểm trắc nghiệm cao nhất
+                                                                                                                        toàn hệ thống</p>
+                                                                                                                    </div>
+                                                                                                                    <div style="font-size: 1.8rem;">🏆</div>
+                                                                                                                </div>
+
+                                                                                                                <div class="museum-card p-3"
+                                                                                                                     style="border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 14px 35px rgba(197, 160, 89, 0.2);">
+                                                                                                                    @{
+                                                                                                                        var leaderboard = ViewBag.Leaderboard as List<Bảo_Tàng_Đà_Nẵng.Controllers.PlayerRankViewModel>;
+                                                                                                                        if (leaderboard != null && leaderboard.Count > 0)
+                                                                                                                        {
+                                                                                                                            int rank = 1;
+                                                                                                                            foreach (var player in leaderboard)
+                                                                                                                            {
+                                                                                                                                string badgeClass = rank == 1 ? "gold" : (rank == 2 ? "silver" : (rank == 3 ? "bronze" : "normal"));
+                                                                                                                                <div class="leaderboard-item @($"top-{rank}") @(rank == leaderboard.Count ? "mb-0" : "")"
+                                                                                                                                     style="display: flex; align-items: center; padding: 16px 20px; border-bottom: @(rank == leaderboard.Count ? "none" : "1px solid rgba(212, 175, 55, 0.15)"); transition: all 0.2s; border-radius: 12px;">
+                                                                                                                                    <div class="rank-badge @badgeClass"
+                                                                                                                                         style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; font-size: 1.1rem; margin-right: 20px; background: @(rank == 1 ? "var(--gold-primary)" : (rank == 2 ? "#C0C0C0" : (rank == 3 ? "#CD7F32" : "rgba(10,25,47,0.05)"))); color: @(rank <= 3 ? "#FFF" : "var(--text-main)"); box-shadow: @(rank <= 3 ? "0 4px 10px rgba(0,0,0,0.15)" : "none");">
+                                                                                                                                        @rank</div>
+                                                                                                                                        <div style="flex: 1; text-align: left;">
+                                                                                                                                            <div style="font-weight: 700; color: var(--text-dark); font-size: 1.15rem;">@player.FullName</div>
+                                                                                                                                            <div style="font-size: 0.9rem; color: var(--gold-primary); font-weight: 600;">⭐ @player.TotalScore
+                                                                                                                                                điểm trắc nghiệm</div>
+                                                                                                                                            </div>
+                                                                                                                                            @if (rank == 1)
+                                                                                                                                            {
+                                                                                                                                                <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" title="Top 1 Quán Quân">
+                                                                                                                                                    🏆 Quán Quân</div>
+                                                                                                                                                }
+                            else if (rank == 2)
+                                                                                                                                                {
+                                                                                                                                                    <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" title="Top 2 Á Quân">🥈
+                                                                                                                                                        Á Quân</div>
+                                                                                                                                                    }
+                            else if (rank == 3)
+                                                                                                                                                    {
+                                                                                                                                                        <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" title="Top 3 Quý Quân">
+                                                                                                                                                            🥉 Quý Quân</div>
+                                                                                                                                                        }
+                            else
+                                                                                                                                                        {
+                                                                                                                                                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);">Top @rank</div>
+                                                                                                                                                        }
+                                                                                                                                                    </div>
+                                                                                                                                                    rank++;
+                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                                            else
+                                                                                                                                            {
+                                                                                                                                                <div class="text-center text-muted py-5">
+                                                                                                                                                    <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
+                                                                                                                                                    <h5 style="font-weight: 700; color: var(--text-dark);">Chưa có dữ liệu xếp hạng trắc nghiệm</h5>
+                                                                                                                                                    <p style="color: var(--text-muted); margin: 0;">Hãy chọn một bộ đề thi ở trên và trở thành người đầu
+                                                                                                                                                        tiên ghi danh lên Bảng vàng!</p>
+                                                                                                                                                    </div>
+                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                                                                                @section Scripts {
+                                                                                                                                    <script>
+                                                                                                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                                                                                                            const searchInput = document.getElementById('categorySearchInput'); // From Navbar
+                                                                                                                                            const navCategoryFilter = document.getElementById('navCategoryFilter'); // From Navbar
+                                                                                                                                            const topicCards = document.querySelectorAll('.topic-card-item');
+                                                                                                                                            const noResultsMsg = document.getElementById('noResultsMessage');
+                                                                                                                                            const countBadge = document.getElementById('categoryCountBadge');
+
+                                                                                                                                            function performFilter() {
+                                                                                                                                                const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+                                                                                                                                                const currentSelectedCat = (navCategoryFilter && navCategoryFilter.value) || "";
+                                                                                                                                                const categoryBlocks = document.querySelectorAll('.main-category-block');
+                                                                                                                                                let totalVisible = 0;
+
+                                                                                                                                                categoryBlocks.forEach(block => {
+                                                                                                                                                    let visibleInBlock = 0;
+                                                                                                                                                    const cards = block.querySelectorAll('.topic-card-item');
+
+                                                                                                                                                    cards.forEach(card => {
+                                                                                                                                                        const title = card.querySelector('.topic-card-title').textContent.toLowerCase();
+                                                                                                                                                        const cardCat = card.getAttribute('href').split('topic=')[1];
+                                                                                                                                                        const decodedCat = decodeURIComponent(cardCat || "");
+
+                                                                                                                                                        const matchSearch = title.includes(query);
+                                                                                                                                                        const matchCat = currentSelectedCat === "" || decodedCat === currentSelectedCat;
+
+                                                                                                                                                        if (matchSearch && matchCat) {
+                                                                                                                                                            card.style.display = 'block';
+                                                                                                                                                            visibleInBlock++;
+                                                                                                                                                            totalVisible++;
+                                                                                                                                                        } else {
+                                                                                                                                                            card.style.display = 'none';
+                                                                                                                                                        }
+                                                                                                                                                    });
+
+                                                                                                                                                    // Ẩn toàn bộ khối danh mục nếu không có chủ đề nào bên trong khớp tìm kiếm
+                                                                                                                                                    block.style.display = visibleInBlock > 0 ? 'block' : 'none';
+                                                                                                                                                });
+
+                                                                                                                                                if (countBadge) countBadge.textContent = totalVisible + ' bộ đề thi';
+                                                                                                                                                if (noResultsMsg) noResultsMsg.style.display = totalVisible === 0 ? 'block' : 'none';
+                                                                                                                                            }
+
+                                                                                                                                            if (searchInput) {
+                                                                                                                                                searchInput.addEventListener('input', performFilter);
+                                                                                                                                            }
+
+                                                                                                                                            // Initial filter when page loads
+                                                                                                                                            performFilter();
+                                                                                                                                        });
+                                                                                                                                    </script>
+                                                                                                                                }

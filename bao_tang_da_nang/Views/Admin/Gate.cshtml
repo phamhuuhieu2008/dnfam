@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "Xác thực quản trị";
+    ViewData["HideNav"] = true;
+}
+
+<div class="auth-page animate-fadeInUp">
+    <div class="auth-logo">
+        <div class="logo-icon">🔐</div>
+        <h1>Xác thực quản trị</h1>
+        <p>Nhập mã số để vào khu vực Admin</p>
+    </div>
+
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <h2>Nhập mã PIN</h2>
+            <p>Chỉ người quản trị mới được phép truy cập</p>
+        </div>
+
+        <div class="auth-card-body">
+            @if (TempData["ErrorMsg"] != null)
+            {
+                <div class="alert-museum error">
+                    <span>⚠️</span>
+                    <span>@TempData["ErrorMsg"]</span>
+                </div>
+            }
+
+            @if (TempData["SuccessMsg"] != null)
+            {
+                <div class="alert-museum success">
+                    <span>✅</span>
+                    <span>@TempData["SuccessMsg"]</span>
+                </div>
+            }
+
+            <form asp-controller="Admin" asp-action="Gate" method="post" id="pinForm">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label for="pinCode" class="form-label">Mã số quản trị</label>
+                    <input type="password"
+                           name="pinCode"
+                           id="pinCode"
+                           class="form-input"
+                           placeholder="Nhập mã số"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           autocomplete="off"
+                           maxlength="12" />
+                </div>
+
+                <div class="mt-24">
+                    <button type="submit" id="btnUnlock" class="btn-primary-museum">
+                        Vào Admin
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer-link mt-16">
+                <a asp-controller="Home" asp-action="Index">Quay lại trang chủ</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function() {
+    const form = document.getElementById('pinForm');
+    const btn = document.getElementById('btnUnlock');
+    const pinInput = document.getElementById('pinCode');
+
+    if (pinInput) {
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
+
+    if (form && btn) {
+        form.addEventListener('submit', function() {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>&nbsp; Đang xác thực...';
+        });
+    }
+})();
+</script>
+}

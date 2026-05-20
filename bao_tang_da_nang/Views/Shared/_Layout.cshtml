@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
+    <meta name="theme-color" content="#0A192F" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description"
+          content="Bảo tàng Mỹ thuật Đà Nẵng — Trải nghiệm quiz khám phá nghệ thuật và mỹ thuật Đà Nẵng" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")Bảo tàng Mỹ thuật Đà Nẵng</title>
+    <!-- Bootstrap 5 & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+          integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Museum Design System -->
+    <link rel="stylesheet" href="~/css/museum.css" asp-append-version="true" />
+
+    <!-- Google Fonts cho giao diện Dark Luxury -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+    rel="stylesheet">
+
+    <style>
+            /* Tùy chỉnh thanh tìm kiếm trên Navbar */
+            .nav-search-wrap .input-group {
+                transition: all 0.3s ease;
+                border: 1px solid #B8860B !important;
+                /* Màu đồng */
+                background: #E5C185 !important;
+                /* Màu vàng đồng nhạt */
+                backdrop-filter: blur(5px);
+            }
+
+            .nav-search-wrap .input-group:focus-within {
+                border-color: #8B4513 !important;
+                box-shadow: 0 0 15px rgba(139, 69, 19, 0.3);
+                background: #F0D5A0 !important;
+            }
+
+            #categorySearchInput::placeholder {
+                color: rgba(255, 255, 255, 0.7);
+                /* Chữ gợi ý màu trắng mờ */
+                font-style: italic;
+            }
+
+            #navCategoryFilter {
+                border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
+                color: #fff !important;
+                /* Chữ trắng */
+                transition: all 0.3s ease;
+                appearance: none;
+                /* Đổi mũi tên dropdown sang màu trắng */
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 12px 12px;
+                padding-right: 2.5rem;
+            }
+
+            .nav-search-wrap i,
+            #categorySearchInput {
+                color: #fff !important;
+                /* Chữ trắng cho ô tìm kiếm và icon */
+            }
+
+            #navCategoryFilter option {
+                background-color: #0A192F;
+                /* Khớp màu nền tối của hệ thống */
+                color: white;
+            }
+
+            /* Tối ưu hóa hiển thị trên thiết bị di động */
+            @@media (max-width: 767.98px) {
+                .navbar-museum {
+                    padding: 10px 0;
+                }
+
+                .navbar-museum .container {
+                    flex-wrap: wrap;
+                    padding-left: 15px !important;
+                    padding-right: 15px !important;
+                }
+
+                .navbar-logo {
+                    max-height: 40px;
+                }
+
+                .nav-search-wrap {
+                    display: flex !important;
+                    order: 3;
+                    width: 100%;
+                    margin-top: 10px;
+                    max-width: 100% !important;
+                }
+
+                #navCategoryFilter {
+                    max-width: 120px !important;
+                    font-size: 0.75rem !important;
+                    padding-right: 1.5rem !important;
+                    background-position: right 0.4rem center;
+                }
+
+                .nav-user {
+                    display: flex;
+                    align-items: center;
+                }
+
+                .score-badge {
+                    font-size: 0.75rem;
+                    padding: 4px 8px;
+                }
+            }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    <!-- Ambient Background Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    @* Chỉ hiển thị Navbar khi không phải trang Auth *@
+    @if (ViewData["HideNav"] == null || !(bool)ViewData["HideNav"]!)
+    {
+        <nav class="navbar-museum">
+            <div class="container d-flex justify-content-between align-items-center px-4">
+                <a class="navbar-brand d-flex align-items-center text-decoration-none" asp-controller="Home"
+                   asp-action="Index">
+                    <img src="~/lib/dnfam.png" alt="Logo Bảo tàng Mỹ thuật Đà Nẵng" class="navbar-logo me-2"
+                         asp-append-version="true" />
+                </a>
+
+                @* Thanh tìm kiếm và Danh mục mới *@
+                <div class="nav-search-wrap d-flex align-items-center mx-auto" style="max-width: 500px; flex: 1;">
+                    <div class="input-group input-group-sm" style="border-radius: 12px; overflow: hidden;">
+                        <span class="input-group-text bg-transparent border-0">
+                            <i class="fa-solid fa-search"></i>
+                        </span>
+                        <input type="text" id="categorySearchInput" class="form-control bg-transparent border-0"
+                               placeholder="Tìm tên bộ đề..." style="box-shadow: none; font-size: 0.9rem;">
+                        <select id="navCategoryFilter" class="form-select bg-transparent border-0"
+                                style="max-width: 160px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                            <option value="">Tất cả danh mục</option>
+                            <optgroup label="DANH MỤC 1: TỰ NHIÊN & CON NGƯỜI">
+                                <option value="Chủ đề 1: Tổng quan Địa lý và Lịch sử phát triển của Bảo tàng Đà Nẵng">🏛️ Chủ đề 1: Địa lý & Lịch sử</option>
+                                <option value="Chủ đề 2: Hệ sinh thái rừng, Động thực vật quý hiếm và Khí hậu thủy văn Đà Nẵng">🌿 Chủ đề 2: Hệ sinh thái rừng</option>
+                                <option value="Chủ đề 3: Cấu trúc Địa chất, tài nguyên Khoáng sản và Hệ sinh thái biển Đà Nẵng">🌊 Chủ đề 3: Địa chất & Biển</option>
+                            </optgroup>
+                            <optgroup label="DANH MỤC 2: LỊCH SỬ ĐÔ THỊ & KHÁNG CHIẾN">
+                                <option value="Chủ đề 4: Đà Nẵng thời kỳ Tiền - Sơ sử và những đặc trưng của Văn hóa Sa Huỳnh">🏺 Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh</option>
+                                <option value="Chủ đề 5: Dấu ấn Văn hóa Champa qua các di chỉ, đền tháp, văn bia và hệ thống giếng cổ">🧱 Chủ đề 5: Văn hóa Champa</option>
+                                <option value="Chủ đề 6: Sự hình thành làng xã người Việt, các đình làng cổ và Đô thị thời Phong kiến">🏮 Chủ đề 6: Làng xã & Phong kiến</option>
+                                <option value="Chủ đề 7: Lịch sử quy hoạch, kiến trúc đô thị và Văn hóa xã hội thời thuộc Pháp (1888 - 1945)">🗼 Chủ đề 7: Thời Pháp thuộc</option>
+                                <option value="Chủ đề 8: Đô thị giai đoạn 1945 - 1975 và các cuộc đấu tranh bảo vệ nền độc lập dân tộc">🎖️ Chủ đề 8: Giai đoạn 1945 - 1975</option>
+                            </optgroup>
+                            <optgroup label="DANH MỤC 3: VĂN HÓA & DI SẢN TRUYỀN THỐNG">
+                                <option value="Chủ đề 9: Chuyên đề Chứng tích chiến tranh và chặng đường Hội nhập, phát triển đô thị">📈 Chủ đề 9: Chứng tích & Phát triển</option>
+                                <option value="Chủ đề 10: Đa dạng văn hóa truyền thống xứ Quảng, các Dân tộc ít người và bộ sưu tập Cổ vật">🎭 Chủ đề 10: Văn hóa & Di sản</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="nav-user">
+                    @if (Context.Session.GetString("UserFullName") != null)
+                    {
+                        <span class="score-badge mr-2">
+                            <i class="fa-solid fa-star text-warning me-1"></i> @(Context.Session.GetInt32("CurrentScore") ?? 0)
+                            điểm
+                        </span>
+                        <a asp-controller="Auth" asp-action="Logout"
+                           style="color:var(--text-muted);font-size:0.82rem;text-decoration:none; margin-left: 10px;">
+                            <i class="fa-solid fa-sign-out-alt me-1"></i> Thoát
+                        </a>
+                    }
+                </div>
+            </div>
+        </nav>
+    }
+
+    <div class="app-container">
+        @RenderBody()
+    </div>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const navCategoryFilter = document.getElementById('navCategoryFilter');
+                const navSearchInput = document.getElementById('categorySearchInput');
+
+                // Tự động đồng bộ giá trị dropdown dựa trên tham số topic hoặc category trên URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const initialCategory = urlParams.get('topic') || urlParams.get('category');
+                if (navCategoryFilter && initialCategory) {
+                    navCategoryFilter.value = initialCategory;
+                }
+
+                if (navCategoryFilter) {
+                    navCategoryFilter.addEventListener('change', function () {
+                        const selectedCat = this.value;
+                        if (selectedCat !== "") {
+                            window.location.href = '@Url.Action("StartSession", "Quiz")?topic=' + encodeURIComponent(selectedCat);
+                        }
+                    });
+                }
+                // The searchInput event listener will be handled in Index.cshtml if it exists there
+            });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+ 

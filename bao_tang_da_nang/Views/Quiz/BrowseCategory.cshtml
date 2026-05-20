@@ -1,0 +1,103 @@
+@model List<Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel>
+@{
+    ViewData["Title"] = ViewBag.CategoryName;
+    var icons = new Dictionary<string, string>
+    {
+        { "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", "🏛️" },
+        { "Chủ đề 2: Thiên nhiên & Con người", "🌳" },
+        { "Chủ đề 3: Địa chất & Hệ sinh thái biển", "🌊" },
+        { "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", "🏺" },
+        { "Chủ đề 5: Dấu ấn Văn hóa Champa", "🧱" },
+        { "Chủ đề 6: Làng xã & Đô thị Phong kiến", "🏮" },
+        { "Chủ đề 7: Đà Nẵng thời Pháp thuộc", "🗼" },
+        { "Chủ đề 8: Giai đoạn 1945 - 1975", "🎖️" },
+        { "Chủ đề 9: Chứng tích & Phát triển", "📈" },
+        { "Chủ đề 10: Văn hóa & Di sản Quảng Nam", "🎭" }
+    };
+}
+
+<div class="page-wrapper animate-fadeInUp">
+    <!-- Header Section -->
+    <div class="mb-5 p-5 text-center"
+         style="border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 30px; background: linear-gradient(145deg, rgba(212, 175, 55, 0.1) 0%, rgba(255,255,255,0) 100%);">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb justify-content-center">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"
+                                                   style="color: var(--gold-primary);">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Danh mục đề tài</li>
+                </ol>
+            </nav>
+
+            <h1 style="font-weight: 900; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 2px;">
+                @ViewBag.CategoryName</h1>
+                <p class="text-muted mx-auto" style="max-width: 700px; font-size: 1.1rem;">@ViewBag.CategoryDescription</p>
+            </div>
+
+            <!-- Topic Grid -->
+            <div class="row g-4">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var topic in Model)
+                    {
+                        string icon = icons.Keys.FirstOrDefault(k => topic.Name.StartsWith(k.Split(':')[0])) != null
+                                     ? icons[icons.Keys.First(k => topic.Name.StartsWith(k.Split(':')[0]))]
+                                     : "📜";
+                        <div class="col-lg-4 col-md-6">
+                            <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@topic.Name"
+                               class="text-decoration-none h-100 d-block">
+                                <div class="museum-card p-4 h-100 text-center d-flex flex-column justify-content-between"
+                                     style="border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 20px; transition: all 0.3s ease; background: #fff;">
+
+                                    <div class="py-3">
+                                        <div
+                                            style="font-size: 3.5rem; margin-bottom: 20px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));">
+                                            @icon</div>
+                                            <h4 style="font-weight: 800; color: var(--text-dark); margin-bottom: 12px; line-height: 1.4;">
+                                                @topic.Name.ToUpper()</h4>
+                                                <div class="badge mb-3"
+                                                     style="background: rgba(212, 175, 55, 0.1); color: var(--gold-primary); padding: 8px 15px; border-radius: 10px; font-weight: 700;">
+                                                    📝 @topic.QuestionCount câu hỏi
+                                                </div>
+                                            </div>
+
+                                            <div class="btn-primary-museum py-3 w-100" style="border-radius: 12px; font-weight: 700;">
+                                                CHỌN ĐỀ TÀI NÀY <i class="fa-solid fa-chevron-right ms-2"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+        else
+                        {
+                            <div class="col-12 text-center py-5">
+                                <div style="font-size: 4rem; opacity: 0.3;">📂</div>
+                                <h3 class="text-muted mt-3">Hiện chưa có bộ đề nào trong danh mục này.</h3>
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-warning mt-3 px-4">Quay lại Trang chủ</a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Back Navigation -->
+                    <div class="text-center mt-5 pt-4">
+                        <a asp-controller="Home" asp-action="Index" class="text-decoration-none"
+                           style="font-weight: 700; color: var(--gold-primary);">
+                            <i class="fa-solid fa-arrow-left me-2"></i> QUAY LẠI TRANG CHỦ
+                        </a>
+                    </div>
+                </div>
+
+                @section Styles {
+                    <style>
+                        .museum-card:hover {
+                            transform: translateY(-10px);
+                            border-color: var(--gold-primary) !important;
+                            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.2) !important;
+                        }
+
+                        .breadcrumb-item+.breadcrumb-item::before {
+                            color: var(--gold-primary);
+                            content: "→";
+                        }
+                    </style>
+                }
