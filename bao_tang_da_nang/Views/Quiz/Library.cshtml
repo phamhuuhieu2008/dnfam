@@ -1,0 +1,228 @@
+@model List<Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel>
+
+@{
+    ViewData["Title"] = "Kho Trắc Nghiệm Đa Dạng - Alexandria QuizKid";
+    
+    // Helper function to map topics to our 4 main kid subjects
+    string GetSubjectClass(string topicName)
+    {
+        if (topicName.Contains("Chủ đề 4") || topicName.Contains("Chủ đề 6")) return "math";
+        if (topicName.Contains("Chủ đề 1") || topicName.Contains("Chủ đề 2") || topicName.Contains("Chủ đề 3")) return "science";
+        if (topicName.Contains("Chủ đề 7") || topicName.Contains("Chủ đề 8") || topicName.Contains("Chủ đề 9")) return "languages";
+        return "art"; // Default/Chủ đề 5, 10
+    }
+}
+
+@section Styles {
+    <style>
+        .all-quizzes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .no-results-kid {
+            display: none;
+            padding: 50px 20px;
+            text-align: center;
+            background-color: var(--white);
+            border-radius: 24px;
+            border: 2px dashed #EFECE6;
+            margin: 30px 0;
+        }
+        
+        .hero-search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+        }
+        
+        .hero-search-box .form-control {
+            padding: 16px 24px;
+            border-radius: 50px;
+            border: 2px solid #EFECE6;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            padding-right: 60px;
+        }
+        
+        .hero-search-box .hero-search-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            bottom: 8px;
+            width: 44px;
+            border-radius: 50%;
+            background-color: #D4AF37;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .hero-search-box .hero-search-btn:hover {
+            transform: scale(1.05);
+            background-color: #C25927;
+        }
+    </style>
+}
+
+<div class="page-wrapper animate-fadeInUp">
+    <section class="quiz-section bg-light-kid pt-5 pb-5">
+        <div class="container px-4">
+            <div class="text-center mb-5">
+                <span class="section-kid-eyebrow" data-translate="all_eyebrow">TẤT CẢ THỬ THÁCH</span>
+                <h1 class="section-kid-title mb-3" data-translate="all_title">Kho Trắc Nghiệm Đa Dạng</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Khám phá toàn bộ bộ sưu tập các bài trắc nghiệm về Đà Nẵng</p>
+            </div>
+            
+            <form method="get" action="@Url.Action("Library", "Quiz")" class="hero-search-box">
+                <input type="text" name="query" value="@ViewBag.SearchQuery" class="form-control" placeholder="🔍 Tìm kiếm chủ đề bạn yêu thích..." data-translate="hero_search_placeholder">
+                <button type="submit" class="hero-search-btn"><i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+            
+            @if (Model != null && Model.Count > 0)
+            {
+                <div class="all-quizzes-grid">
+                    @foreach (var cat in Model)
+                    {
+                        string subjectType = GetSubjectClass(cat.Name);
+                        
+                        string imageFile = "topic1.png";
+                        if (cat.Name.Contains("Chủ đề 1")) imageFile = "topic1.png";
+                        else if (cat.Name.Contains("Chủ đề 2")) imageFile = "topic2.png";
+                        else if (cat.Name.Contains("Chủ đề 3")) imageFile = "topic3.png";
+                        else if (cat.Name.Contains("Chủ đề 4")) imageFile = "topic4.png";
+                        else if (cat.Name.Contains("Chủ đề 5")) imageFile = "topic5.png";
+                        else if (cat.Name.Contains("Chủ đề 6")) imageFile = "topic6.png";
+                        else if (cat.Name.Contains("Chủ đề 7")) imageFile = "topic7.png";
+                        else if (cat.Name.Contains("Chủ đề 8")) imageFile = "topic8.png";
+                        else if (cat.Name.Contains("Chủ đề 9")) imageFile = "topic9.png";
+                        else if (cat.Name.Contains("Chủ đề 10")) imageFile = "topic10.png";
+                        else if (cat.Name.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_craft_village.png";
+                        else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_club.png";
+                        else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_artisan.png";
+                        else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_news.png";
+                        else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_general.png";
+                        // Fallback using deterministic hash if none matches
+                        else 
+                        {
+                            int hash = Math.Abs(cat.Name.GetHashCode()) % 5;
+                            string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
+                            imageFile = fallbacks[hash];
+                        }
+                        
+                        <div class="quiz-kid-card mini-topic-card" data-subject="@subjectType">
+                            <div class="quiz-kid-card-img-wrap" style="height: 160px; position: relative;">
+                                @if(cat.IsCompleted)
+                                {
+                                    <div style="position: absolute; top: 10px; right: 10px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                        <i class="fa-solid fa-check"></i> Đã hoàn thành
+                                    </div>
+                                }
+                                <img src="~/images/topics/@imageFile" alt="@cat.Name" class="quiz-kid-card-img" style="object-fit: cover; height: 100%; width: 100%;" />
+                            </div>
+                            <div class="quiz-kid-card-body" style="padding: 20px;">
+                                <h3 class="quiz-kid-card-title" style="font-size: 1.15rem !important;">
+                                    @{
+                                        string transKey = "topic_other";
+                                        if (cat.Name.Contains("Chủ đề 1") || cat.Name.Contains("Tổng hợp")) transKey = "topic_1";
+                                        else if (cat.Name.Contains("Chủ đề 2") || cat.Name.Contains("làng nghề")) transKey = "topic_2";
+                                        else if (cat.Name.Contains("Chủ đề 3") || cat.Name.Contains("Nghệ nhân")) transKey = "topic_3";
+                                        else if (cat.Name.Contains("Chủ đề 4") || cat.Name.Contains("Câu lạc bộ")) transKey = "topic_4";
+                                    }
+                                    <span data-translate="@transKey">@cat.Name</span>
+                                    @if(cat.IsCompleted)
+                                    {
+                                        <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;"></i>
+                                    }
+                                </h3>
+                                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 15px;">
+                                    📝 @cat.QuestionCount <span data-translate="questions_count">câu hỏi</span>
+                                </div>
+                                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@cat.Name" class="btn-start-quiz" style="padding: 10px 15px; font-size: 0.85rem;" data-translate="play_now_mini">
+                                    LÀM BÀI <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="no-results-kid" style="display: block;">
+                    <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; color: #D4AF37; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <h3 style="font-family: var(--font-heading); font-weight: 700; color: var(--text-main);" data-translate="no_results_title">Rất tiếc, chưa tìm thấy bộ đề nào!</h3>
+                    <p style="color: var(--text-muted);" data-translate="no_results_desc">Bạn hãy thử tìm bằng một từ khóa khác nhé.</p>
+                    <a asp-action="Library" class="btn btn-login-quizkid mt-2" data-translate="no_results_btn">Hiển Thị Tất Cả</a>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const heroSearchInput = document.querySelector('.hero-search-box input[name="query"]');
+            const navSearchInput = document.getElementById('categorySearchInput');
+            const topicCards = document.querySelectorAll('.mini-topic-card');
+            const allQuizzesGrid = document.querySelector('.all-quizzes-grid');
+            const noResultsKid = document.querySelector('.no-results-kid');
+
+            function removeDiacritics(str) {
+                return str.normalize('NFD')
+                          .replace(/[\u0300-\u036f]/g, '')
+                          .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+                          .toLowerCase();
+            }
+
+            function filterTopics(query) {
+                if (!query) {
+                    topicCards.forEach(card => card.style.display = 'block');
+                    if (allQuizzesGrid) allQuizzesGrid.style.display = 'grid';
+                    if (noResultsKid) noResultsKid.style.display = 'none';
+                    return;
+                }
+
+                const normalizedQuery = removeDiacritics(query);
+                let hasResults = false;
+
+                topicCards.forEach(card => {
+                    const title = card.querySelector('.quiz-kid-card-title').textContent;
+                    if (removeDiacritics(title).includes(normalizedQuery)) {
+                        card.style.display = 'block';
+                        hasResults = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (hasResults) {
+                    if (allQuizzesGrid) allQuizzesGrid.style.display = 'grid';
+                    if (noResultsKid) noResultsKid.style.display = 'none';
+                } else {
+                    if (allQuizzesGrid) allQuizzesGrid.style.display = 'none';
+                    if (noResultsKid) noResultsKid.style.display = 'block';
+                }
+            }
+
+            if (heroSearchInput) {
+                heroSearchInput.addEventListener('input', function(e) {
+                    if (navSearchInput) navSearchInput.value = e.target.value;
+                    filterTopics(e.target.value);
+                });
+            }
+
+            if (navSearchInput) {
+                navSearchInput.addEventListener('input', function(e) {
+                    if (heroSearchInput) heroSearchInput.value = e.target.value;
+                    filterTopics(e.target.value);
+                });
+            }
+        });
+    </script>
+}

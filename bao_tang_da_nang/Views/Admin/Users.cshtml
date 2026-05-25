@@ -46,12 +46,8 @@
             <table class="table table-hover mb-0" style="font-size: 0.95rem;">
                 <thead style="background: rgba(10, 25, 47, 0.04);">
                     <tr>
-                        <th class="px-4 py-3" style="width: 5%;">ID</th>
-                        <th class="px-4 py-3">Tên đăng nhập</th>
-                        <th class="px-4 py-3">Họ và Tên</th>
-                        <th class="px-4 py-3">Vai trò</th>
-                        <th class="px-4 py-3">Ngày đăng ký</th>
-                        <th class="px-4 py-3 text-center">Trạng thái</th>
+                        <th class="px-4 py-3">Tên người dùng</th>
+                        <th class="px-4 py-3">Số điểm</th>
                         <th class="px-4 py-3 text-center">Thao tác</th>
                     </tr>
                 </thead>
@@ -59,32 +55,20 @@
                     @foreach(var u in Model)
                     {
                         <tr>
-                            <td class="px-4 py-3 text-muted">#@u.Id</td>
-                            <td class="px-4 py-3" style="color: var(--text-dark); font-weight: 500;">@u.Username</td>
-                            <td class="px-4 py-3" style="color: var(--text-dark);">@u.FullName</td>
-                            <td class="px-4 py-3">
-                                @if(u.Role == "Admin") { <span style="color: var(--primary); font-weight: bold;"><i class="fa-solid fa-crown text-warning me-1"></i> Admin</span> }
-                                else { <span class="text-muted">Player</span> }
+                            <td class="px-4 py-3" style="color: var(--text-dark); font-weight: 500;">
+                                @u.FullName
+                                @if(u.Role == "Admin") { <span style="font-size: 0.75rem; color: var(--primary); margin-left: 5px;"><i class="fa-solid fa-crown text-warning"></i> Admin</span> }
                             </td>
-                            <td class="px-4 py-3 text-muted">@u.CreatedAt.ToString("dd/MM/yyyy")</td>
-                            <td class="px-4 py-3 text-center">
-                                @if(u.IsActive) { <span class="badge" style="background: var(--success); color: white; padding: 4px 8px; border-radius: 4px;">Hoạt động</span> }
-                                else { <span class="badge" style="background: var(--error); color: white; padding: 4px 8px; border-radius: 4px;">Bị khóa</span> }
+                            <td class="px-4 py-3" style="color: var(--gold-primary); font-weight: bold;">
+                                @(u.QuizSessions?.Sum(s => s.TotalScore) ?? 0)
                             </td>
                             <td class="px-4 py-3 text-center">
                                 @if (u.Role != "Admin")
                                 {
-                                    <form asp-action="ToggleUserStatus" asp-route-id="@u.Id" method="post" class="d-inline">
+                                    <form asp-action="DeleteUser" asp-route-id="@u.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm @(u.IsActive ? "btn-outline-danger" : "btn-outline-success")" style="font-size: 0.8rem; padding: 4px 8px;" onclick="return confirm('Bạn có chắc muốn @(u.IsActive ? "khóa" : "mở khóa") tài khoản này?');" title="@(u.IsActive ? "Khóa" : "Mở Khóa")">
-                                            @if (u.IsActive)
-                                            {
-                                                <i class="fa-solid fa-lock"></i>
-                                            }
-                                            else
-                                            {
-                                                <i class="fa-solid fa-unlock"></i>
-                                            }
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" style="font-size: 0.8rem; padding: 4px 8px;" onclick="return confirm('Bạn có chắc muốn xóa người dùng này?');" title="Xóa">
+                                            <i class="fa-solid fa-trash-can"></i> Xóa
                                         </button>
                                     </form>
                                 }
@@ -94,7 +78,7 @@
                     @if (Model.Count == 0)
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Không tìm thấy người dùng nào.</td>
+                            <td colspan="3" class="text-center py-4 text-muted">Không tìm thấy người dùng nào.</td>
                         </tr>
                     }
                 </tbody>

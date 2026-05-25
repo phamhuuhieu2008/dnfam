@@ -11,6 +11,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Models.ViewModels
     {
         public string Name { get; set; } = string.Empty;
         public int QuestionCount { get; set; }
+        public bool IsCompleted { get; set; }
     }
 
     /// <summary>ViewModel cho form Đăng nhập.</summary>

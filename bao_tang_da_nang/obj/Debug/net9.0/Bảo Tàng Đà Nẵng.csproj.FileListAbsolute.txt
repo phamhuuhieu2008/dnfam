@@ -449,8 +449,8 @@ C:\Users\ADMIN\Downloads\Bảo Tàng Đà Nẵng\bao_tang_da_nang\obj\Debug\net9
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\appsettings.json
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\package-lock.json
-C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Bảo Tàng Đà Nẵng.staticwebassets.endpoints.json
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Bảo Tàng Đà Nẵng.staticwebassets.runtime.json
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Bảo Tàng Đà Nẵng.staticwebassets.endpoints.json
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Bảo Tàng Đà Nẵng.exe
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Bảo Tàng Đà Nẵng.deps.json
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Bảo Tàng Đà Nẵng.runtimeconfig.json
@@ -594,7 +594,6 @@ C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\rjsmcsh
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\scopedcss\bundle\Bảo Tàng Đà Nẵng.styles.css
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\scopedcss\projectbundle\Bảo Tàng Đà Nẵng.bundle.scp.css
-C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\njoh4aum4k-{0}-xm052fqpde-xm052fqpde.gz
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\qhloyewojt-{0}-b9sayid5wm-b9sayid5wm.gz
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\pnxqeego2d-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\8om2og4q3p-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
@@ -670,3 +669,5 @@ C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\refint\
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\Bảo Tàng Đà Nẵng.pdb
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\Bảo Tàng Đà Nẵng.genruntimeconfig.cache
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\ref\Bảo Tàng Đà Nẵng.dll
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\i2lddge7dy-{0}-i6ctomdqwv-i6ctomdqwv.gz
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\njoh4aum4k-{0}-1h0buqm7au-1h0buqm7au.gz

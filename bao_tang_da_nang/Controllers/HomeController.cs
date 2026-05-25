@@ -3,6 +3,8 @@ using Bảo_Tàng_Đà_Nẵng.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bảo_Tàng_Đà_Nẵng.Controllers
 {
@@ -15,6 +17,15 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
         {
             _logger = logger;
             _db = db;
+        }
+        [HttpGet]
+        public async Task<IActionResult> DebugCategories()
+        {
+            var query = _db.Questions.Where(q => q.IsActive && !string.IsNullOrEmpty(q.LocationName));
+            var sql = query.ToQueryString();
+            var list = await query.ToListAsync();
+            var categories = await query.GroupBy(q => q.LocationName).Select(g => new { Name = g.Key, Count = g.Count() }).ToListAsync();
+            return Json(new { Sql = sql, TotalActive = list.Count, Categories = categories });
         }
 
         [HttpGet]
@@ -30,6 +41,24 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                     QuestionCount = g.Count()
                 })
                 .ToListAsync();
+
+            int? userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId.HasValue)
+            {
+                var completedTopics = await _db.QuizSessions
+                    .Where(s => s.UserId == userId.Value && s.IsCompleted)
+                    .SelectMany(s => s.SessionDetails)
+                    .Where(d => d.Question != null && d.Question.LocationName != null)
+                    .Select(d => d.Question!.LocationName!)
+                    .Distinct()
+                    .ToListAsync();
+
+                foreach(var cat in categories)
+                {
+                    cat.IsCompleted = completedTopics.Contains(cat.Name);
+                }
+            }
 
             ViewBag.Categories = categories;
             ViewBag.SelectedCategory = category; // Pass selected category to view
@@ -50,7 +79,6 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
 
             ViewBag.Leaderboard = leaderboard;
 
-            int? userId = HttpContext.Session.GetInt32("UserId");
             if (userId.HasValue)
             {
                 // Thống kê cá nhân
@@ -107,6 +135,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
     {
         public string Name { get; set; } = string.Empty;
         public int QuestionCount { get; set; }
+        public bool IsCompleted { get; set; }
     }
 
     public class PlayerRankViewModel

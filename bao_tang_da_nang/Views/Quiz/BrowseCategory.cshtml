@@ -34,7 +34,7 @@
             </div>
 
             <!-- Topic Grid -->
-            <div class="row g-4">
+            <div id="topicGrid" class="row g-4">
                 @if (Model != null && Model.Any())
                 {
                     @foreach (var topic in Model)
@@ -42,7 +42,7 @@
                         string icon = icons.Keys.FirstOrDefault(k => topic.Name.StartsWith(k.Split(':')[0])) != null
                                      ? icons[icons.Keys.First(k => topic.Name.StartsWith(k.Split(':')[0]))]
                                      : "📜";
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-4 col-md-6 topic-item">
                             <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@topic.Name"
                                class="text-decoration-none h-100 d-block">
                                 <div class="museum-card p-4 h-100 text-center d-flex flex-column justify-content-between"
@@ -50,15 +50,28 @@
 
                                     <div class="py-3">
                                         <div
-                                            style="font-size: 3.5rem; margin-bottom: 20px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));">
-                                            @icon</div>
-                                            <h4 style="font-weight: 800; color: var(--text-dark); margin-bottom: 12px; line-height: 1.4;">
-                                                @topic.Name.ToUpper()</h4>
-                                                <div class="badge mb-3"
-                                                     style="background: rgba(212, 175, 55, 0.1); color: var(--gold-primary); padding: 8px 15px; border-radius: 10px; font-weight: 700;">
-                                                    📝 @topic.QuestionCount câu hỏi
+                                            style="font-size: 3.5rem; margin-bottom: 20px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); position: relative;">
+                                            @if(topic.IsCompleted)
+                                            {
+                                                <div style="position: absolute; top: 0; right: 20px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                                    <i class="fa-solid fa-check"></i> Đã hoàn thành
                                                 </div>
-                                            </div>
+                                            }
+                                            @icon
+                                        </div>
+                                        <h4 class="topic-title"
+                                            style="font-weight: 800; color: var(--text-dark); margin-bottom: 12px; line-height: 1.4;">
+                                            @topic.Name.ToUpper()
+                                            @if(topic.IsCompleted)
+                                            {
+                                                <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px; font-size: 1.2rem;"></i>
+                                            }
+                                        </h4>
+                                        <div class="badge mb-3"
+                                             style="background: rgba(212, 175, 55, 0.1); color: var(--gold-primary); padding: 8px 15px; border-radius: 10px; font-weight: 700;">
+                                            📝 @topic.QuestionCount câu hỏi
+                                        </div>
+                                    </div>
 
                                             <div class="btn-primary-museum py-3 w-100" style="border-radius: 12px; font-weight: 700;">
                                                 CHỌN ĐỀ TÀI NÀY <i class="fa-solid fa-chevron-right ms-2"></i>
@@ -100,4 +113,34 @@
                             content: "→";
                         }
                     </style>
+                }
+
+                @section Scripts {
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const searchInput = document.getElementById('categorySearchInput');
+                            const topicItems = document.querySelectorAll('.topic-item');
+
+                            function removeDiacritics(str) {
+                                return str.normalize('NFD')
+                                          .replace(/[\u0300-\u036f]/g, '')
+                                          .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+                                          .toLowerCase();
+                            }
+
+                            if (searchInput) {
+                                searchInput.addEventListener('input', function () {
+                                    const query = removeDiacritics(this.value.trim());
+                                    topicItems.forEach(item => {
+                                        const title = removeDiacritics(item.querySelector('.topic-title').textContent);
+                                        if (title.includes(query)) {
+                                            item.style.display = 'block';
+                                        } else {
+                                            item.style.display = 'none';
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    </script>
                 }

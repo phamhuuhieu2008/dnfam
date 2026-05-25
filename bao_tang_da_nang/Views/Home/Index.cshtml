@@ -1,550 +1,802 @@
-﻿@{
-    ViewData["Title"] = "Trang chủ - Hệ thống Thi Trắc Nghiệm";
+@{
+    ViewData["Title"] = "Trang chủ - Alexandria QuizKid";
     var fullName = Context.Session.GetString("UserFullName");
-    var selectedCategoryFromUrl = ViewBag.SelectedCategory as string;
-    var categories = ViewBag.Categories as List<Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel>;
+    var categories = ViewBag.Categories as List<Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel>;
+    var leaderboard = ViewBag.Leaderboard as List<Bảo_Tàng_Đà_Nẵng.Controllers.PlayerRankViewModel>;
 
-    var icons = new Dictionary<string, string>
-    {
-        { "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", "🏛️" },
-        { "Chủ đề 2: Thiên nhiên & Con người", "🌳" },
-        { "Chủ đề 3: Địa chất & Hệ sinh thái biển", "🌊" },
-        { "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", "🏺" },
-        { "Chủ đề 5: Dấu ấn Văn hóa Champa", "🧱" },
-        { "Chủ đề 6: Làng xã & Đô thị Phong kiến", "🏮" },
-        { "Chủ đề 7: Đà Nẵng thời Pháp thuộc", "🗼" },
-        { "Chủ đề 8: Giai đoạn 1945 - 1975", "🎖️" },
-        { "Chủ đề 9: Chứng tích & Phát triển", "📈" },
-        { "Chủ đề 10: Văn hóa & Di sản Quảng Nam", "🎭" }
-    };
-
+    // Default categories if none exist in DB (for safety)
     if (categories == null || categories.Count == 0)
     {
-        categories = new List<Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel>
+        categories = new List<Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel>
         {
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng",
-QuestionCount
-= 30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người",
-QuestionCount =
-30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển",
-QuestionCount = 30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh",
-QuestionCount =
-30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 5: Dấu ấn Văn hóa Champa",
-QuestionCount = 30
-},
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 6: Làng xã & Đô thị Phong kiến",
-QuestionCount = 30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 7: Đà Nẵng thời Pháp thuộc",
-QuestionCount =
-30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 8: Giai đoạn 1945 - 1975",
-QuestionCount = 30
-},
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 9: Chứng tích & Phát triển",
-QuestionCount =
-30 },
-            new Bảo_Tàng_Đà_Nẵng.Models.ViewModels.CategorySummaryViewModel { Name = "Chủ đề 10: Văn hóa & Di sản Quảng Nam",
-QuestionCount = 30 }
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", QuestionCount = 75 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người", QuestionCount = 75 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển", QuestionCount = 75 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", QuestionCount = 75 }
         };
     }
 
-    var mainCategories = new List<(string Name, string Description, List<string> TopicPrefixes)>
+    // Helper function to map topics to our 4 main kid subjects
+    string GetSubjectClass(string topicName)
     {
-        ("📚 Danh mục 1: TỰ NHIÊN VÀ CON NGƯỜI ĐÀ NẴNG", "Khám phá vị trí địa lý, hệ sinh thái và văn hóa tiền sử.", new
-List<string> { "Chủ đề 1", "Chủ đề 2", "Chủ đề 3" }),
-        ("📚 Danh mục 2: LỊCH SỬ ĐÔ THỊ VÀ KHÁNG CHIẾN", "Tiến trình lịch sử từ thời phong kiến đến hai cuộc kháng chiến chống Pháp - Mỹ.", new List<string> { "Chủ đề 4", "Chủ đề 5", "Chủ đề 6", "Chủ đề 7", "Chủ đề 8" }),
-        ("📚 Danh mục 3: VĂN HÓA VÀ DI SẢN TRUYỀN THỐNG", "Đời sống văn hóa, phong tục và các bộ sưu tập kỷ vật quý hiếm.", new
-List<string> { "Chủ đề 9", "Chủ đề 10" })
-    };
+        var upper = topicName.ToUpper();
+        if (upper.Contains("CHỦ ĐỀ 1") || upper.Contains("ĐỀ TÀI 1") || upper.Contains("ĐỀ TÀI 2") || upper.Contains("ĐỀ TÀI 3")) return "science";
+        if (upper.Contains("CHỦ ĐỀ 2") || upper.Contains("ĐỀ TÀI 4") || upper.Contains("ĐỀ TÀI 5") || upper.Contains("ĐỀ TÀI 6")) return "math";
+        if (upper.Contains("CHỦ ĐỀ 3") || upper.Contains("ĐỀ TÀI 7") || upper.Contains("ĐỀ TÀI 8") || upper.Contains("ĐỀ TÀI 9")) return "languages";
+        return "art";
+    }
+
+    var random = new Random();
+    var randomCategories = categories
+        .Where(c => !c.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase) && c.Name != "Khác")
+        .OrderBy(x => random.Next())
+        .Take(3)
+        .ToList();
 }
 
 @section Styles {
     <style>
-        /* Hiệu ứng 3D cho các cột danh mục (Pillar 3D) */
-        .category-pillar-wrapper {
-            perspective: 1000px;
-            margin-bottom: 30px;
+        /* Specific page styles can go here if needed */
+        .all-quizzes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .no-results-kid {
+            display: none;
+            padding: 50px 20px;
+            text-align: center;
+            background-color: var(--white);
+            border-radius: 24px;
+            border: 2px dashed #EFECE6;
+            margin: 30px 0;
         }
 
-        .category-pillar-3d {
-            background: #ffffff;
-            border-radius: 30px;
-            padding: 40px 25px;
-            height: 100%;
+        /* Achievements Dashboard Styles */
+        .dashboard-banner-kid {
             position: relative;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform-style: preserve-3d;
-            border: none !important;
-            /* Tạo độ dày 3D ở đáy */
-            box-shadow:
-                0 15px 0 var(--pillar-depth),
-                0 25px 40px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #C25927 0%, #A24214 100%);
+            border-radius: 40px;
+            padding: 40px;
+            text-align: left;
+            color: var(--white);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(162, 66, 20, 0.25);
+            border: 6px solid #FFF;
+        }
+
+        .dashboard-crown-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #FFD700;
+            font-size: 1.6rem;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @@keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+                transform: scale(1);
+            }
+            100% {
+                box-shadow: 0 0 12px 6px rgba(255, 215, 0, 0.2);
+                transform: scale(1.05);
+            }
+        }
+
+        .dashboard-stat-card {
+            background-color: var(--white);
+            border-radius: 24px;
+            border: 3px solid #EFECE6;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .dashboard-stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: #D4AF37;
+        }
+
+        .stat-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-stat-value {
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 2.2rem;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .dashboard-stat-label {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Circular chart styles */
+        .circular-progress-wrapper {
+            position: relative;
+            width: 70px;
+            height: 70px;
+        }
+
+        .circular-chart-svg {
+            transform: rotate(-90deg);
+        }
+
+        .circle-progress-bar {
+            transition: stroke-dasharray 1s ease-out;
+        }
+
+        .circle-percentage-text {
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 8px;
+            text-anchor: middle;
+            fill: var(--text-main);
+            transform: rotate(90deg);
+            transform-origin: center;
+        }
+
+        .dashboard-history-card {
+            background-color: var(--white);
+            border-radius: 28px;
+            border: 3px solid #EFECE6;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            max-height: 320px;
+        }
+
+        .dashboard-panel-subheading {
+            font-family: var(--font-heading);
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            border-bottom: 2px dashed #EFECE6;
+            padding-bottom: 10px;
+        }
+
+        .dashboard-history-scroll {
+            overflow-y: auto;
+            max-height: 220px;
+            padding-right: 6px;
+        }
+
+        /* Scrollbar styling */
+        .dashboard-history-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .dashboard-history-scroll::-webkit-scrollbar-track {
+            background: #FDFDFD;
+            border-radius: 10px;
+        }
+        .dashboard-history-scroll::-webkit-scrollbar-thumb {
+            background: #E0DCD5;
+            border-radius: 10px;
+        }
+        .dashboard-history-scroll::-webkit-scrollbar-thumb:hover {
+            background: #CBBFB1;
+        }
+
+        .dashboard-history-list {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .history-item {
+            display: flex;
             align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background-color: #FAF8F5;
+            border-radius: 18px;
+            border: 2px solid #F3F1EC;
+            transition: all 0.2s ease;
         }
 
-        .category-pillar-wrapper:hover .category-pillar-3d {
-            transform: translateY(-15px) rotateX(8deg);
-            box-shadow:
-                0 30px 0 var(--pillar-depth),
-                0 40px 60px rgba(0, 0, 0, 0.15);
+        .history-item:hover {
+            transform: scale(1.01);
+            background-color: #FFF;
+            border-color: #EFECE6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
         }
 
-        .pillar-icon-3d {
-            font-size: 4.5rem;
-            margin-bottom: 25px;
-            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
-            transition: transform 0.4s ease;
+        .history-item-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
         }
 
-        .category-pillar-wrapper:hover .pillar-icon-3d {
-            transform: translateZ(50px) scale(1.1);
+        .history-item-badge.science { background-color: #EAF6EC; color: #27AE60; }
+        .history-item-badge.math { background-color: #FFF9E6; color: #D4AF37; }
+        .history-item-badge.languages { background-color: #EAF2FA; color: #2F80ED; }
+        .history-item-badge.art { background-color: #FAF0F4; color: #EB5757; }
+
+        .history-item-info {
+            flex-grow: 1;
+            min-width: 0;
         }
 
-        .pillar-title {
-            font-weight: 900 !important;
-            font-size: 1.3rem !important;
-            margin-bottom: 15px;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .history-item-topic {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .pillar-btn {
-            background: var(--gold-primary);
-            color: white !important;
-            padding: 12px 25px;
-            border-radius: 50px;
+        .history-item-date {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .history-item-score {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .score-value {
+            font-family: var(--font-heading);
             font-weight: 800;
-            font-size: 0.9rem;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-            margin-top: 20px;
+            font-size: 1rem;
+            color: #C25927;
         }
 
-        /* Responsive Hero Section & Content */
-        @@media (max-width: 992px) {
-            .hero-name {
-                font-size: 2.2rem !important;
-            }
-        }
-
-        @@media (max-width: 768px) {
-            .hero-section {
-                padding: 30px 15px !important;
-                border-radius: 15px !important;
-            }
-
-            .hero-name {
-                font-size: 1.8rem !important;
-            }
-
-            .hero-tagline {
-                font-size: 1rem !important;
-            }
-
-            .stat-card {
-                flex: 1 1 calc(50% - 10px) !important;
-                min-width: 120px !important;
-                padding: 12px !important;
-            }
-
-            .stat-number {
-                font-size: 1.3rem !important;
-            }
-
-            .section-title {
-                font-size: 1.3rem !important;
-            }
-
-            .topic-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-                gap: 15px !important;
-            }
-
-            .leaderboard-item {
-                padding: 12px 10px !important;
-            }
-        }
-
-        @@media (max-width: 480px) {
-            .hero-name {
-                font-size: 1.5rem !important;
-            }
-
-            .stat-card {
-                flex: 1 1 100% !important;
-            }
+        .score-accuracy {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
         }
     </style>
 }
 
 <div class="page-wrapper animate-fadeInUp">
+    <!-- Hero Section -->
+    <section class="hero-kid container px-4">
+        <div class="row align-items-center w-100 mx-0">
+            <div class="col-lg-7 col-md-12 hero-kid-content">
+                <div class="hero-proof-badge mb-4" data-translate="hero_badge">
+                    <i class="fa-solid fa-medal"></i> HƠN 10,000 HỌC SINH ĐÃ THAM GIA
+                </div>
+                
+                @if (!string.IsNullOrWhiteSpace(fullName))
+                {
+                    <h1 class="hero-kid-title"><span data-translate="hero_welcome">Chào mừng trở lại,</span><br><span class="brand-name">@fullName!</span></h1>
+                    <p class="hero-kid-desc" data-translate="hero_welcome_desc">Cùng tiếp tục hành trình khám phá kho tàng kiến thức lịch sử, tự nhiên và nghệ thuật siêu thú vị. Bạn đã sẵn sàng bứt phá chưa?</p>
+                    
+                    <!-- Player Stats -->
+                    <div class="kid-stats-row mb-4">
+                        <div class="kid-stat-card">
+                            <div class="kid-stat-number">@((object)(ViewBag.UserStats?.TotalPlayed ?? 0))</div>
+                            <div class="kid-stat-label" data-translate="hero_stats_played">Số Đề Đã Thi</div>
+                        </div>
+                        <div class="kid-stat-card">
+                            <div class="kid-stat-number" style="color: #27AE60;">@((object)(ViewBag.UserStats?.WinRate ?? 0))%</div>
+                            <div class="kid-stat-label" data-translate="hero_stats_accuracy">Tỷ Lệ Đúng</div>
+                        </div>
+                        <div class="kid-stat-card">
+                            <div class="kid-stat-number" style="color: #EB5757;">@((ViewBag.UserStats?.Rank > 0) ? $"Top {ViewBag.UserStats.Rank}" : "-")</div>
+                            <div class="kid-stat-label" data-translate="hero_stats_rank">Hạng Của Bạn</div>
+                        </div>
+                        <div class="kid-stat-card">
+                            <div class="kid-stat-number" style="color: #2F80ED;">@(ViewBag.UserStats?.TotalScore ?? 0)</div>
+                            <div class="kid-stat-label" data-translate="hero_stats_score">Điểm Tích Lũy</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h1 class="hero-kid-title" data-translate="hero_title">Khám phá tri thức,<br>vui nhộn cùng <span class="brand-name">QuizKid!</span></h1>
+                    <p class="hero-kid-desc" data-translate="hero_desc">Hệ thống câu hỏi trắc nghiệm tương tác giúp các bạn nhỏ tìm hiểu về Lịch sử, Tự nhiên và Nghệ thuật một cách đầy hứng khởi.</p>
+                }
 
-    <div class="hero-section mb-16"
-         style="border: 1px solid rgba(212, 175, 55, 0.3); background: linear-gradient(145deg, rgba(139, 30, 25, 0.05) 0%, rgba(212, 175, 55, 0.1) 100%); padding: 40px 24px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-        @if (!string.IsNullOrWhiteSpace(fullName))
-        {
-            <div class="hero-greeting"
-                 style="color: var(--gold-primary); font-weight: 700; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase;">
-                HỆ THỐNG THI TRẮC NGHIỆM TRỰC TUYẾN</div>
-                <h1 class="hero-name"
-                    style="color: var(--gold-primary); font-size: 2.8rem; font-weight: 800; margin: 10px 0 15px 0;">THÍ SINH:
-                    @fullName</h1>
-                    <p class="hero-tagline mb-4"
-                       style="color: var(--text-muted); font-size: 1.15rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                        Hãy chọn bộ đề thi dưới đây để thử thách kiến thức, rèn luyện tư duy và chinh phục vị trí dẫn đầu trên Bảng
-                        vàng trắc nghiệm!</p>
+                <form method="get" action="@Url.Action("Library", "Quiz")" class="hero-search-box">
+                    <input type="text" name="query" class="form-control" placeholder="🔍 Tìm kiếm chủ đề bạn yêu thích..." data-translate="hero_search_placeholder">
+                    <button type="submit" class="hero-search-btn"><i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+            </div>
+            <div class="col-lg-5 col-md-12 d-none d-lg-flex mascot-container">
+                <div class="mascot-img-wrap">
+                    <img src="~/images/quizkid_mascot.png" alt="QuizKid Mascot" class="mascot-img" />
+                </div>
+            </div>
+        </div>
+    </section>
 
-                        <div class="stats-row mb-4" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                            <div class="stat-card"
-                                 style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                                <div class="stat-number" style="font-size: 1.8rem; font-weight: 800; color: var(--gold-primary);">
-                                    @((object)(ViewBag.UserStats?.TotalPlayed ?? 0))</div>
-                                    <div class="stat-label"
-                                         style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
-                                        Số đề đã thi</div>
-                                    </div>
-                                    <div class="stat-card"
-                                         style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                                        <div class="stat-number" style="font-size: 1.8rem; font-weight: 800; color: #27AE60;">
-                                            @((object)(ViewBag.UserStats?.WinRate ?? 0))%</div>
-                                            <div class="stat-label"
-                                                 style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
-                                                Tỷ lệ trả lời đúng</div>
-                                            </div>
-                                            <div class="stat-card"
-                                                 style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                                                <div class="stat-number text-primary"
-                                                     style="font-size: 1.8rem; font-weight: 800; color: var(--gold-light);">@((ViewBag.UserStats?.Rank >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           0) ? $"Top {ViewBag.UserStats.Rank}" : "-")</div>
-                                                    <div class="stat-label"
-                                                         style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
-                                                        Xếp hạng hiện tại</div>
-                                                    </div>
-                                                    <div class="stat-card"
-                                                         style="background: rgba(255,255,255,0.8); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 15px 25px; min-width: 140px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                                                        <div class="stat-number" style="font-size: 1.8rem; font-weight: 800; color: #E67E22;">
-                                                            @(ViewBag.UserStats?.TotalScore ?? 0)</div>
-                                                            <div class="stat-label"
-                                                                 style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
-                                                                Điểm tích lũy</div>
-                                                            </div>
-                                                        </div>
+    <!-- Subjects Categories Section -->
+    <section class="subject-section container px-4 mb-4">
+        <h2 class="section-kid-title" data-translate="subject_title">Tổng Hợp Câu Hỏi</h2>
+        
+        <div class="row g-4 mt-2">
+            <!-- Thẻ tĩnh: Tổng hợp 300 câu -->
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Tổng hợp 300 câu" class="text-decoration-none d-block h-100">
+                    <div class="subject-card science-card h-100" data-subject="science">
+                        <div class="subject-icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                        <h3 class="subject-name" data-translate="subject_science_name">TỔNG HỢP</h3>
+                        <p class="subject-desc" data-translate="subject_science_desc">Các câu hỏi trắc nghiệm tổng hợp (300 câu)</p>
+                    </div>
+                </a>
+            </div>
 
-                                                        <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
-                                                            <a href="#topicSection" class="btn-primary-museum px-5 py-3 text-decoration-none"
-                                                               style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; box-shadow: 0 8px 25px rgba(139, 30, 25, 0.3);">
-                                                                🚀 CHỌN CHỦ ĐỀ NGAY
-                                                            </a>
-                                                            <span class="btn-secondary-museum px-5 py-3"
-                                                                  style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; cursor: default;">
-                                                                ✍️ Vào chủ đề rồi nhập tên ở bước tiếp theo
-                                                            </span>
-                                                        </div>
+            <!-- 3 Thẻ Chủ đề 1, 2, 3 -->
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Chủ đề 1" class="text-decoration-none d-block h-100">
+                    <div class="subject-card math-card h-100" data-subject="math">
+                        <div class="subject-icon-box"><i class="fa-solid fa-calculator"></i></div>
+                        <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;">CHỦ ĐỀ 1</h3>
+                        <p class="subject-desc">75 câu hỏi</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Chủ đề 2" class="text-decoration-none d-block h-100">
+                    <div class="subject-card languages-card h-100" data-subject="languages">
+                        <div class="subject-icon-box"><i class="fa-solid fa-language"></i></div>
+                        <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;">CHỦ ĐỀ 2</h3>
+                        <p class="subject-desc">75 câu hỏi</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Chủ đề 3" class="text-decoration-none d-block h-100">
+                    <div class="subject-card art-card h-100" data-subject="art">
+                        <div class="subject-icon-box"><i class="fa-solid fa-palette"></i></div>
+                        <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;">CHỦ ĐỀ 3</h3>
+                        <p class="subject-desc">75 câu hỏi</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
 
-                                                        <div class="text-center mt-4">
-                                                            <span class="text-muted" style="font-size:0.9rem; font-weight: 500;">
-                                                                💡 Bạn không cần tài khoản — chỉ chọn chủ đề và nhập tên để bắt đầu.
-                                                            </span>
-                                                        </div>
-                                                    }
-        else
-                                                    {
-                                                        <div class="hero-greeting"
-                                                             style="color: var(--gold-primary); font-weight: 700; font-size: 1.3rem; letter-spacing: 3px; text-transform: uppercase;">
-                                                            NỀN TẢNG THI TRẮC NGHIỆM TRỰC TUYẾN</div>
-                                                            <h1 class="hero-name"
-                                                                style="color: var(--gold-primary); font-size: 3.5rem; font-weight: 800; margin: 15px 0 20px 0; line-height: 1.2;">
-                                                                Khám Phá Di Sản, Chinh Phục Tri Thức</h1>
-                                                                <p class="hero-tagline mb-4"
-                                                                   style="color: var(--text-muted); font-size: 1.2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
-                                                                    Hệ thống thi trắc nghiệm tương tác giúp bạn kiểm tra kiến thức, khám phá các giá trị Văn hóa, Lịch sử và Hội
-                                                                    họa xứ Quảng một cách đầy hứng khởi.</p>
+    <!-- Featured Quizzes -->
+    <section class="quiz-section container px-4">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="section-kid-eyebrow" data-translate="featured_eyebrow">THỬ THÁCH ĐỀ XUẤT</span>
+                <h2 class="section-kid-title mb-0" data-translate="featured_title">Các Bộ Quiz Nổi Bật</h2>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Featured 1: Science / Space -->
+            <div class="col-lg-4 col-md-6">
+                <div class="quiz-kid-card">
+                    <div class="quiz-kid-card-img-wrap">
+                        <span class="quiz-tag-difficulty medium" data-translate="difficulty_medium">Trung bình</span>
+                        <div class="quiz-rating"><i class="fa-solid fa-star"></i> 4.9</div>
+                        <img src="~/images/space_quiz.png" alt="Khám phá vũ trụ" class="quiz-kid-card-img" />
+                    </div>
+                    <div class="quiz-kid-card-body">
+                        <div>
+                            <h3 class="quiz-kid-card-title" data-translate="featured_science_title">Khám Phá Đại Dương & Sinh Thái</h3>
+                            <p class="quiz-kid-card-desc" data-translate="featured_science_desc">Thám hiểm hệ sinh thái biển sâu và tìm hiểu sự đa dạng sinh học kỳ thú của tự nhiên.</p>
+                        </div>
+                        @{
+                            var spaceCat = categories.FirstOrDefault(c => c.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
+                        }
+                        @if (spaceCat != null)
+                        {
+                            <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@spaceCat.Name" class="btn-start-quiz" data-translate="play_now">
+                                BẮT ĐẦU CHƠI <i class="fa-solid fa-play"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Featured 2: Math / Archeology -->
+            <div class="col-lg-4 col-md-6">
+                <div class="quiz-kid-card">
+                    <div class="quiz-kid-card-img-wrap">
+                        <span class="quiz-tag-difficulty hard" data-translate="difficulty_hard">Khó</span>
+                        <div class="quiz-rating"><i class="fa-solid fa-star"></i> 4.8</div>
+                        <img src="~/images/tien-susahuynh.png" alt="Khảo cổ Sa Huỳnh" class="quiz-kid-card-img" />
+                    </div>
+                    <div class="quiz-kid-card-body">
+                        <div>
+                            <h3 class="quiz-kid-card-title" data-translate="featured_math_title">Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh</h3>
+                            <p class="quiz-kid-card-desc" data-translate="featured_math_desc">Cùng những con số kỳ diệu giải mã bí mật của các cổ vật quý hiếm hàng ngàn năm tuổi.</p>
+                        </div>
+                        @{
+                            var mathCat = categories.FirstOrDefault(c => c.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
+                        }
+                        @if (mathCat != null)
+                        {
+                            <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@mathCat.Name" class="btn-start-quiz" data-translate="play_now">
+                                BẮT ĐẦU CHƠI <i class="fa-solid fa-play"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Featured 3: Animals / Nature -->
+            <div class="col-lg-4 col-md-6">
+                <div class="quiz-kid-card">
+                    <div class="quiz-kid-card-img-wrap">
+                        <span class="quiz-tag-difficulty easy" data-translate="difficulty_easy">Dễ</span>
+                        <div class="quiz-rating"><i class="fa-solid fa-star"></i> 5.0</div>
+                        <img src="~/images/thien-nhien-va-con-nguoi.png" alt="Thiên nhiên động vật" class="quiz-kid-card-img" />
+                    </div>
+                    <div class="quiz-kid-card-body">
+                        <div>
+                            <h3 class="quiz-kid-card-title" data-translate="featured_art_title">Thiên Nhiên & Muông Thú</h3>
+                            <p class="quiz-kid-card-desc" data-translate="featured_art_desc">Bước vào khu rừng xanh thẳm, làm quen với các loài động thực vật cực kỳ độc đáo.</p>
+                        </div>
+                        @{
+                            var animalsCat = categories.FirstOrDefault(c => c.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
+                        }
+                        @if (animalsCat != null)
+                        {
+                            <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@animalsCat.Name" class="btn-start-quiz" data-translate="play_now">
+                                BẮT ĐẦU CHƠI <i class="fa-solid fa-play"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                                                                    <img src="~/lib/dnfam.png" alt="Bảo tàng Mỹ thuật Đà Nẵng"
-                                                                         style="width: 100%; max-width: 320px; height: auto; max-height: 150px; object-fit: contain; margin: 0 auto 35px auto; display: block; filter: drop-shadow(0 10px 20px rgba(139, 30, 25, 0.15));" />
+    <!-- All Quizzes Section -->
+    <section class="quiz-section bg-light-kid pt-2 pb-5" id="allQuizzesSection">
+        <div class="container px-4">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <span class="section-kid-eyebrow" data-translate="all_eyebrow">TẤT CẢ THỬ THÁCH</span>
+                    <h2 class="section-kid-title mb-0" data-translate="all_title">Kho Trắc Nghiệm Đa Dạng</h2>
+                </div>
+                <a asp-controller="Quiz" asp-action="Library" class="view-all-link" data-translate="show_all">Hiển thị tất cả</a>
+            </div>
+            
+            <div class="all-quizzes-grid" id="quizzesGrid">
+                @foreach (var cat in categories.Take(4))
+                {
+                    string subjectType = GetSubjectClass(cat.Name);
+                    
+                    string imageFile = "topic1.png";
+                    if (cat.Name.Contains("ĐỀ TÀI 1", StringComparison.OrdinalIgnoreCase)) imageFile = "topic1.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) imageFile = "topic2.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) imageFile = "topic3.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) imageFile = "topic4.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 5", StringComparison.OrdinalIgnoreCase)) imageFile = "topic5.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 6", StringComparison.OrdinalIgnoreCase)) imageFile = "topic6.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 7", StringComparison.OrdinalIgnoreCase)) imageFile = "topic7.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 8", StringComparison.OrdinalIgnoreCase)) imageFile = "topic8.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 9", StringComparison.OrdinalIgnoreCase)) imageFile = "topic9.png";
+                    else if (cat.Name.Contains("ĐỀ TÀI 10", StringComparison.OrdinalIgnoreCase)) imageFile = "topic10.png";
+                    else if (cat.Name.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_craft_village.png";
+                    else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_club.png";
+                    else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_artisan.png";
+                    else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_news.png";
+                    else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_general.png";
+                    // Fallback using deterministic hash if none matches
+                    else 
+                    {
+                        int hash = Math.Abs(cat.Name.GetHashCode()) % 5;
+                        string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
+                        imageFile = fallbacks[hash];
+                    }
+                    
+                    <div class="quiz-kid-card mini-topic-card" data-subject="@subjectType" data-title="@cat.Name.ToLower()">
+                        <div class="quiz-kid-card-img-wrap" style="height: 160px; position: relative;">
+                            @if(cat.IsCompleted)
+                            {
+                                <div style="position: absolute; top: 10px; right: 10px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                    <i class="fa-solid fa-check"></i> Đã hoàn thành
+                                </div>
+                            }
+                            <img src="~/images/topics/@imageFile" alt="@cat.Name" class="quiz-kid-card-img" style="object-fit: cover; height: 100%; width: 100%;" />
+                        </div>
+                        <div class="quiz-kid-card-body" style="padding: 20px;">
+                            <h3 class="quiz-kid-card-title" style="font-size: 1.15rem !important;">
+                                @cat.Name
+                                @if(cat.IsCompleted)
+                                {
+                                    <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;"></i>
+                                }
+                            </h3>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 15px;">
+                                📝 @cat.QuestionCount <span data-translate="questions_count">câu hỏi</span>
+                            </div>
+                            <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@cat.Name" class="btn-start-quiz" style="padding: 10px 15px; font-size: 0.85rem;" data-translate="play_now_mini">
+                                LÀM BÀI <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            
 
-                                                                    <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                                                        <a href="#topicSection" class="btn-primary-museum px-5 py-3 text-decoration-none"
-                                                                           style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; box-shadow: 0 8px 25px rgba(139, 30, 25, 0.3);">
-                                                                            🚀 CHỌN CHỦ ĐỀ
-                                                                        </a>
-                                                                        <span class="btn-secondary-museum px-5 py-3"
-                                                                              style="font-size: 1.1rem; font-weight: 700; border-radius: 30px; cursor: default;">
-                                                                            ✍️ Nhập tên ở màn tiếp theo
-                                                                        </span>
-                                                                    </div>
-                                                                }
-                                                            </div>
+        </div>
+    </section>
+ 
+    <!-- Achievements & Play History Dashboard Section -->
+    <section class="cta-section container px-4" id="achievementsDashboardSection">
+        <div class="dashboard-banner-kid">
+            <div class="row g-4 align-items-stretch" style="position: relative; z-index: 2;">
+                <!-- Left Column: Key Stats Indicators -->
+                <div class="col-lg-5 col-md-12 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="dashboard-crown-badge">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div>
+                            <h2 class="dashboard-kid-title" data-translate="dashboard_title" style="margin: 0; font-family: var(--font-heading); font-weight: 800; font-size: 1.8rem; color: #FAF8F5; text-shadow: 0 2px 4px rgba(0,0,0,0.15);">📊 Góc Thành Tích Của Em</h2>
+                            <p class="dashboard-kid-desc mb-0" data-translate="dashboard_desc" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">Dưới đây là thống kê kết quả và danh sách các thử thách mà em đã vượt qua!</p>
+                        </div>
+                    </div>
 
-                                                            @if (TempData["ErrorMessage"] != null)
-                                                            {
-                                                                <div class="alert-museum error mt-16 mb-16" style="border-radius: 12px;">
-                                                                    <span>⚠️</span>
-                                                                    <span>@TempData["ErrorMessage"]</span>
-                                                                </div>
-                                                            }
+                    <div class="row g-3 flex-grow-1">
+                        <!-- Play Count Card -->
+                        <div class="col-6">
+                            <div class="dashboard-stat-card h-100 text-center p-3 d-flex flex-column justify-content-center align-items-center">
+                                <div class="stat-icon-wrapper mb-2" style="background-color: rgba(47, 128, 237, 0.15); color: #2F80ED;">
+                                    <i class="fa-solid fa-gamepad" style="font-size: 1.8rem;"></i>
+                                </div>
+                                <div class="dashboard-stat-value" id="dashboardPlaysCount">0</div>
+                                <div class="dashboard-stat-label" data-translate="dashboard_totalplays">Số Lần Chơi</div>
+                            </div>
+                        </div>
 
-                                                            <div class="mt-24 mb-24 text-start">
-                                                                <h2 class="section-title mb-1" style="font-size:1.4rem; text-align:left; font-weight: 700;">Quy chế & Thể lệ thi
-                                                                    trắc nghiệm</h2>
-                                                                    <p class="section-subtitle mb-4" style="text-align:left;">Thông tin cần biết trước khi bắt đầu thử thách</p>
+                        <!-- Average Win Rate / Accuracy Card -->
+                        <div class="col-6">
+                            <div class="dashboard-stat-card h-100 text-center p-3 d-flex flex-column justify-content-center align-items-center">
+                                <div class="circular-progress-wrapper mb-2">
+                                    <svg width="70" height="70" viewBox="0 0 36 36" class="circular-chart-svg">
+                                        <path class="circle-bg"
+                                              d="M18 2.0845
+                                                 a 15.9155 15.9155 0 0 1 0 31.831
+                                                 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                              fill="none"
+                                              stroke="#EFECE6"
+                                              stroke-width="3" />
+                                        <path class="circle-progress-bar"
+                                              id="dashboardAccuracyCircle"
+                                              stroke-dasharray="0, 100"
+                                              d="M18 2.0845
+                                                 a 15.9155 15.9155 0 0 1 0 31.831
+                                                 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                              fill="none"
+                                              stroke="#27AE60"
+                                              stroke-width="3.5"
+                                              stroke-linecap="round" />
+                                        <text x="18" y="21.5" class="circle-percentage-text" id="dashboardAccuracyText">0%</text>
+                                    </svg>
+                                </div>
+                                <div class="dashboard-stat-label" data-translate="dashboard_winrate">Tỷ Lệ Đúng</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                                                    <div class="row g-4">
-                                                                        <div class="col-md-4">
-                                                                            <div class="museum-card p-4 h-100"
-                                                                                 style="background: rgba(255,255,255,0.6); border: 1px solid rgba(212, 175, 55, 0.3);">
-                                                                                <div style="font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 15px;">⏱️</div>
-                                                                                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Cấu
-                                                                                    trúc Bộ Đề</h3>
-                                                                                    <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Mỗi bộ đề thi
-                                                                                        gồm các câu hỏi trắc nghiệm được chọn lọc ngẫu nhiên từ ngân hàng đề thi chính thức của Bảo
-                                                                                        tàng.</p>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="col-md-4">
-                                                                                    <div class="museum-card p-4 h-100"
-                                                                                         style="background: rgba(255,255,255,0.6); border: 1px solid rgba(212, 175, 55, 0.3);">
-                                                                                        <div style="font-size: 2.2rem; color: #27AE60; margin-bottom: 15px;">🎯</div>
-                                                                                        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Chấm
-                                                                                            Điểm & Thưởng</h3>
-                                                                                            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Mỗi câu trả
-                                                                                                lời đúng sẽ mang lại điểm thưởng tương ứng. Trả lời càng nhanh và chính xác, điểm tích lũy càng
-                                                                                                cao.</p>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div class="col-md-4">
-                                                                                            <div class="museum-card p-4 h-100"
-                                                                                                 style="background: rgba(255,255,255,0.6); border: 1px solid rgba(212, 175, 55, 0.3);">
-                                                                                                <div style="font-size: 2.2rem; color: #E67E22; margin-bottom: 15px;">🏆</div>
-                                                                                                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px;">Bảng
-                                                                                                    vàng Vinh danh</h3>
-                                                                                                    <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Hệ thống tự
-                                                                                                        động xếp hạng thí sinh theo thời gian thực dựa trên tổng điểm tích lũy đạt được qua các lần thi.
-                                                                                                    </p>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
+                <!-- Right Column: Quiz History List -->
+                <div class="col-lg-7 col-md-12">
+                    <div class="dashboard-history-card p-3 h-100 d-flex flex-column">
+                        <h4 class="dashboard-panel-subheading mb-3" data-translate="dashboard_history">Lịch Sử Đề Đã Làm</h4>
+                        
+                        <!-- History scroll area -->
+                        <div class="dashboard-history-scroll flex-grow-1" id="dashboardHistoryListContainer">
+                            <!-- Empty State Placeholder -->
+                            <div class="dashboard-empty-state text-center py-4" id="dashboardHistoryEmptyState">
+                                <div style="font-size: 3rem; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">🏆</div>
+                                <p class="px-3" data-translate="dashboard_empty" style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600; line-height: 1.5;">Em chưa tham gia thử thách nào. Hãy chọn một chủ đề phía trên và thử sức ngay nhé! 🚀</p>
+                                <button class="btn btn-login-quizkid mt-2 px-4 py-2" data-translate="dashboard_btn_explore" onclick="document.querySelector('.subject-section-kid').scrollIntoView({ behavior: 'smooth', block: 'center' });">🚀 Khám Phá Các Chủ Đề</button>
+                            </div>
+                            
+                            <!-- Dynamic history list -->
+                            <div class="dashboard-history-list" id="dashboardHistoryList" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Leaderboard Section -->
+    <section class="leaderboard-section container px-4 text-center">
+        <span class="section-kid-eyebrow" data-translate="leaderboard_eyebrow">TOP CAO THỦ</span>
+        <h2 class="section-kid-title text-center mb-5" data-translate="leaderboard_title">Bảng Vàng Thành Tích</h2>
+        
+        <div class="leaderboard-kid-card mx-auto" style="max-width: 700px;">
+            @if (leaderboard != null && leaderboard.Count > 0)
+            {
+                int rank = 1;
+                foreach (var player in leaderboard)
+                {
+                    string badgeClass = rank == 1 ? "gold" : (rank == 2 ? "silver" : (rank == 3 ? "bronze" : "normal"));
+                    <div class="leaderboard-kid-item">
+                        <div class="rank-kid-badge @badgeClass">@rank</div>
+                        <div style="flex: 1;">
+                            <div class="leaderboard-kid-name">@player.FullName</div>
+                            <div class="leaderboard-kid-score">@player.TotalScore <span data-translate="leaderboard_points">điểm trắc nghiệm</span></div>
+                        </div>
+                        @if (rank == 1)
+                        {
+                            <div class="leaderboard-kid-title-award" data-translate="leaderboard_c1"><i class="fa-solid fa-crown"></i> Quán Quân</div>
+                        }
+                        else if (rank == 2)
+                        {
+                            <div class="leaderboard-kid-title-award" style="color: #A6A6A6;" data-translate="leaderboard_c2"><i class="fa-solid fa-medal"></i> Á Quân</div>
+                        }
+                        else if (rank == 3)
+                        {
+                            <div class="leaderboard-kid-title-award" style="color: #CD7F32;" data-translate="leaderboard_c3"><i class="fa-solid fa-award"></i> Quý Quân</div>
+                        }
+                        else
+                        {
+                            <div style="font-weight: 600; color: var(--text-muted);"><span data-translate="leaderboard_c_other">Top</span> @rank</div>
+                        }
+                    </div>
+                    rank++;
+                }
+            }
+            else
+            {
+                <div class="py-4">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🏆</div>
+                    <h4 style="font-family: var(--font-heading); font-weight: 700; color: var(--text-main);" data-translate="leaderboard_empty_title">Bảng Vàng Đang Chờ Người Xứng Đáng!</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 0;" data-translate="leaderboard_empty_desc">Hãy nhanh tay là thí sinh đầu tiên ghi danh lên đây nhé!</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>
 
-                                                                                    <div id="topicSection" class="mt-24 mb-24 text-start">
-                                                                                        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-2">
-                                                                                            <div>
-                                                                                                <h2 class="section-title mb-1" style="font-size:1.5rem; text-align:left; font-weight: 800;">Các Bộ Đề
-                                                                                                    Thi Trắc Nghiệm</h2>
-                                                                                                    <p class="section-subtitle mb-0" style="text-align:left;">Chọn một bộ đề bên dưới, sau đó nhập tên để
-                                                                                                        bắt đầu làm bài</p>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <span id="categoryCountBadge" class="badge"
-                                                                                                      style="background: var(--gold-primary); color: white; font-size: 0.9rem; padding: 8px 16px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 10px rgba(139, 30, 25, 0.2);">
-                                                                                                    @categories.Count bộ đề thi
-                                                                                                </span>
-                                                                                            </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Search JS is removed because search is now handled by redirecting to Library page.
+            
+            // Achievements Dashboard Logic
+            function renderAchievementsDashboard() {
+                let history = [];
+                try {
+                    history = JSON.parse(localStorage.getItem('quizkid_history') || '[]');
+                } catch (e) {
+                    console.error("Lỗi đọc lịch sử:", e);
+                    history = [];
+                }
 
-                                                                                            @foreach (var mainCat in mainCategories)
-                                                                                            {
-                                                                                                <div class="main-category-block mb-5">
-                                                                                                    <div class="category-header p-3 mb-4"
-                                                                                                         style="border-left: 5px solid var(--gold-primary); background: rgba(212, 175, 55, 0.05); border-radius: 0 12px 12px 0;"
-                                                                                                         id="cat-block-@mainCategories.IndexOf(mainCat)">
-                                                                                                        <h3 style="font-weight: 800; color: var(--gold-primary); margin-bottom: 5px;">@mainCat.Name</h3>
-                                                                                                        <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.5;">@mainCat.Description</p>
-                                                                                                    </div>
+                if (!Array.isArray(history)) {
+                    history = [];
+                }
 
-                                                                                                    <div class="topic-grid">
-                                                                                                        @foreach (var prefix in mainCat.TopicPrefixes)
-                                                                                                        {
-                                                                                                            var cat = categories.FirstOrDefault(c => c.Name.StartsWith(prefix));
-                                                                                                            if (cat != null)
-                                                                                                            {
-                                                                                                                string icon = icons.ContainsKey(cat.Name) ? icons[cat.Name] : "🏛️";
-                                                                                                                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@cat.Name"
-                                                                                                                   class="text-decoration-none topic-card-item">
-                                                                                                                    <div class="museum-card text-center p-4 h-100 d-flex flex-column justify-content-between align-items-center"
-                                                                                                                         style="transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(252,248,242,0.9) 100%); box-shadow: 0 10px 30px rgba(197, 160, 89, 0.15);">
-                                                                                                                        <div class="w-100">
-                                                                                                                            <span class="topic-icon"
-                                                                                                                                  style="font-size: 3rem; margin-bottom: 16px; display: inline-block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">@icon</span>
-                                                                                                                            <div class="topic-card-title mb-2"
-                                                                                                                                 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); letter-spacing: 0.5px; line-height: 1.3;">
-                                                                                                                                @cat.Name.ToUpper()</div>
-                                                                                                                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Ngân hàng câu hỏi
-                                                                                                                                    trắc nghiệm chuẩn hóa</p>
-                                                                                                                                </div>
+                const playsCountEl = document.getElementById('dashboardPlaysCount');
+                const accuracyCircleEl = document.getElementById('dashboardAccuracyCircle');
+                const accuracyTextEl = document.getElementById('dashboardAccuracyText');
+                const emptyStateEl = document.getElementById('dashboardHistoryEmptyState');
+                const historyListEl = document.getElementById('dashboardHistoryList');
 
-                                                                                                                                <div class="w-100">
-                                                                                                                                    <div class="badge mb-3"
-                                                                                                                                         style="background: rgba(212, 175, 55, 0.15); color: var(--gold-primary); border: 1px solid var(--gold-primary); padding: 6px 14px; border-radius: 12px; font-size: 0.85rem; font-weight: 700;">
-                                                                                                                                        📝 @(cat.QuestionCount > 0 ? $"{cat.QuestionCount} câu hỏi" : "Đang cập nhật đề")
-                                                                                                                                    </div>
+                if (!playsCountEl || !accuracyCircleEl || !accuracyTextEl || !emptyStateEl || !historyListEl) {
+                    return; // Guard if elements are not on the DOM
+                }
 
-                                                                                                                                    <div class="btn-primary-museum w-100 py-2 text-center"
-                                                                                                                                         style="font-size: 0.9rem; font-weight: 700; border-radius: 12px; transition: all 0.2s;">
-                                                                                                                                        ⚡ BẮT ĐẦU LÀM BÀI →
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                        </a>
-                                                                                                                    }
-                                                                                                                }
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                    }
+                const totalPlays = history.length;
+                playsCountEl.innerText = totalPlays;
 
-                                                                                                    <div id="noResultsMessage" class="text-center py-5 museum-card"
-                                                                                                         style="display: none; border-radius: 30px; border: none; background: transparent; box-shadow: none;">
-                                                                                                        <div class="row g-5 px-4 justify-content-center">
-                                                                                                            @for (int i = 0; i < mainCategories.Count; i++)
-                                                                                                            {
-                                                                                                                var mainCat = mainCategories[i];
-                                                                                                                var categoryTitle = mainCat.Name.Contains(":") ? mainCat.Name.Split(':')[1].Trim() : mainCat.Name;
-                                                                                                                var pillarColor = (i == 0 ? "#4CAF50" : (i == 1 ? "#D4AF37" : "#FF7043"));
-                                                                                                                var depthColor = (i == 0 ? "#388E3C" : (i == 1 ? "#B8860B" : "#E64A19"));
+                // Calculate Win Rate (average accuracy or total correct / total questions)
+                let avgAccuracy = 0;
+                if (totalPlays > 0) {
+                    const totalCorrect = history.reduce((sum, item) => sum + (item.correct || 0), 0);
+                    const totalQuestions = history.reduce((sum, item) => sum + (item.total || 0), 0);
+                    
+                    if (totalQuestions > 0) {
+                        avgAccuracy = Math.round((totalCorrect / totalQuestions) * 100);
+                    } else {
+                        const sumAcc = history.reduce((sum, item) => sum + (item.accuracy || 0), 0);
+                        avgAccuracy = Math.round(sumAcc / totalPlays);
+                    }
+                }
 
-                                                                                                                <div class="col-lg-4 col-md-6 category-pillar-wrapper">
-                                                                                                                    <a asp-controller="Quiz" asp-action="BrowseCategory" asp-route-id="@i"
-                                                                                                                       class="text-decoration-none h-100 d-block">
-                                                                                                                        <div class="category-pillar-3d" style="--pillar-depth: @depthColor;">
-                                                                                                                            <div class="pillar-content">
-                                                                                                                                <div class="pillar-icon-3d">
-                                                                                                                                    @(i == 0 ? "🌿" : (i == 1 ? "📜" : "🏛️"))
-                                                                                                                                </div>
-                                                                                                                                <h3 class="pillar-title" style="color: @pillarColor;">@categoryTitle</h3>
-                                                                                                                                <p class="text-muted" style="font-size: 0.95rem; font-weight: 500;">@mainCat.Description</p>
-                                                                                                                            </div>
-                                                                                                                            <div class="pillar-btn" style="background: @pillarColor;">
-                                                                                                                                BẮT ĐẦU KHÁM PHÁ <i class="fa-solid fa-rocket ms-2"></i>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </a>
-                                                                                                                </div>
-                                                                                                            }
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div class="mt-24 mb-24">
-                                                                                                        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-2">
-                                                                                                            <div>
-                                                                                                                <h2 class="section-title mb-1" style="font-size:1.5rem; text-align:left; font-weight: 800;">Bảng Vàng
-                                                                                                                    Thành Tích Trắc Nghiệm</h2>
-                                                                                                                    <p class="section-subtitle mb-0" style="text-align:left;">Top thí sinh có tổng điểm trắc nghiệm cao nhất
-                                                                                                                        toàn hệ thống</p>
-                                                                                                                    </div>
-                                                                                                                    <div style="font-size: 1.8rem;">🏆</div>
-                                                                                                                </div>
+                // Animate number and circle progress
+                accuracyTextEl.innerText = avgAccuracy + '%';
+                // circle stroke dasharray calculation: avgAccuracy (0 to 100)
+                accuracyCircleEl.setAttribute('stroke-dasharray', `${avgAccuracy}, 100`);
 
-                                                                                                                <div class="museum-card p-3"
-                                                                                                                     style="border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 14px 35px rgba(197, 160, 89, 0.2);">
-                                                                                                                    @{
-                                                                                                                        var leaderboard = ViewBag.Leaderboard as List<Bảo_Tàng_Đà_Nẵng.Controllers.PlayerRankViewModel>;
-                                                                                                                        if (leaderboard != null && leaderboard.Count > 0)
-                                                                                                                        {
-                                                                                                                            int rank = 1;
-                                                                                                                            foreach (var player in leaderboard)
-                                                                                                                            {
-                                                                                                                                string badgeClass = rank == 1 ? "gold" : (rank == 2 ? "silver" : (rank == 3 ? "bronze" : "normal"));
-                                                                                                                                <div class="leaderboard-item @($"top-{rank}") @(rank == leaderboard.Count ? "mb-0" : "")"
-                                                                                                                                     style="display: flex; align-items: center; padding: 16px 20px; border-bottom: @(rank == leaderboard.Count ? "none" : "1px solid rgba(212, 175, 55, 0.15)"); transition: all 0.2s; border-radius: 12px;">
-                                                                                                                                    <div class="rank-badge @badgeClass"
-                                                                                                                                         style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; font-size: 1.1rem; margin-right: 20px; background: @(rank == 1 ? "var(--gold-primary)" : (rank == 2 ? "#C0C0C0" : (rank == 3 ? "#CD7F32" : "rgba(10,25,47,0.05)"))); color: @(rank <= 3 ? "#FFF" : "var(--text-main)"); box-shadow: @(rank <= 3 ? "0 4px 10px rgba(0,0,0,0.15)" : "none");">
-                                                                                                                                        @rank</div>
-                                                                                                                                        <div style="flex: 1; text-align: left;">
-                                                                                                                                            <div style="font-weight: 700; color: var(--text-dark); font-size: 1.15rem;">@player.FullName</div>
-                                                                                                                                            <div style="font-size: 0.9rem; color: var(--gold-primary); font-weight: 600;">⭐ @player.TotalScore
-                                                                                                                                                điểm trắc nghiệm</div>
-                                                                                                                                            </div>
-                                                                                                                                            @if (rank == 1)
-                                                                                                                                            {
-                                                                                                                                                <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" title="Top 1 Quán Quân">
-                                                                                                                                                    🏆 Quán Quân</div>
-                                                                                                                                                }
-                            else if (rank == 2)
-                                                                                                                                                {
-                                                                                                                                                    <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" title="Top 2 Á Quân">🥈
-                                                                                                                                                        Á Quân</div>
-                                                                                                                                                    }
-                            else if (rank == 3)
-                                                                                                                                                    {
-                                                                                                                                                        <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" title="Top 3 Quý Quân">
-                                                                                                                                                            🥉 Quý Quân</div>
-                                                                                                                                                        }
-                            else
-                                                                                                                                                        {
-                                                                                                                                                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);">Top @rank</div>
-                                                                                                                                                        }
-                                                                                                                                                    </div>
-                                                                                                                                                    rank++;
-                                                                                                                                                }
-                                                                                                                                            }
-                                                                                                                                            else
-                                                                                                                                            {
-                                                                                                                                                <div class="text-center text-muted py-5">
-                                                                                                                                                    <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
-                                                                                                                                                    <h5 style="font-weight: 700; color: var(--text-dark);">Chưa có dữ liệu xếp hạng trắc nghiệm</h5>
-                                                                                                                                                    <p style="color: var(--text-muted); margin: 0;">Hãy chọn một bộ đề thi ở trên và trở thành người đầu
-                                                                                                                                                        tiên ghi danh lên Bảng vàng!</p>
-                                                                                                                                                    </div>
-                                                                                                                                                }
-                                                                                                                                            }
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                                @section Scripts {
-                                                                                                                                    <script>
-                                                                                                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                                                                                                            const searchInput = document.getElementById('categorySearchInput'); // From Navbar
-                                                                                                                                            const navCategoryFilter = document.getElementById('navCategoryFilter'); // From Navbar
-                                                                                                                                            const topicCards = document.querySelectorAll('.topic-card-item');
-                                                                                                                                            const noResultsMsg = document.getElementById('noResultsMessage');
-                                                                                                                                            const countBadge = document.getElementById('categoryCountBadge');
+                if (totalPlays === 0) {
+                    emptyStateEl.style.display = 'block';
+                    historyListEl.style.display = 'none';
+                } else {
+                    emptyStateEl.style.display = 'none';
+                    historyListEl.style.display = 'flex';
+                    
+                    let listHtml = '';
+                    const lang = localStorage.getItem('selectedLanguage') || 'vi';
+                    const scoreLabel = lang === 'vi' ? 'điểm' : 'pts';
+                    const correctLabel = lang === 'vi' ? 'Đúng' : 'Correct';
+                    const completedOnLabel = lang === 'vi' ? 'Ngày làm: ' : 'Played on: ';
 
-                                                                                                                                            function performFilter() {
-                                                                                                                                                const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
-                                                                                                                                                const currentSelectedCat = (navCategoryFilter && navCategoryFilter.value) || "";
-                                                                                                                                                const categoryBlocks = document.querySelectorAll('.main-category-block');
-                                                                                                                                                let totalVisible = 0;
+                    history.forEach(item => {
+                        const rawTopicName = item.topic || '';
+                        let transKey = 'topic_other';
+                        if (rawTopicName.includes('Chủ đề 1') || rawTopicName.includes('Tổng hợp')) transKey = 'topic_1';
+                        else if (rawTopicName.includes('Chủ đề 2') || rawTopicName.includes('làng nghề')) transKey = 'topic_2';
+                        else if (rawTopicName.includes('Chủ đề 3') || rawTopicName.includes('Nghệ nhân')) transKey = 'topic_3';
+                        else if (rawTopicName.includes('Chủ đề 4') || rawTopicName.includes('Câu lạc bộ')) transKey = 'topic_4';
+                        
+                        const topicName = window.translations && window.translations[lang] && window.translations[lang][transKey] 
+                                          ? window.translations[lang][transKey] 
+                                          : rawTopicName;
+                                          
+                        let subjectClass = 'art';
+                        let iconName = 'fa-palette';
 
-                                                                                                                                                categoryBlocks.forEach(block => {
-                                                                                                                                                    let visibleInBlock = 0;
-                                                                                                                                                    const cards = block.querySelectorAll('.topic-card-item');
+                        if (rawTopicName.includes('Chủ đề 1') || rawTopicName.includes('Tổng hợp')) {
+                            subjectClass = 'science';
+                            iconName = 'fa-flask';
+                        } else if (rawTopicName.includes('Chủ đề 2') || rawTopicName.includes('làng nghề')) {
+                            subjectClass = 'math';
+                            iconName = 'fa-calculator';
+                        } else if (rawTopicName.includes('Chủ đề 3') || rawTopicName.includes('Nghệ nhân')) {
+                            subjectClass = 'languages';
+                            iconName = 'fa-language';
+                        } else {
+                            subjectClass = 'art';
+                            iconName = 'fa-palette';
+                        }
 
-                                                                                                                                                    cards.forEach(card => {
-                                                                                                                                                        const title = card.querySelector('.topic-card-title').textContent.toLowerCase();
-                                                                                                                                                        const cardCat = card.getAttribute('href').split('topic=')[1];
-                                                                                                                                                        const decodedCat = decodeURIComponent(cardCat || "");
+                        listHtml += `
+                            <div class="history-item">
+                                <div class="history-item-badge ${subjectClass}">
+                                    <i class="fa-solid ${iconName}"></i>
+                                </div>
+                                <div class="history-item-info">
+                                    <div class="history-item-topic" title="${topicName}">${topicName}</div>
+                                    <div class="history-item-date">${completedOnLabel}${item.date || ''}</div>
+                                </div>
+                                <div class="history-item-score">
+                                    <div class="score-value">${item.score || 0} ${scoreLabel}</div>
+                                    <div class="score-accuracy">${correctLabel} ${item.correct || 0}/${item.total || 0} (${Math.round(item.accuracy || 0)}%)</div>
+                                </div>
+                            </div>
+                        `;
+                    });
 
-                                                                                                                                                        const matchSearch = title.includes(query);
-                                                                                                                                                        const matchCat = currentSelectedCat === "" || decodedCat === currentSelectedCat;
+                    historyListEl.innerHTML = listHtml;
+                }
+            }
 
-                                                                                                                                                        if (matchSearch && matchCat) {
-                                                                                                                                                            card.style.display = 'block';
-                                                                                                                                                            visibleInBlock++;
-                                                                                                                                                            totalVisible++;
-                                                                                                                                                        } else {
-                                                                                                                                                            card.style.display = 'none';
-                                                                                                                                                        }
-                                                                                                                                                    });
+            // Render initially
+            renderAchievementsDashboard();
 
-                                                                                                                                                    // Ẩn toàn bộ khối danh mục nếu không có chủ đề nào bên trong khớp tìm kiếm
-                                                                                                                                                    block.style.display = visibleInBlock > 0 ? 'block' : 'none';
-                                                                                                                                                });
-
-                                                                                                                                                if (countBadge) countBadge.textContent = totalVisible + ' bộ đề thi';
-                                                                                                                                                if (noResultsMsg) noResultsMsg.style.display = totalVisible === 0 ? 'block' : 'none';
-                                                                                                                                            }
-
-                                                                                                                                            if (searchInput) {
-                                                                                                                                                searchInput.addEventListener('input', performFilter);
-                                                                                                                                            }
-
-                                                                                                                                            // Initial filter when page loads
-                                                                                                                                            performFilter();
-                                                                                                                                        });
-                                                                                                                                    </script>
-                                                                                                                                }
+            // Listen for language changes to update dynamic strings
+            document.addEventListener('langChanged', function () {
+                renderAchievementsDashboard();
+            });
+        });
+    </script>
+}

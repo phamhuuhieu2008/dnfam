@@ -54,11 +54,20 @@ namespace Bảo_Tàng_Đà_Nẵng
             app.UseSession();
             app.UseAuthorization();
 
-            app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+                ;
+
+            // ── 5. Nạp dữ liệu tự động ────────────────────────────────────
+            try 
+            {
+                Bảo_Tàng_Đà_Nẵng.ParseAndSeed.Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi nạp dữ liệu: " + ex.Message);
+            }
 
             app.Run();
         }

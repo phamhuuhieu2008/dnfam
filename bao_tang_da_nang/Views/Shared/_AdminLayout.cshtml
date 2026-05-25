@@ -9,10 +9,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
     <!-- Museum Design System -->
+    <link rel="stylesheet" href="~/css/quizkid.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/museum.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --bg-deep: #FAF8F5;
+            --text-main: #2C1E0A;
+            --glass-bg: #FFFFFF;
+            --glass-border: #EFECE6;
+            --gold-primary: #805A12;
+            --gold-light: #FDF6EA;
+            --brand-orange: #E07A3F;
+        }
         body {
             background-color: var(--bg-deep);
             color: var(--text-main);
@@ -124,6 +134,30 @@
                 display: block;
             }
         }
+
+        /* Admin Form Khaki Theme */
+        .form-control.auth-input, .form-select.auth-input {
+            background-color: #9C9482 !important;
+            color: #111 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+        }
+        .form-control.auth-input::placeholder {
+            color: #444 !important;
+        }
+        .form-control.auth-input:focus, .form-select.auth-input:focus {
+            outline: 2px solid #555 !important;
+            box-shadow: none !important;
+        }
+        .form-label {
+            color: #333 !important;
+            font-weight: 500 !important;
+            font-size: 0.95rem;
+        }
+        .text-danger {
+            color: #D93025 !important;
+        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -137,7 +171,7 @@
         <nav id="sidebar">
             <div class="sidebar-header">
                 <a href="/" class="text-decoration-none">
-                    <h3><i class="fa-solid fa-museum me-2"></i>Admin Panel</h3>
+                    <img src="~/images/dnfam.png" alt="Bảo Tàng Đà Nẵng" style="max-height: 50px; object-fit: contain;" />
                 </a>
             </div>
 

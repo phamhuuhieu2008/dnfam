@@ -15,7 +15,7 @@
     </div>
 
     <div class="museum-card p-4">
-        <form asp-action="@(isCreate ? "CreateQuestion" : "EditQuestion")" method="post">
+        <form asp-action="@(isCreate ? "CreateQuestion" : "EditQuestion")" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             @if (!isCreate)
             {
@@ -72,8 +72,20 @@
             </div>
 
             <div class="mb-5">
-                <label asp-for="ImageUrl" class="form-label font-weight-bold" style="color: var(--text-dark) !important;">URL Hình ảnh minh hoạ (Tuỳ chọn)</label>
-                <input asp-for="ImageUrl" class="form-control auth-input bg-white text-dark" placeholder="https://example.com/image.jpg" />
+                <label class="form-label font-weight-bold" style="color: var(--text-dark) !important;">Hình ảnh minh hoạ (Tuỳ chọn)</label>
+                <input type="file" name="imageFile" class="form-control auth-input bg-white text-dark" accept="image/*" />
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="mt-2 d-flex align-items-center gap-3">
+                        <small class="text-muted">Hình ảnh hiện tại: <a href="@Model.ImageUrl" target="_blank">Xem hình</a></small>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="RemoveImage" value="true" id="RemoveImage">
+                            <label class="form-check-label text-danger" style="font-size: 0.85rem;" for="RemoveImage">
+                                <i class="fa-solid fa-trash-can"></i> Xóa ảnh này
+                            </label>
+                        </div>
+                    </div>
+                }
             </div>
 
             <button type="submit" class="btn-primary-museum w-100">

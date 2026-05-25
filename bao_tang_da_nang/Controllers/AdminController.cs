@@ -40,13 +40,15 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
     {
         private readonly AppDbContext _db;
         private readonly IConfiguration _config;
+        private readonly IWebHostEnvironment _env;
 
         private const string SESSION_ADMIN_UNLOCKED = "AdminUnlocked";
 
-        public AdminController(AppDbContext db, IConfiguration config)
+        public AdminController(AppDbContext db, IConfiguration config, IWebHostEnvironment env)
         {
             _db = db;
             _config = config;
+            _env = env;
         }
 
         [HttpGet]
@@ -141,7 +143,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
 
         public async Task<IActionResult> Users(string? search)
         {
-            var query = _db.Users.AsQueryable();
+            var query = _db.Users.Include(u => u.QuizSessions).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -168,10 +170,23 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateQuestion(Bảo_Tàng_Đà_Nẵng.Models.Question model)
+        public async Task<IActionResult> CreateQuestion(Bảo_Tàng_Đà_Nẵng.Models.Question model, IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
                 return View("QuestionForm", model);
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "images", "questions");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+                model.ImageUrl = "/images/questions/" + uniqueFileName;
+            }
 
             model.IsActive = true;
             _db.Questions.Add(model);
@@ -191,7 +206,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditQuestion(int id, Bảo_Tàng_Đà_Nẵng.Models.Question model)
+        public async Task<IActionResult> EditQuestion(int id, Bảo_Tàng_Đà_Nẵng.Models.Question model, IFormFile? imageFile, bool RemoveImage = false)
         {
             if (id != model.Id) return BadRequest();
 
@@ -201,6 +216,23 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             var existing = await _db.Questions.FindAsync(id);
             if (existing == null) return NotFound();
 
+            if (RemoveImage)
+            {
+                existing.ImageUrl = null;
+            }
+            else if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "images", "questions");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+                existing.ImageUrl = "/images/questions/" + uniqueFileName;
+            }
+
             existing.Content = model.Content;
             existing.OptionA = model.OptionA;
             existing.OptionB = model.OptionB;
@@ -209,7 +241,6 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             existing.CorrectOption = model.CorrectOption;
             existing.Points = model.Points;
             existing.LocationName = model.LocationName;
-            existing.ImageUrl = model.ImageUrl;
 
             await _db.SaveChangesAsync();
 
@@ -261,6 +292,33 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             await _db.SaveChangesAsync();
 
             TempData["SuccessMsg"] = user.IsActive ? "Đã mở khóa tài khoản." : "Đã khóa tài khoản thành công.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _db.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            var currentUserIdStr = HttpContext.Session.GetInt32("UserId");
+            if (currentUserIdStr.HasValue && currentUserIdStr.Value == id)
+            {
+                TempData["ErrorMsg"] = "Bạn không thể tự xóa tài khoản của mình!";
+                return RedirectToAction(nameof(Users));
+            }
+
+            if (user.Role == "Admin")
+            {
+                TempData["ErrorMsg"] = "Không thể xóa tài khoản Quản trị viên!";
+                return RedirectToAction(nameof(Users));
+            }
+
+            _db.Users.Remove(user);
+            await _db.SaveChangesAsync();
+
+            TempData["SuccessMsg"] = "Đã xóa tài khoản thành công.";
             return RedirectToAction(nameof(Users));
         }
 

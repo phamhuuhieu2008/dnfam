@@ -39,6 +39,8 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
         [HttpGet]
         public IActionResult StartSession(string? topic)
         {
+            Console.WriteLine($"[DEBUG] StartSession GET called with Topic: '{topic}' (IsNull: {topic == null})");
+
             if (string.IsNullOrWhiteSpace(topic))
             {
                 TempData["ErrorMessage"] = "Vui lòng chọn một chủ đề trước khi bắt đầu.";
@@ -64,6 +66,10 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             string topic = model.Topic.Trim();
             string playerName = model.PlayerName.Trim();
 
+            Console.WriteLine($"[DEBUG] StartSession POST called with Topic: '{topic}' (Length: {topic.Length})");
+
+            HttpContext.Session.SetString(SESSION_USER_FULLNAME, playerName);
+
             if (string.IsNullOrWhiteSpace(playerName))
             {
                 ModelState.AddModelError(nameof(model.PlayerName), "Vui lòng nhập tên của bạn.");
@@ -71,7 +77,27 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             }
 
             int questionCount = _config.GetValue<int>("AppSettings:QuestionsPerQuiz", 5);
-            var questionIds = await GetQuestionIdsByTopicAsync(topic, questionCount);
+
+            // Tự động lấy số lượng câu hỏi phù hợp
+            if (model.Topic == "Tổng hợp" || 
+                model.Topic == "Bảo tàng làng nghề" ||
+                model.Topic == "Nghệ nhân" ||
+                model.Topic == "Câu lạc bộ")
+            {
+                questionCount = 40;
+            }
+            else if (model.Topic == "Tổng hợp 300 câu")
+            {
+                questionCount = 300;
+            }
+            else if (model.Topic == "Chủ đề 1" || model.Topic == "Chủ đề 2" || model.Topic == "Chủ đề 3")
+            {
+                questionCount = 75;
+            }
+
+            var questionIds = await GetQuestionIdsByTopicAsync(model.Topic, questionCount);
+
+            Console.WriteLine($"[DEBUG] GetQuestionIdsByTopicAsync returned {questionIds.Count} questions.");
 
             if (questionIds.Count == 0)
             {
@@ -109,9 +135,9 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
         {
             var mainCategories = new List<(string Name, string Description, List<string> Prefixes)>
             {
-                ("DANH MỤC 1: TỰ NHIÊN VÀ CON NGƯỜI ĐÀ NẴNG", "Khám phá vị trí địa lý, hệ sinh thái và văn hóa tiền sử.", new List<string> { "Chủ đề 1", "Chủ đề 2", "Chủ đề 3" }),
-                ("DANH MỤC 2: LỊCH SỬ ĐÔ THỊ VÀ KHÁNG CHIẾN", "Tiến trình lịch sử từ thời phong kiến đến hai cuộc kháng chiến chống Pháp - Mỹ.", new List<string> { "Chủ đề 4", "Chủ đề 5", "Chủ đề 6", "Chủ đề 7", "Chủ đề 8" }),
-                ("DANH MỤC 3: VĂN HÓA VÀ DI SẢN TRUYỀN THỐNG", "Đời sống văn hóa, phong tục và các bộ sưu tập kỷ vật quý hiếm.", new List<string> { "Chủ đề 9", "Chủ đề 10" })
+                ("DANH MỤC 1: TỰ NHIÊN VÀ CON NGƯỜI ĐÀ NẴNG", "Khám phá vị trí địa lý, hệ sinh thái và văn hóa tiền sử.", new List<string> { "ĐỀ TÀI 1", "ĐỀ TÀI 2", "ĐỀ TÀI 3" }),
+                ("DANH MỤC 2: LỊCH SỬ ĐÔ THỊ VÀ KHÁNG CHIẾN", "Tiến trình lịch sử từ thời phong kiến đến hai cuộc kháng chiến chống Pháp - Mỹ.", new List<string> { "ĐỀ TÀI 4", "ĐỀ TÀI 5", "ĐỀ TÀI 6", "ĐỀ TÀI 7", "ĐỀ TÀI 8" }),
+                ("DANH MỤC 3: VĂN HÓA VÀ DI SẢN TRUYỀN THỐNG", "Đời sống văn hóa, phong tục và các bộ sưu tập kỷ vật quý hiếm.", new List<string> { "ĐỀ TÀI 9", "ĐỀ TÀI 10" })
             };
 
             if (id < 0 || id >= mainCategories.Count)
@@ -131,6 +157,23 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 })
                 .ToListAsync();
 
+            int? userId = HttpContext.Session.GetInt32(SESSION_USER_ID);
+            if (userId.HasValue)
+            {
+                var completedTopics = await _db.QuizSessions
+                    .Where(s => s.UserId == userId.Value && s.IsCompleted)
+                    .SelectMany(s => s.SessionDetails)
+                    .Where(d => d.Question != null && d.Question.LocationName != null)
+                    .Select(d => d.Question!.LocationName!)
+                    .Distinct()
+                    .ToListAsync();
+
+                foreach(var t in topics)
+                {
+                    t.IsCompleted = completedTopics.Contains(t.Name);
+                }
+            }
+
             // Lọc các chủ đề thuộc danh mục này
             var filteredTopics = topics.Where(t => prefixes.Any(p => t.Name.StartsWith(p))).ToList();
 
@@ -138,6 +181,63 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             ViewBag.CategoryDescription = category.Description;
 
             return View(filteredTopics);
+        }
+
+        // ════════════════════════════════════════════════════════
+        // KHO BÀI LÀM (TẤT CẢ CHỦ ĐỀ)
+        // ════════════════════════════════════════════════════════
+        
+        [HttpGet]
+        public async Task<IActionResult> Library(string? query)
+        {
+            var categories = await _db.Questions
+                .Where(q => q.IsActive && !string.IsNullOrEmpty(q.LocationName))
+                .GroupBy(q => q.LocationName)
+                .Select(g => new CategorySummaryViewModel
+                {
+                    Name = g.Key ?? "Khác",
+                    QuestionCount = g.Count()
+                })
+                .ToListAsync();
+
+            int? userId = HttpContext.Session.GetInt32(SESSION_USER_ID);
+            if (userId.HasValue)
+            {
+                var completedTopics = await _db.QuizSessions
+                    .Where(s => s.UserId == userId.Value && s.IsCompleted)
+                    .SelectMany(s => s.SessionDetails)
+                    .Where(d => d.Question != null && d.Question.LocationName != null)
+                    .Select(d => d.Question!.LocationName!)
+                    .Distinct()
+                    .ToListAsync();
+
+                foreach(var cat in categories)
+                {
+                    cat.IsCompleted = completedTopics.Contains(cat.Name);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                string RemoveDiacritics(string text)
+                {
+                    if (string.IsNullOrWhiteSpace(text)) return text;
+                    var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var c in normalized)
+                    {
+                        if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                            sb.Append(c);
+                    }
+                    return sb.ToString().Normalize(System.Text.NormalizationForm.FormC).Replace('đ', 'd').Replace('Đ', 'D');
+                }
+
+                string queryLower = RemoveDiacritics(query).Trim().ToLower();
+                categories = categories.Where(c => RemoveDiacritics(c.Name).ToLower().Contains(queryLower)).ToList();
+                ViewBag.SearchQuery = query;
+            }
+
+            return View(categories);
         }
 
         // ════════════════════════════════════════════════════════
@@ -328,6 +428,19 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
 
             int correctCount = session.SessionDetails.Count(d => d.IsCorrect);
 
+            var distinctTopics = session.SessionDetails.Where(d => d.Question != null && d.Question.LocationName != null).Select(d => d.Question!.LocationName).Distinct().ToList();
+            string topicName = "Trắc nghiệm Tổng hợp";
+            if (distinctTopics.Count == 1)
+            {
+                topicName = distinctTopics.First() ?? "Trắc nghiệm Tổng hợp";
+            }
+            else if (distinctTopics.Count > 1)
+            {
+                topicName = "Chủ đề Tổng hợp (Nhiều đề tài)";
+            }
+            
+            ViewBag.TopicName = topicName;
+
             var resultVm = new QuizResultViewModel
             {
                 SessionId = session.Id,
@@ -366,7 +479,49 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
 
             if (!string.IsNullOrWhiteSpace(topic))
             {
-                query = query.Where(q => q.LocationName == topic);
+                var allTopics = await _db.Questions.Where(q => q.IsActive && q.LocationName != null)
+                                                   .Select(q => q.LocationName)
+                                                   .Distinct()
+                                                   .ToListAsync();
+                
+                string Normalize(string? s) => s?.Replace('\u00A0', ' ').Replace("\r", "").Replace("\n", "").Trim() ?? "";
+                
+                string normalizedInput = Normalize(topic);
+
+                if (normalizedInput == "Tổng hợp 300 câu")
+                {
+                    // Lấy tất cả câu hỏi, không filter theo chủ đề
+                }
+                else if (normalizedInput == "Chủ đề 1")
+                {
+                    query = query.Where(q => q.LocationName != null && (q.LocationName.Contains("ĐỀ TÀI 1") || q.LocationName.Contains("ĐỀ TÀI 2") || q.LocationName.Contains("ĐỀ TÀI 3")));
+                }
+                else if (normalizedInput == "Chủ đề 2")
+                {
+                    query = query.Where(q => q.LocationName != null && (q.LocationName.Contains("ĐỀ TÀI 4") || q.LocationName.Contains("ĐỀ TÀI 5") || q.LocationName.Contains("ĐỀ TÀI 6") || q.LocationName.Contains("ĐỀ TÀI 7") || q.LocationName.Contains("ĐỀ TÀI 8")));
+                }
+                else if (normalizedInput == "Chủ đề 3")
+                {
+                    query = query.Where(q => q.LocationName != null && (q.LocationName.Contains("ĐỀ TÀI 9") || q.LocationName.Contains("ĐỀ TÀI 10")));
+                }
+                else
+                {
+                    string exactDbTopic = allTopics.FirstOrDefault(t => Normalize(t) == normalizedInput);
+
+                    if (exactDbTopic != null)
+                    {
+                        query = query.Where(q => q.LocationName == exactDbTopic);
+                    }
+                    else
+                    {
+                        // Tương thích ngược với dữ liệu mẫu (Seeded data) nếu chưa Import JSON mới
+                        if (normalizedInput == "Tổng hợp") query = query.Where(q => q.LocationName != null && q.LocationName.Contains("Chủ đề 1"));
+                        else if (normalizedInput == "Bảo tàng làng nghề") query = query.Where(q => q.LocationName != null && q.LocationName.Contains("Chủ đề 2"));
+                        else if (normalizedInput == "Nghệ nhân") query = query.Where(q => q.LocationName != null && q.LocationName.Contains("Chủ đề 3"));
+                        else if (normalizedInput == "Câu lạc bộ") query = query.Where(q => q.LocationName != null && q.LocationName.Contains("Chủ đề 4"));
+                        else query = query.Where(q => q.LocationName == topic);
+                    }
+                }
             }
 
             return await query

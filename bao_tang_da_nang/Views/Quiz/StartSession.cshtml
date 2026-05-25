@@ -3,28 +3,36 @@
     ViewData["Title"] = "Bắt đầu phiên chơi";
 }
 
-<div class="kid-quiz-page animate-fadeInUp">
-    <div class="kid-quiz-banner text-center">
-        <div class="kid-eyebrow">🎈 Sẵn sàng khám phá</div>
-        <h1 class="kid-title">Chơi quiz cùng Bảo tàng</h1>
-        <p class="kid-subtitle">Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.</p>
+<div class="kid-quiz-page animate-fadeInUp" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="text-center mb-4">
+        <img src="~/images/lightbulb_mascot.png" alt="Lightbulb Mascot" style="width: 140px; height: 140px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: -15px; position: relative; z-index: 10;" />
+        <br/>
+        <div class="kid-eyebrow d-inline-block" style="background-color: #FA9465; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; position: relative; z-index: 11; border: 2px solid white;" data-translate="start_session_eyebrow">
+            <i class="fa-solid fa-magnifying-glass"></i> SẴN SÀNG KHÁM PHÁ
+        </div>
+        <h1 class="kid-title mt-3" style="font-family: var(--font-heading); font-weight: 900; font-size: 3rem; color: #2C2825;" data-translate="start_session_header">Chơi quiz cùng Bảo tàng</h1>
+        <p class="kid-subtitle" style="color: #6C6863; font-weight: 500; font-size: 1.05rem;" data-translate="start_session_subtitle">Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.</p>
     </div>
 
-    <div class="kid-quiz-card museum-card" style="max-width: 720px; margin: 0 auto;">
+    <div class="kid-quiz-card" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); position: relative;">
+        <!-- decorative close button top right like in mockup -->
+        <div style="position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background-color: #FA9465; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 10px rgba(250, 148, 101, 0.4); font-size: 1.2rem;">
+            <i class="fa-solid fa-star"></i>
+        </div>
+
         @if (TempData["ErrorMessage"] is string errorMessage && !string.IsNullOrWhiteSpace(errorMessage))
         {
-            <div class="alert-museum error" role="alert">
-                <span>⚠️</span>
-                <span>@errorMessage</span>
+            <div class="alert alert-danger rounded-4 fw-bold" role="alert">
+                <i class="fa-solid fa-triangle-exclamation"></i> @errorMessage
             </div>
         }
 
-        <div class="mb-3">
-            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700;">
+        <div class="mb-4">
+            <div style="font-size: 0.75rem; color: #A27D42; margin-bottom: 8px; font-weight: 800; text-transform: uppercase;" data-translate="start_session_chosen_topic">
                 Chủ đề em đã chọn
             </div>
-            <div style="padding: 14px 16px; border: 3px solid #D4AF37; border-radius: 16px; background: #FFFDF5; font-weight: 800; color: #8B1E19; font-size: 1.05rem;">
-                @Model.Topic
+            <div style="padding: 16px 20px; border: 2px solid #F6E2A3; border-radius: 50px; font-weight: 700; color: #805A12; font-size: 1.05rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-scroll"></i> @Model.Topic
             </div>
         </div>
 
@@ -32,18 +40,21 @@
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Topic" />
 
-            <div class="mb-3">
-                <label asp-for="PlayerName" class="form-label" style="font-weight: 800; color: #8B1E19;"></label>
-                <input asp-for="PlayerName" class="form-control" placeholder="Ví dụ: Minh Anh" autocomplete="name" />
-                <span asp-validation-for="PlayerName" class="text-danger" style="font-size: 0.9rem; font-weight: 700;"></span>
+            <div class="mb-5">
+                <label asp-for="PlayerName" class="form-label" style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;" data-translate="start_session_label">Tên người chơi</label>
+                <div style="position: relative;">
+                    <input asp-for="PlayerName" class="form-control shadow-none" placeholder="Nhập tên của em..." data-translate="start_session_placeholder" autocomplete="name" style="padding: 16px 20px; border-radius: 50px; background-color: #F5F4F0; border: 2px solid #EBEAE5; font-weight: 600; color: #504C49; font-size: 1.05rem; padding-right: 45px;" />
+                    <i class="fa-solid fa-pencil" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #B5B2AB;"></i>
+                </div>
+                <span asp-validation-for="PlayerName" class="text-danger mt-2 d-block" style="font-size: 0.9rem; font-weight: 700;"></span>
             </div>
 
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn-primary-museum">
-                    🚀 Bắt đầu ngay
+            <div class="d-grid gap-3">
+                <button type="submit" class="btn" style="background: linear-gradient(180deg, #F9B621 0%, #E89100 100%); color: white; padding: 18px; border-radius: 50px; font-weight: 800; font-size: 1.2rem; border: none; box-shadow: 0 10px 20px rgba(232, 145, 0, 0.3), inset 0 -4px 0 rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s ease;" data-translate="start_session_btn">
+                    <i class="fa-solid fa-rocket"></i> BẮT ĐẦU NGAY
                 </button>
-                <a asp-controller="Home" asp-action="Index" class="btn-secondary-museum text-center" style="display: block; text-decoration: none;">
-                    🏠 Quay lại trang chủ
+                <a asp-controller="Home" asp-action="Index" class="btn text-center" style="background-color: #EBEAE5; color: #504C49; padding: 14px; border-radius: 50px; font-weight: 700; text-decoration: none; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s ease;" data-translate="start_session_back">
+                    <i class="fa-solid fa-house"></i> Quay lại trang chủ
                 </a>
             </div>
         </form>

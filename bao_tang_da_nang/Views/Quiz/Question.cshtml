@@ -41,8 +41,8 @@
 <div class="kid-quiz-page animate-fadeInUp">
     <div class="kid-quiz-progress">
         <div class="quiz-progress-info">
-            <div class="q-counter">Câu @Model.CurrentIndex / @Model.TotalQuestions</div>
-            <div class="q-score" id="scoreDisplay">@Model.CurrentScore điểm</div>
+            <div class="q-counter"><span data-translate="finish_review_q">Câu</span> @Model.CurrentIndex / @Model.TotalQuestions</div>
+            <div class="q-score" id="scoreDisplay">@Model.CurrentScore <span data-translate="finish_review_points">điểm</span></div>
         </div>
         <div class="progress-bar-track">
             <div class="progress-bar-fill" style="width: @progressPercent%"></div>
@@ -65,7 +65,7 @@
         </div>
 
         <div class="question-points">
-            ⭐ Mỗi câu đúng được @Model.Points điểm
+            <span data-translate="question_points_prefix">⭐ Mỗi câu đúng được</span> @Model.Points <span data-translate="question_points_suffix">điểm</span>
         </div>
     </div>
 
@@ -93,7 +93,7 @@
 </div>
 
 <div class="bottom-action" style="display: none;" id="bottomActionContainer">
-    <button type="button" class="btn-primary-museum" id="btnNext">
+    <button type="button" class="btn-primary-museum" id="btnNext" data-translate="question_next_btn">
         Tiếp tục <span style="font-size: 1.2em; vertical-align: middle;">→</span>
     </button>
 </div>
@@ -115,6 +115,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let isAnswered = false;
     let nextUrl = '@Url.Action("Question", "Quiz")';
+    
+    // Dynamic localization states
+    let currentLang = localStorage.getItem('selectedLanguage') || 'vi';
+    let isLast = false;
+    let lastPoints = @Model.CurrentScore;
+
+    document.addEventListener('langChanged', function(e) {
+        currentLang = e.detail.lang;
+        updateDynamicElements();
+    });
+
+    function updateDynamicElements() {
+        // Update score display text format
+        const scoreSuffix = currentLang === 'vi' ? ' điểm' : ' pts';
+        scoreDisplay.innerHTML = lastPoints + ` <span data-translate="finish_review_points">${scoreSuffix}</span>`;
+        
+        // Update next button visual text if it is the last question
+        if (isLast) {
+            btnNext.innerHTML = currentLang === 'vi' 
+                ? 'Xem kết quả <span style="font-size: 1.2em; vertical-align: middle;">🏆</span>' 
+                : 'View Results <span style="font-size: 1.2em; vertical-align: middle;">🏆</span>';
+            btnNext.setAttribute('data-is-last', 'true');
+        }
+    }
 
     options.forEach(opt => {
         opt.addEventListener('touchstart', () => {
@@ -163,18 +187,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (result.isCorrect) {
                     this.classList.add('correct');
-                    showToast('🎉 Chính xác! +' + result.pointsEarned + ' điểm', 'correct');
+                    const toastMsg = currentLang === 'vi' 
+                        ? '🎉 Chính xác! +' + result.pointsEarned + ' điểm' 
+                        : '🎉 Correct! +' + result.pointsEarned + ' points';
+                    showToast(toastMsg, 'correct');
                 } else {
                     this.classList.add('wrong');
                     document.querySelector(`.answer-option[data-option="${result.correctOption}"]`).classList.add('correct');
-                    showToast('❌ Sai rồi! Đáp án đúng là ' + result.correctOption, 'wrong');
+                    const toastMsg = currentLang === 'vi'
+                        ? '❌ Sai rồi! Đáp án đúng là ' + result.correctOption
+                        : '❌ Incorrect! Correct option is ' + result.correctOption;
+                    showToast(toastMsg, 'wrong');
                 }
 
-                scoreDisplay.textContent = result.newTotalScore + ' điểm';
+                lastPoints = result.newTotalScore;
+                updateDynamicElements();
 
                 if (result.isLastQuestion) {
                     nextUrl = '@Url.Action("FinishQuiz", "Quiz")';
-                    btnNext.innerHTML = 'Xem kết quả <span style="font-size: 1.2em; vertical-align: middle;">🏆</span>';
+                    isLast = true;
+                    updateDynamicElements();
                 }
 
                 bottomAction.style.display = 'block';
@@ -200,6 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.textContent = message;
         toast.className = 'feedback-toast ' + type + ' show';
     }
+    
+    // Initial sync
+    updateDynamicElements();
 });
 </script>
 }

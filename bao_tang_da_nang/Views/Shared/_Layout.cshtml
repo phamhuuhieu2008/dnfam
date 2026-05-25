@@ -4,12 +4,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
-    <meta name="theme-color" content="#0A192F" />
+    <meta name="theme-color" content="#FAF8F5" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="description"
-          content="Bảo tàng Mỹ thuật Đà Nẵng — Trải nghiệm quiz khám phá nghệ thuật và mỹ thuật Đà Nẵng" />
-    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")Bảo tàng Mỹ thuật Đà Nẵng</title>
+          content="Alexandria QuizKid — Hệ thống Thi Trắc Nghiệm Tương Tác Cực Vui Cho Học Sinh" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")dnfam</title>
     <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -20,167 +20,74 @@
     <!-- Museum Design System -->
     <link rel="stylesheet" href="~/css/museum.css" asp-append-version="true" />
 
-    <!-- Google Fonts cho giao diện Dark Luxury -->
+    <!-- Google Fonts for QuizKid -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
-    rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-            /* Tùy chỉnh thanh tìm kiếm trên Navbar */
-            .nav-search-wrap .input-group {
-                transition: all 0.3s ease;
-                border: 1px solid #B8860B !important;
-                /* Màu đồng */
-                background: #E5C185 !important;
-                /* Màu vàng đồng nhạt */
-                backdrop-filter: blur(5px);
-            }
-
-            .nav-search-wrap .input-group:focus-within {
-                border-color: #8B4513 !important;
-                box-shadow: 0 0 15px rgba(139, 69, 19, 0.3);
-                background: #F0D5A0 !important;
-            }
-
-            #categorySearchInput::placeholder {
-                color: rgba(255, 255, 255, 0.7);
-                /* Chữ gợi ý màu trắng mờ */
-                font-style: italic;
-            }
-
-            #navCategoryFilter {
-                border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
-                color: #fff !important;
-                /* Chữ trắng */
-                transition: all 0.3s ease;
-                appearance: none;
-                /* Đổi mũi tên dropdown sang màu trắng */
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-                background-repeat: no-repeat;
-                background-position: right 0.75rem center;
-                background-size: 12px 12px;
-                padding-right: 2.5rem;
-            }
-
-            .nav-search-wrap i,
-            #categorySearchInput {
-                color: #fff !important;
-                /* Chữ trắng cho ô tìm kiếm và icon */
-            }
-
-            #navCategoryFilter option {
-                background-color: #0A192F;
-                /* Khớp màu nền tối của hệ thống */
-                color: white;
-            }
-
-            /* Tối ưu hóa hiển thị trên thiết bị di động */
-            @@media (max-width: 767.98px) {
-                .navbar-museum {
-                    padding: 10px 0;
-                }
-
-                .navbar-museum .container {
-                    flex-wrap: wrap;
-                    padding-left: 15px !important;
-                    padding-right: 15px !important;
-                }
-
-                .navbar-logo {
-                    max-height: 40px;
-                }
-
-                .nav-search-wrap {
-                    display: flex !important;
-                    order: 3;
-                    width: 100%;
-                    margin-top: 10px;
-                    max-width: 100% !important;
-                }
-
-                #navCategoryFilter {
-                    max-width: 120px !important;
-                    font-size: 0.75rem !important;
-                    padding-right: 1.5rem !important;
-                    background-position: right 0.4rem center;
-                }
-
-                .nav-user {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .score-badge {
-                    font-size: 0.75rem;
-                    padding: 4px 8px;
-                }
-            }
-    </style>
+    <!-- QuizKid Stylesheet -->
+    <link rel="stylesheet" href="~/css/quizkid.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body>
-    <!-- Ambient Background Orbs -->
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
-
+<body class="quizkid-theme">
     @* Chỉ hiển thị Navbar khi không phải trang Auth *@
     @if (ViewData["HideNav"] == null || !(bool)ViewData["HideNav"]!)
     {
-        <nav class="navbar-museum">
-            <div class="container d-flex justify-content-between align-items-center px-4">
-                <a class="navbar-brand d-flex align-items-center text-decoration-none" asp-controller="Home"
-                   asp-action="Index">
-                    <img src="~/lib/dnfam.png" alt="Logo Bảo tàng Mỹ thuật Đà Nẵng" class="navbar-logo me-2"
-                         asp-append-version="true" />
+        <nav class="navbar navbar-expand-lg navbar-quizkid">
+            <div class="container px-4">
+                <a class="brand-wrapper" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/dnfam.png" alt="dnfam logo" style="height: 50px; width: auto; object-fit: contain;" />
                 </a>
 
-                @* Thanh tìm kiếm và Danh mục mới *@
-                <div class="nav-search-wrap d-flex align-items-center mx-auto" style="max-width: 500px; flex: 1;">
-                    <div class="input-group input-group-sm" style="border-radius: 12px; overflow: hidden;">
-                        <span class="input-group-text bg-transparent border-0">
-                            <i class="fa-solid fa-search"></i>
-                        </span>
-                        <input type="text" id="categorySearchInput" class="form-control bg-transparent border-0"
-                               placeholder="Tìm tên bộ đề..." style="box-shadow: none; font-size: 0.9rem;">
-                        <select id="navCategoryFilter" class="form-select bg-transparent border-0"
-                                style="max-width: 160px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
-                            <option value="">Tất cả danh mục</option>
-                            <optgroup label="DANH MỤC 1: TỰ NHIÊN & CON NGƯỜI">
-                                <option value="Chủ đề 1: Tổng quan Địa lý và Lịch sử phát triển của Bảo tàng Đà Nẵng">🏛️ Chủ đề 1: Địa lý & Lịch sử</option>
-                                <option value="Chủ đề 2: Hệ sinh thái rừng, Động thực vật quý hiếm và Khí hậu thủy văn Đà Nẵng">🌿 Chủ đề 2: Hệ sinh thái rừng</option>
-                                <option value="Chủ đề 3: Cấu trúc Địa chất, tài nguyên Khoáng sản và Hệ sinh thái biển Đà Nẵng">🌊 Chủ đề 3: Địa chất & Biển</option>
-                            </optgroup>
-                            <optgroup label="DANH MỤC 2: LỊCH SỬ ĐÔ THỊ & KHÁNG CHIẾN">
-                                <option value="Chủ đề 4: Đà Nẵng thời kỳ Tiền - Sơ sử và những đặc trưng của Văn hóa Sa Huỳnh">🏺 Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh</option>
-                                <option value="Chủ đề 5: Dấu ấn Văn hóa Champa qua các di chỉ, đền tháp, văn bia và hệ thống giếng cổ">🧱 Chủ đề 5: Văn hóa Champa</option>
-                                <option value="Chủ đề 6: Sự hình thành làng xã người Việt, các đình làng cổ và Đô thị thời Phong kiến">🏮 Chủ đề 6: Làng xã & Phong kiến</option>
-                                <option value="Chủ đề 7: Lịch sử quy hoạch, kiến trúc đô thị và Văn hóa xã hội thời thuộc Pháp (1888 - 1945)">🗼 Chủ đề 7: Thời Pháp thuộc</option>
-                                <option value="Chủ đề 8: Đô thị giai đoạn 1945 - 1975 và các cuộc đấu tranh bảo vệ nền độc lập dân tộc">🎖️ Chủ đề 8: Giai đoạn 1945 - 1975</option>
-                            </optgroup>
-                            <optgroup label="DANH MỤC 3: VĂN HÓA & DI SẢN TRUYỀN THỐNG">
-                                <option value="Chủ đề 9: Chuyên đề Chứng tích chiến tranh và chặng đường Hội nhập, phát triển đô thị">📈 Chủ đề 9: Chứng tích & Phát triển</option>
-                                <option value="Chủ đề 10: Đa dạng văn hóa truyền thống xứ Quảng, các Dân tộc ít người và bộ sưu tập Cổ vật">🎭 Chủ đề 10: Văn hóa & Di sản</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#quizkidNav" aria-controls="quizkidNav" aria-expanded="false" 
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                <div class="nav-user">
-                    @if (Context.Session.GetString("UserFullName") != null)
-                    {
-                        <span class="score-badge mr-2">
-                            <i class="fa-solid fa-star text-warning me-1"></i> @(Context.Session.GetInt32("CurrentScore") ?? 0)
-                            điểm
-                        </span>
-                        <a asp-controller="Auth" asp-action="Logout"
-                           style="color:var(--text-muted);font-size:0.82rem;text-decoration:none; margin-left: 10px;">
-                            <i class="fa-solid fa-sign-out-alt me-1"></i> Thoát
-                        </a>
-                    }
+                <div class="collapse navbar-collapse" id="quizkidNav">
+                    <ul class="navbar-nav mx-auto nav-links-quizkid">
+                        <li class="nav-item">
+                            <a class="nav-link-kid science-link" data-category="science" data-translate="nav_science">Khoa học</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-kid math-link" data-category="math" data-translate="nav_math">Toán học</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-kid languages-link" data-category="languages" data-translate="nav_languages">Ngôn ngữ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-kid art-link" data-category="art" data-translate="nav_art">Nghệ thuật</a>
+                        </li>
+                    </ul>
+
+                    <div class="nav-search-quizkid d-flex align-items-center me-3">
+                        <form action="@Url.Action("Library", "Quiz")" method="get" class="input-group">
+                            <button type="submit" class="input-group-text bg-transparent border-0" style="cursor: pointer;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: #805A12;"></i>
+                            </button>
+                            <input type="text" name="query" id="categorySearchInput" class="form-control" placeholder="Tìm kiếm bộ Quiz..." data-translate="nav_search_placeholder">
+                        </form>
+                    </div>
+
+                    <div class="nav-user d-flex align-items-center gap-2">
+                        <button id="btnLangToggle" class="btn btn-outline-secondary rounded-pill px-3 py-1 d-flex align-items-center gap-2 me-2" style="border: 2px solid #EFECE6; font-family: var(--font-heading); font-weight: 600; font-size: 0.85rem; color: #805A12; background-color: var(--white); transition: all 0.3s ease;">
+                            <i class="fa-solid fa-globe" style="color: #D4AF37;"></i>
+                            <span id="langText" class="d-flex align-items-center"><img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> EN</span>
+                        </button>
+
+                        @if (Context.Session.GetString("UserFullName") != null)
+                        {
+                            <span class="score-badge mr-2">
+                                <i class="fa-solid fa-star text-warning me-1"></i> @(Context.Session.GetInt32("CurrentScore") ?? 0) <span data-translate="finish_review_points">điểm</span>
+                            </span>
+                            <a asp-controller="Auth" asp-action="Logout" class="text-decoration-none text-muted fw-semibold" style="font-size: 0.85rem;" data-translate="logout_btn">
+                                <i class="fa-solid fa-sign-out-alt"></i> Thoát
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
@@ -189,33 +96,411 @@
     <div class="app-container">
         @RenderBody()
     </div>
+
+    @* Đặt chân trang Footer chuẩn thiết kế mới *@
+    @if (ViewData["HideNav"] == null || !(bool)ViewData["HideNav"]!)
+    {
+        <footer class="footer-quizkid">
+            <div class="container px-4">
+                <div class="row g-4 justify-content-between">
+                    <!-- Column 1: Museum Branding & Hours -->
+                    <div class="col-lg-4 col-md-12 text-start">
+                        <h3 class="footer-section-title" data-translate="footer_museum_title">BẢO TÀNG ĐÀ NẴNG</h3>
+                        <div class="footer-text-item" data-translate="footer_open_hours">Giờ mở cửa: 8h00 - 17h00 (tất cả các ngày)</div>
+                        <div class="footer-text-item" data-translate="footer_tour_hours">Giờ cung cấp thông tin và thuyết minh: Sáng: 8h00 - 11h30, chiều: 13h30 - 17h00</div>
+                    </div>
+                    
+                    <!-- Column 2: Contact Info -->
+                    <div class="col-lg-5 col-md-12 text-start">
+                        <h3 class="footer-section-title" data-translate="footer_contact">LIÊN HỆ</h3>
+                        <div class="footer-contact-item">
+                            <img src="~/images/icons/location.png" class="footer-contact-icon" style="width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; margin-right: 10px;" />
+                            <span data-translate="footer_address">Số 24 Trần Phú, phường Thạch Thang, quận Hải Châu, thành phố Đà Nẵng</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <img src="~/images/icons/phone.png" class="footer-contact-icon" style="width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; margin-right: 10px;" />
+                            <span data-translate="footer_phone">0236 3865668 - 0236 3865388</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <img src="~/images/icons/email.png" class="footer-contact-icon" style="width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; margin-right: 10px;" />
+                            <span data-translate="footer_email">btmtdn@danang.gov.vn</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <img src="~/images/icons/website.png" class="footer-contact-icon" style="width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; margin-right: 10px;" />
+                            <a href="https://dnfam.vn" target="_blank" class="footer-contact-link" data-translate="footer_website">https://dnfam.vn</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Column 3: Connections & Credits -->
+                    <div class="col-lg-3 col-md-12 text-start">
+                        <h3 class="footer-section-title" data-translate="footer_connect_title">KẾT NỐI</h3>
+                        <div class="footer-social-row mb-3">
+                            <a href="https://www.facebook.com/profile.php?id=100053143726245" target="_blank" class="footer-social-btn fb-btn"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/danangfineartsmuseum/" target="_blank" class="footer-social-btn ig-btn"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="https://twitter.com" target="_blank" class="footer-social-btn tw-btn"><i class="fa-brands fa-x-twitter"></i></a>
+                        </div>
+                        <div class="footer-credit">
+                            <span data-translate="footer_design_by">Design by </span><a href="https://dsp.vn/" target="_blank" class="footer-credit-link">DSP</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    }
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
 
     <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const navCategoryFilter = document.getElementById('navCategoryFilter');
-                const navSearchInput = document.getElementById('categorySearchInput');
+        document.addEventListener('DOMContentLoaded', function () {
+            const navSearchInput = document.getElementById('categorySearchInput');
 
-                // Tự động đồng bộ giá trị dropdown dựa trên tham số topic hoặc category trên URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const initialCategory = urlParams.get('topic') || urlParams.get('category');
-                if (navCategoryFilter && initialCategory) {
-                    navCategoryFilter.value = initialCategory;
-                }
-
-                if (navCategoryFilter) {
-                    navCategoryFilter.addEventListener('change', function () {
-                        const selectedCat = this.value;
-                        if (selectedCat !== "") {
-                            window.location.href = '@Url.Action("StartSession", "Quiz")?topic=' + encodeURIComponent(selectedCat);
+            // Interactive Navigation links connecting with homepage categories
+            const navLinks = document.querySelectorAll('.nav-link-kid');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Add active state to nav links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const cat = this.getAttribute('data-category');
+                    const isHomePage = window.location.pathname === '/' || window.location.pathname.toLowerCase() === '/home/index';
+                    
+                    if (isHomePage) {
+                        // Click corresponding subject card on Homepage
+                        const subjectCard = document.querySelector(`.subject-card.${cat}-card`);
+                        if (subjectCard) {
+                            subjectCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            subjectCard.click();
                         }
-                    });
-                }
-                // The searchInput event listener will be handled in Index.cshtml if it exists there
+                    } else {
+                        // Redirect to home page with category parameter
+                        window.location.href = '/?category=' + encodeURIComponent(cat);
+                    }
+                });
             });
+
+            // Sync URL parameters for categories
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialCategory = urlParams.get('category');
+            if (initialCategory) {
+                const activeLink = document.querySelector(`.nav-link-kid[data-category="${initialCategory}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+        });
+    </script>
+    <script>
+        // Language Switching Logic
+        document.addEventListener('DOMContentLoaded', function () {
+            window.translations = {
+                vi: {
+                    "nav_science": "Tổng hợp",
+                    "nav_math": "Làng nghề",
+                    "nav_languages": "Nghệ nhân",
+                    "nav_art": "Câu lạc bộ",
+                    "nav_search_placeholder": "Tìm kiếm bộ Quiz...",
+                    "logout_btn": "Thoát",
+                    "footer_privacy": "Chính sách bảo mật",
+                    "footer_parents": "Hướng dẫn phụ huynh",
+                    "footer_standards": "Tiêu chuẩn học tập",
+                    "footer_archive": "Lưu trữ",
+                    "footer_museum_title": "BẢO TÀNG ĐÀ NẴNG",
+                    "footer_open_hours": "Giờ mở cửa: 8h00 - 17h00 (tất cả các ngày)",
+                    "footer_tour_hours": "Giờ cung cấp thông tin và thuyết minh: Sáng: 8h00 - 11h30, chiều: 13h30 - 17h00",
+                    "footer_contact": "LIÊN HỆ",
+                    "footer_address": "Số 24 Trần Phú, phường Thạch Thang, quận Hải Châu, thành phố Đà Nẵng",
+                    "footer_phone": "0236 3865668 - 0236 3865388",
+                    "footer_email": "btmtdn@danang.gov.vn",
+                    "footer_website": "https://dnfam.vn",
+                    "footer_connect_title": "KẾT NỐI",
+                    "footer_design_by": "Design by ",
+
+                    // Home / Index
+                    "hero_badge": "<i class=\"fa-solid fa-medal\"></i> HƠN 10,000 HỌC SINH ĐÃ THAM GIA",
+                    "hero_welcome": "Chào mừng trở lại,",
+                    "hero_welcome_desc": "Cùng tiếp tục hành trình khám phá kho tàng kiến thức lịch sử, tự nhiên và nghệ thuật siêu thú vị. Bạn đã sẵn sàng bứt phá chưa?",
+                    "hero_stats_played": "Số Đề Đã Thi",
+                    "hero_stats_accuracy": "Tỷ Lệ Đúng",
+                    "hero_stats_rank": "Hạng Của Bạn",
+                    "hero_stats_score": "Điểm Tích Lũy",
+                    "hero_title": "Khám phá tri thức,<br>vui nhộn cùng <span class=\"brand-name\">QuizKid!</span>",
+                    "hero_desc": "Hệ thống câu hỏi trắc nghiệm tương tác giúp các bạn nhỏ tìm hiểu về Lịch sử, Tự nhiên và Nghệ thuật một cách đầy hứng khởi.",
+                    "hero_search_placeholder": "🔍 Tìm kiếm chủ đề bạn yêu thích...",
+                    "subject_eyebrow": "CHỌN SỞ THÍCH CỦA BẠN",
+                    "subject_title": "Tổng Hợp Câu Hỏi",
+                    "subject_science_name": "TỔNG HỢP",
+                    "subject_science_desc": "Các câu hỏi trắc nghiệm tổng hợp đa dạng",
+                    "subject_math_name": "LÀNG NGHỀ",
+                    "subject_math_desc": "Khám phá các bảo tàng và làng nghề",
+                    "subject_languages_name": "NGHỆ NHÂN",
+                    "subject_languages_desc": "Tìm hiểu về các nghệ nhân tài hoa",
+                    "subject_art_name": "CÂU LẠC BỘ",
+                    "subject_art_desc": "Tìm hiểu về các câu lạc bộ văn hóa",
+
+                    "featured_eyebrow": "THỬ THÁCH ĐỀ XUẤT",
+                    "featured_title": "Các Bộ Quiz Nổi Bật",
+                    "difficulty_easy": "Dễ",
+                    "difficulty_medium": "Trung bình",
+                    "difficulty_hard": "Khó",
+                    "featured_science_title": "Khám Phá Đại Dương & Sinh Thái",
+                    "featured_science_desc": "Thám hiểm hệ sinh thái biển sâu và tìm hiểu sự đa dạng sinh học kỳ thú của tự nhiên.",
+                    "featured_math_title": "Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh",
+                    "featured_math_desc": "Cùng những con số kỳ diệu giải mã bí mật của các cổ vật quý hiếm hàng ngàn năm tuổi.",
+                    "featured_art_title": "Thiên Nhiên & Muông Thú",
+                    "featured_art_desc": "Bước vào khu rừng xanh thẳm, làm quen với các loài động thực vật cực kỳ độc đáo.",
+                    "play_now": "BẮT ĐẦU CHƠI <i class=\"fa-solid fa-play\"></i>",
+                    "play_now_mini": "LÀM BÀI <i class=\"fa-solid fa-arrow-right\"></i>",
+
+                    "all_eyebrow": "TẤT CẢ THỬ THÁCH",
+                    "all_title": "Kho Trắc Nghiệm Đa Dạng",
+                    "show_all": "Hiển thị tất cả",
+                    "questions_count": "câu hỏi",
+                    "no_results_title": "Rất tiếc, chưa tìm thấy bộ đề nào!",
+                    "no_results_desc": "Bạn hãy thử tìm bằng một từ khóa khác nhé.",
+                    "no_results_btn": "Hiển Thị Tất Cả",
+
+                    "cta_title": "Sẵn Sàng Trở Thành<br>Nhà Vô Địch QuizKid?",
+                    "cta_desc": "Nhập tên của bạn ngay để nhận được thông báo khi có bộ trắc nghiệm mới và tham gia các sự kiện thử thách siêu hấp dẫn dành riêng cho bạn!",
+                    "cta_input_placeholder": "Nhập tên của bạn...",
+                    "cta_submit": "THAM GIA",
+
+                    "leaderboard_eyebrow": "TOP CAO THỦ",
+                    "leaderboard_title": "Bảng Vàng Thành Tích",
+                    "leaderboard_points": "điểm trắc nghiệm",
+                    "leaderboard_c1": "<i class=\"fa-solid fa-crown\"></i> Quán Quân",
+                    "leaderboard_c2": "<i class=\"fa-solid fa-medal\"></i> Á Quân",
+                    "leaderboard_c3": "<i class=\"fa-solid fa-award\"></i> Quý Quân",
+                    "leaderboard_c_other": "Top",
+                    "leaderboard_empty_title": "Bảng Vàng Đang Chờ Người Xứng Đáng!",
+                    "leaderboard_empty_desc": "Hãy nhanh tay là thí sinh đầu tiên ghi danh lên đây nhé!",
+                    
+                    // Start Session
+                    "start_session_eyebrow": "🎈 Sẵn sàng khám phá",
+                    "start_session_header": "Chơi quiz cùng Bảo tàng",
+                    "start_session_subtitle": "Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.",
+                    "start_session_chosen_topic": "Chủ đề em đã chọn",
+                    "start_session_label": "Tên người chơi",
+                    "start_session_placeholder": "Ví dụ: Minh Anh",
+                    "start_session_btn": "🚀 Bắt đầu ngay",
+                    "start_session_back": "🏠 Quay lại trang chủ",
+
+                    // Question
+                    "question_points_prefix": "⭐ Mỗi câu đúng được",
+                    "question_points_suffix": "điểm",
+                    "question_next_btn": "Tiếp tục <span style=\"font-size: 1.2em; vertical-align: middle;\">→</span>",
+                    
+                    // Finish
+                    "finish_header": "🎉 Hoàn thành xuất sắc!",
+                    "finish_subtitle": "Em đã hoàn thành chuyến phiêu lưu rồi!",
+                    "finish_score_unit": "ĐIỂM",
+                    "finish_kpi_correct": "Câu đúng",
+                    "finish_kpi_accuracy": "Chính xác",
+                    "finish_kpi_total": "Tổng câu",
+                    "finish_kpi_time": "Thời gian",
+                    "finish_divider": "Chi tiết bài làm",
+                    "finish_review_q": "Câu",
+                    "finish_review_correct": "✅ Đúng rồi!",
+                    "finish_review_wrong": "❌ Chưa đúng",
+                    "finish_review_answer_label": " (Đáp án: ",
+                    "finish_review_points": "điểm",
+                    "finish_home_btn": "🏠 Về trang chủ",
+                    "finish_replay_btn": "🔁 Chơi lại lần nữa",
+
+                    // Achievements Dashboard
+                    "dashboard_title": "📊 Góc Thành Tích Của Em",
+                    "dashboard_desc": "Dưới đây là thống kê kết quả và danh sách các thử thách mà em đã vượt qua!",
+                    "dashboard_winrate": "Tỷ Lệ Đúng",
+                    "dashboard_totalplays": "Số Lần Chơi",
+                    "dashboard_history": "Lịch Sử Đề Đã Làm",
+                    "dashboard_empty": "Em chưa tham gia thử thách nào. Hãy chọn một chủ đề phía trên và thử sức ngay nhé! 🚀",
+                    "dashboard_btn_explore": "🚀 Tổng Hợp Câu Hỏi",
+                    "dashboard_score": "điểm",
+                    "dashboard_correct_label": "Đúng"
+                },
+                en: {
+                    "nav_science": "General",
+                    "nav_math": "Villages",
+                    "nav_languages": "Artisans",
+                    "nav_art": "Clubs",
+                    "nav_search_placeholder": "Search Quizzes...",
+                    "logout_btn": "Logout",
+                    "footer_privacy": "Privacy Policy",
+                    "footer_parents": "Parent Guides",
+                    "footer_standards": "Curriculum Standards",
+                    "footer_archive": "Archive",
+                    "footer_museum_title": "DA NANG MUSEUM",
+                    "footer_open_hours": "Opening hours: 8:00 - 17:00 (every day)",
+                    "footer_tour_hours": "Information & Guided Tours: Morning 8:00 - 11:30, Afternoon 13:30 - 17:00",
+                    "footer_contact": "CONTACT",
+                    "footer_address": "24 Tran Phu Street, Thach Thang Ward, Hai Chau District, Da Nang City",
+                    "footer_phone": "0236 3865668 - 0236 3865388",
+                    "footer_email": "btmtdn@danang.gov.vn",
+                    "footer_website": "https://dnfam.vn",
+                    "footer_connect_title": "CONNECT",
+                    "footer_design_by": "Design by ",
+
+                    // Home / Index
+                    "hero_badge": "<i class=\"fa-solid fa-medal\"></i> OVER 10,000 STUDENTS JOINED",
+                    "hero_welcome": "Welcome back,",
+                    "hero_welcome_desc": "Let's continue the journey of exploring history, nature, and art. Are you ready?",
+                    "hero_stats_played": "Quizzes Played",
+                    "hero_stats_accuracy": "Accuracy",
+                    "hero_stats_rank": "Your Rank",
+                    "hero_stats_score": "Total Score",
+                    "hero_title": "Discover knowledge,<br>fun with <span class=\"brand-name\">QuizKid!</span>",
+                    "hero_desc": "Interactive quizzes that help kids learn about History, Nature, and Art with excitement.",
+                    "hero_search_placeholder": "🔍 Search your favorite topic...",
+                    "subject_eyebrow": "CHOOSE YOUR INTEREST",
+                    "subject_title": "Explore Topics",
+                    "subject_science_name": "GENERAL",
+                    "subject_science_desc": "Mixed quiz questions on various topics",
+                    "subject_math_name": "VILLAGES",
+                    "subject_math_desc": "Explore museums and traditional craft villages",
+                    "subject_languages_name": "ARTISANS",
+                    "subject_languages_desc": "Learn about talented artisans",
+                    "subject_art_name": "CLUBS",
+                    "subject_art_desc": "Discover cultural clubs",
+
+                    "featured_eyebrow": "RECOMMENDED CHALLENGES",
+                    "featured_title": "Featured Quizzes",
+                    "difficulty_easy": "Easy",
+                    "difficulty_medium": "Medium",
+                    "difficulty_hard": "Hard",
+                    "featured_science_title": "Explore Ocean & Ecosystems",
+                    "featured_science_desc": "Explore deep-sea ecosystems and learn about nature's fascinating biodiversity.",
+                    "featured_math_title": "Archaeology & Sa Huynh Prehistory",
+                    "featured_math_desc": "Decode secrets of thousand-year-old relics with magical numbers.",
+                    "featured_art_title": "Nature & Wildlife",
+                    "featured_art_desc": "Enter the deep green forest and meet unique animal and plant species.",
+                    "play_now": "PLAY NOW <i class=\"fa-solid fa-play\"></i>",
+                    "play_now_mini": "START <i class=\"fa-solid fa-arrow-right\"></i>",
+
+                    "all_eyebrow": "ALL CHALLENGES",
+                    "all_title": "Diverse Quiz Library",
+                    "show_all": "Show all",
+                    "questions_count": "questions",
+                    "no_results_title": "Oops, no quizzes found!",
+                    "no_results_desc": "Try searching with a different keyword.",
+                    "no_results_btn": "Show All",
+
+                    "cta_title": "Ready to Become<br>a QuizKid Champion?",
+                    "cta_desc": "Enter your name now to get notified when new quizzes are released and join exciting events!",
+                    "cta_input_placeholder": "Enter your name...",
+                    "cta_submit": "JOIN NOW",
+
+                    "leaderboard_eyebrow": "LEADERBOARD",
+                    "leaderboard_title": "Hall of Fame",
+                    "leaderboard_points": "quiz points",
+                    "leaderboard_c1": "<i class=\"fa-solid fa-crown\"></i> Champion",
+                    "leaderboard_c2": "<i class=\"fa-solid fa-medal\"></i> 1st Runner-up",
+                    "leaderboard_c3": "<i class=\"fa-solid fa-award\"></i> 2nd Runner-up",
+                    "leaderboard_c_other": "Top",
+                    "leaderboard_empty_title": "Hall of Fame Awaits You!",
+                    "leaderboard_empty_desc": "Be the first player to secure your spot here!",
+
+                    // Start Session
+                    "start_session_eyebrow": "🎈 Ready to explore",
+                    "start_session_header": "Play Museum Quiz",
+                    "start_session_subtitle": "Enter your name to start a fun quiz journey.",
+                    "start_session_chosen_topic": "Selected topic",
+                    "start_session_label": "Player Name",
+                    "start_session_placeholder": "Example: Minh Anh",
+                    "start_session_btn": "🚀 Start Now",
+                    "start_session_back": "🏠 Back to Home",
+
+                    // Question
+                    "question_points_prefix": "⭐ Each correct gets",
+                    "question_points_suffix": "points",
+                    "question_next_btn": "Next <span style=\"font-size: 1.2em; vertical-align: middle;\">→</span>",
+
+                    // Finish
+                    "finish_header": "🎉 Great Job!",
+                    "finish_subtitle": "You have completed the adventure!",
+                    "finish_score_unit": "POINTS",
+                    "finish_kpi_correct": "Correct Qs",
+                    "finish_kpi_accuracy": "Accuracy",
+                    "finish_kpi_total": "Total Qs",
+                    "finish_kpi_time": "Time Elapsed",
+                    "finish_divider": "Answer Review",
+                    "finish_review_q": "Question",
+                    "finish_review_correct": "✅ Correct!",
+                    "finish_review_wrong": "❌ Incorrect",
+                    "finish_review_answer_label": " (Correct: ",
+                    "finish_review_points": "pts",
+                    "finish_home_btn": "🏠 Back to Home",
+                    "finish_replay_btn": "🔁 Play again",
+
+                    // Achievements Dashboard
+                    "dashboard_title": "📊 My Achievements",
+                    "dashboard_desc": "Here are your statistics and the challenges you have conquered!",
+                    "dashboard_winrate": "Win Rate",
+                    "dashboard_totalplays": "Times Played",
+                    "dashboard_history": "Completed Quizzes",
+                    "dashboard_empty": "You haven't played any quizzes yet. Select a topic above and start playing! 🚀",
+                    "dashboard_btn_explore": "🚀 Discover Topics",
+                    "dashboard_score": "pts",
+                    "dashboard_score": "pts",
+                    "dashboard_correct_label": "Correct",
+                    
+                    // Database Topics Mapping
+                    "topic_1": "Topic 1: Geography & Museum History",
+                    "topic_2": "Topic 2: Nature & Humans",
+                    "topic_3": "Topic 3: Geology & Marine Ecosystem",
+                    "topic_4": "Topic 4: Prehistory & Sa Huynh",
+                    "topic_general": "General",
+                    "topic_craft": "Craft Villages",
+                    "topic_artisan": "Artisans",
+                    "topic_club": "Clubs",
+                    "topic_news": "News/Events"
+                }
+            };
+            
+            const btnLangToggle = document.getElementById('btnLangToggle');
+            const langText = document.getElementById('langText');
+
+            function applyLanguage(lang) {
+                document.querySelectorAll('[data-translate]').forEach(el => {
+                    const key = el.getAttribute('data-translate');
+                    if (window.translations[lang] && window.translations[lang][key] !== undefined) {
+                        if (el.tagName === 'INPUT') {
+                            el.placeholder = window.translations[lang][key];
+                        } else {
+                            el.innerHTML = window.translations[lang][key];
+                        }
+                    }
+                });
+                
+                // Update language toggle button visual text
+                if (lang === 'vi') {
+                    langText.innerHTML = '<img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> EN';
+                } else {
+                    langText.innerHTML = '<img src="https://flagcdn.com/w20/vn.png" width="20" alt="VI" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> VI';
+                }
+                localStorage.setItem('selectedLanguage', lang);
+                
+                // Custom events to notify page specific handlers if needed
+                document.dispatchEvent(new CustomEvent('langChanged', { detail: { lang: lang } }));
+            }
+
+            // Toggle button action
+            if (btnLangToggle) {
+                btnLangToggle.addEventListener('click', function () {
+                    const activeLang = localStorage.getItem('selectedLanguage') || 'vi';
+                    const targetLang = activeLang === 'vi' ? 'en' : 'vi';
+                    applyLanguage(targetLang);
+                });
+            }
+
+            // Initial load
+            const savedLang = localStorage.getItem('selectedLanguage') || 'vi';
+            applyLanguage(savedLang);
+        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
