@@ -27,16 +27,21 @@ namespace Bảo_Tàng_Đà_Nẵng
             // Đảm bảo database và bảng được tạo trên Postgres
             db.Database.EnsureCreated();
 
-            if (db.Questions.Any())
+            // Luôn xóa và seed lại để đảm bảo đúng 10 đề tài × 30 câu = 300 câu
+            var existingCount = db.Questions.Count();
+            bool hasOldTopics = db.Questions.Any(q => q.LocationName != null && q.LocationName.Contains("Chủ đề"));
+            
+            if (existingCount == 300 && !hasOldTopics)
             {
-                Console.WriteLine("Dữ liệu đã có sẵn. Bỏ qua bước nạp tự động...");
+                Console.WriteLine($"Đã có đúng 300 câu hỏi và đúng định dạng ĐỀ TÀI. Bỏ qua bước nạp tự động...");
                 return;
             }
 
-            // Xóa câu hỏi cũ và các record liên quan nếu cần
+            Console.WriteLine($"[SEED] Đang xóa {existingCount} câu cũ và seed lại toàn bộ...");
+            // Xóa câu hỏi cũ và các record liên quan
             db.Database.ExecuteSqlRaw("DELETE FROM \"SessionDetails\"");
             db.Database.ExecuteSqlRaw("DELETE FROM \"QuizSessions\"");
-            db.Questions.RemoveRange(db.Questions);
+            db.Database.ExecuteSqlRaw("DELETE FROM \"Questions\"");
             db.SaveChanges();
 
             var lines = File.ReadAllLines("questions_clean.txt");
@@ -94,11 +99,7 @@ namespace Bảo_Tàng_Đà_Nẵng
                     var correctAnsLetter = answers.ContainsKey(qNum) ? answers[qNum] : "A";
 
                     totalQuestions++;
-                    string mappedTopicName = "";
-                    if (totalQuestions <= 75) mappedTopicName = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng";
-                    else if (totalQuestions <= 150) mappedTopicName = "Chủ đề 2: Thiên nhiên & Con người";
-                    else if (totalQuestions <= 225) mappedTopicName = "Chủ đề 3: Địa chất & Hệ sinh thái biển";
-                    else mappedTopicName = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh";
+                    string mappedTopicName = topicTitle; // Use the exact 10 topic names from the text file
 
                     var question = new Question
                     {

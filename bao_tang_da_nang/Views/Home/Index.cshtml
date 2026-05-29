@@ -20,10 +20,11 @@
     string GetSubjectClass(string topicName)
     {
         var upper = topicName.ToUpper();
-        if (upper.Contains("CHỦ ĐỀ 1") || upper.Contains("ĐỀ TÀI 1") || upper.Contains("ĐỀ TÀI 2") || upper.Contains("ĐỀ TÀI 3")) return "science";
-        if (upper.Contains("CHỦ ĐỀ 2") || upper.Contains("ĐỀ TÀI 4") || upper.Contains("ĐỀ TÀI 5") || upper.Contains("ĐỀ TÀI 6")) return "math";
-        if (upper.Contains("CHỦ ĐỀ 3") || upper.Contains("ĐỀ TÀI 7") || upper.Contains("ĐỀ TÀI 8") || upper.Contains("ĐỀ TÀI 9")) return "languages";
-        return "art";
+        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("CHỦ ĐỀ 1") || upper.Contains("ĐỊA LÝ")) return "science";
+        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("CHỦ ĐỀ 2") || upper.Contains("THIÊN NHIÊN")) return "math";
+        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("CHỦ ĐỀ 3") || upper.Contains("ĐỊA CHẤT")) return "languages";
+        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("CHỦ ĐỀ 4") || upper.Contains("KHẢO CỔ") || upper.Contains("SA HUỲNH")) return "art";
+        return "science";
     }
 
     var random = new Random();
@@ -276,6 +277,23 @@
             font-weight: 700;
             color: var(--text-muted);
         }
+
+        /* Responsive Mobile Settings */
+        @media (max-width: 768px) {
+            .dashboard-banner-kid {
+                padding: 24px;
+                border-radius: 24px;
+            }
+            .dashboard-stat-card {
+                margin-bottom: 15px;
+            }
+            .dashboard-history-card {
+                max-height: 400px;
+            }
+            .dashboard-history-scroll {
+                max-height: 300px;
+            }
+        }
     </style>
 }
 
@@ -337,47 +355,26 @@
         <h2 class="section-kid-title" data-translate="subject_title">Tổng Hợp Câu Hỏi</h2>
         
         <div class="row g-4 mt-2">
-            <!-- Thẻ tĩnh: Tổng hợp 300 câu -->
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Tổng hợp 300 câu" class="text-decoration-none d-block h-100">
-                    <div class="subject-card science-card h-100" data-subject="science">
-                        <div class="subject-icon-box"><i class="fa-solid fa-layer-group"></i></div>
-                        <h3 class="subject-name" data-translate="subject_science_name">TỔNG HỢP</h3>
-                        <p class="subject-desc" data-translate="subject_science_desc">Các câu hỏi trắc nghiệm tổng hợp (300 câu)</p>
-                    </div>
-                </a>
-            </div>
-
-            <!-- 3 Thẻ Chủ đề 1, 2, 3 -->
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Chủ đề 1" class="text-decoration-none d-block h-100">
-                    <div class="subject-card math-card h-100" data-subject="math">
-                        <div class="subject-icon-box"><i class="fa-solid fa-calculator"></i></div>
-                        <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;" data-translate="topic_1">CHỦ ĐỀ 1</h3>
-                        <p class="subject-desc" data-translate="75_questions">75 câu hỏi</p>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Chủ đề 2" class="text-decoration-none d-block h-100">
-                    <div class="subject-card languages-card h-100" data-subject="languages">
-                        <div class="subject-icon-box"><i class="fa-solid fa-language"></i></div>
-                        <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;" data-translate="topic_2">CHỦ ĐỀ 2</h3>
-                        <p class="subject-desc" data-translate="75_questions">75 câu hỏi</p>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="Chủ đề 3" class="text-decoration-none d-block h-100">
-                    <div class="subject-card art-card h-100" data-subject="art">
-                        <div class="subject-icon-box"><i class="fa-solid fa-palette"></i></div>
-                        <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;" data-translate="topic_3">CHỦ ĐỀ 3</h3>
-                        <p class="subject-desc" data-translate="75_questions">75 câu hỏi</p>
-                    </div>
-                </a>
-            </div>
+            @foreach (var cat in categories)
+            {
+                string subjectType = GetSubjectClass(cat.Name);
+                string iconClass = "fa-solid fa-layer-group";
+                string cardClass = "science-card";
+                
+                if (subjectType == "math") { iconClass = "fa-solid fa-calculator"; cardClass = "math-card"; }
+                else if (subjectType == "languages") { iconClass = "fa-solid fa-language"; cardClass = "languages-card"; }
+                else if (subjectType == "art") { iconClass = "fa-solid fa-palette"; cardClass = "art-card"; }
+                
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@cat.Name" class="text-decoration-none d-block h-100">
+                        <div class="subject-card @cardClass h-100" data-subject="@subjectType">
+                            <div class="subject-icon-box"><i class="@iconClass"></i></div>
+                            <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;">@cat.Name.ToUpper()</h3>
+                            <p class="subject-desc">@cat.QuestionCount câu hỏi</p>
+                        </div>
+                    </a>
+                </div>
+            }
         </div>
     </section>
 
@@ -405,7 +402,7 @@
                             <p class="quiz-kid-card-desc" data-translate="featured_science_desc">Thám hiểm hệ sinh thái biển sâu và tìm hiểu sự đa dạng sinh học kỳ thú của tự nhiên.</p>
                         </div>
                         @{
-                            var spaceCat = categories.FirstOrDefault(c => c.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
+                            var spaceCat = categories.FirstOrDefault(c => c.Name.Contains("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
                         }
                         @if (spaceCat != null)
                         {
@@ -431,7 +428,7 @@
                             <p class="quiz-kid-card-desc" data-translate="featured_math_desc">Cùng những con số kỳ diệu giải mã bí mật của các cổ vật quý hiếm hàng ngàn năm tuổi.</p>
                         </div>
                         @{
-                            var mathCat = categories.FirstOrDefault(c => c.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
+                            var mathCat = categories.FirstOrDefault(c => c.Name.Contains("Chủ đề 4", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
                         }
                         @if (mathCat != null)
                         {
@@ -457,7 +454,7 @@
                             <p class="quiz-kid-card-desc" data-translate="featured_art_desc">Bước vào khu rừng xanh thẳm, làm quen với các loài động thực vật cực kỳ độc đáo.</p>
                         </div>
                         @{
-                            var animalsCat = categories.FirstOrDefault(c => c.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
+                            var animalsCat = categories.FirstOrDefault(c => c.Name.Contains("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) ?? categories.FirstOrDefault();
                         }
                         @if (animalsCat != null)
                         {
@@ -488,11 +485,10 @@
                     string subjectType = GetSubjectClass(cat.Name);
                     
                     string imageFile = "topic1.png";
-                    string displayName = cat.Name;
                     
-                    if (cat.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; displayName = "Thiên Nhiên & Muông Thú"; }
-                    else if (cat.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; displayName = "Khám Phá Đại Dương & Sinh Thái"; }
-                    else if (cat.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic4.png"; displayName = "Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh"; }
+                    if (cat.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; }
+                    else if (cat.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; }
+                    else if (cat.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 4", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic4.png"; }
                     else if (cat.Name.Contains("ĐỀ TÀI 1", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 1", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic1.png"; }
                     else if (cat.Name.Contains("ĐỀ TÀI 5", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 5", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic5.png"; }
                     else if (cat.Name.Contains("ĐỀ TÀI 6", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 6", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic6.png"; }
@@ -500,27 +496,18 @@
                     else if (cat.Name.Contains("ĐỀ TÀI 8", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 8", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic8.png"; }
                     else if (cat.Name.Contains("ĐỀ TÀI 9", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 9", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic9.png"; }
                     else if (cat.Name.Contains("ĐỀ TÀI 10", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 10", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic10.png"; }
-                    else if (cat.Name.Equals("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; displayName = "TỔNG HỢP"; }
-                    else if (cat.Name.Equals("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; displayName = "CHỦ ĐỀ 2"; }
-                    else if (cat.Name.Equals("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; displayName = "CHỦ ĐỀ 3"; }
+                    else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; }
+                    else if (cat.Name.Contains("làng nghề", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_craft_village.png"; }
+                    else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_club.png"; }
+                    else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_artisan.png"; }
+                    else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_news.png"; }
                     else 
                     {
-                        if (cat.Name.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_craft_village.png"; displayName = "Làng nghề thủ công"; }
-                        else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_club.png"; displayName = "Bảng tin cộng đồng"; }
-                        else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_artisan.png"; displayName = "Góc sáng tạo"; }
-                        else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_news.png"; displayName = "Sự kiện - Tin tức"; }
-                        else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; displayName = "Khám phá bảo tàng"; }
-                        else 
-                        {
-                            // Deterministic fallback for unknown topics
-                            int hash = 0;
-                            for (int i = 0; i < cat.Name.Length; i++) hash = (hash * 31) + cat.Name[i];
-                            hash = Math.Abs(hash) % 5;
-                            string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
-                            string[] fallbackNames = { "Khám phá bảo tàng", "Làng nghề thủ công", "Bảng tin cộng đồng", "Góc sáng tạo", "Sự kiện - Tin tức" };
-                            imageFile = fallbacks[hash];
-                            displayName = fallbackNames[hash];
-                        }
+                        int hash = 0;
+                        for (int i = 0; i < cat.Name.Length; i++) hash = (hash * 31) + cat.Name[i];
+                        hash = Math.Abs(hash) % 5;
+                        string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
+                        imageFile = fallbacks[hash];
                     }
                     
                     <div class="quiz-kid-card mini-topic-card" data-subject="@subjectType" data-title="@cat.Name.ToLower()">
@@ -531,30 +518,11 @@
                                     <i class="fa-solid fa-check"></i> <span data-translate="completed">Đã hoàn thành</span>
                                 </div>
                             }
-                            <img src="~/images/topics/@imageFile" alt="@displayName" class="quiz-kid-card-img" style="object-fit: cover; height: 100%; width: 100%;" />
+                            <img src="~/images/topics/@imageFile" alt="@cat.Name" class="quiz-kid-card-img" style="object-fit: cover; height: 100%; width: 100%;" />
                         </div>
                         <div class="quiz-kid-card-body" style="padding: 20px;">
                             <h3 class="quiz-kid-card-title" style="font-size: 1.15rem !important;">
-                                @{
-                                    string transKey = "";
-                                    if (displayName.Contains("Chủ đề 1", StringComparison.OrdinalIgnoreCase)) transKey = "topic_1";
-                                    else if (displayName.Contains("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) transKey = "topic_2";
-                                    else if (displayName.Contains("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) transKey = "topic_3";
-                                    else if (displayName.Contains("Chủ đề 4", StringComparison.OrdinalIgnoreCase)) transKey = "topic_4";
-                                    else if (displayName.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) transKey = "topic_general";
-                                    else if (displayName.Contains("làng nghề", StringComparison.OrdinalIgnoreCase)) transKey = "topic_craft";
-                                    else if (displayName.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) transKey = "topic_artisan";
-                                    else if (displayName.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) transKey = "topic_club";
-                                    else if (displayName.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase) || displayName.Contains("Tin tức", StringComparison.OrdinalIgnoreCase)) transKey = "topic_news";
-                                }
-                                @if (string.IsNullOrEmpty(transKey))
-                                {
-                                    <span>@displayName</span>
-                                }
-                                else
-                                {
-                                    <span data-translate="@transKey">@displayName</span>
-                                }
+                                <span>@cat.Name</span>
                                 @if(cat.IsCompleted)
                                 {
                                     <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;" data-translate="completed" data-bs-toggle="tooltip"></i>
@@ -657,54 +625,7 @@
         </div>
     </section>
  
-    <!-- Leaderboard Section -->
-    <section class="leaderboard-section container px-4 text-center">
-        <span class="section-kid-eyebrow" data-translate="leaderboard_eyebrow">TOP CAO THỦ</span>
-        <h2 class="section-kid-title text-center mb-5" data-translate="leaderboard_title">Bảng Vàng Thành Tích</h2>
-        
-        <div class="leaderboard-kid-card mx-auto" style="max-width: 700px;">
-            @if (leaderboard != null && leaderboard.Count > 0)
-            {
-                int rank = 1;
-                foreach (var player in leaderboard)
-                {
-                    string badgeClass = rank == 1 ? "gold" : (rank == 2 ? "silver" : (rank == 3 ? "bronze" : "normal"));
-                    <div class="leaderboard-kid-item">
-                        <div class="rank-kid-badge @badgeClass">@rank</div>
-                        <div style="flex: 1;">
-                            <div class="leaderboard-kid-name">@player.FullName</div>
-                            <div class="leaderboard-kid-score">@player.TotalScore <span data-translate="leaderboard_points">điểm trắc nghiệm</span></div>
-                        </div>
-                        @if (rank == 1)
-                        {
-                            <div class="leaderboard-kid-title-award" data-translate="leaderboard_c1"><i class="fa-solid fa-crown"></i> Quán Quân</div>
-                        }
-                        else if (rank == 2)
-                        {
-                            <div class="leaderboard-kid-title-award" style="color: #A6A6A6;" data-translate="leaderboard_c2"><i class="fa-solid fa-medal"></i> Á Quân</div>
-                        }
-                        else if (rank == 3)
-                        {
-                            <div class="leaderboard-kid-title-award" style="color: #CD7F32;" data-translate="leaderboard_c3"><i class="fa-solid fa-award"></i> Quý Quân</div>
-                        }
-                        else
-                        {
-                            <div style="font-weight: 600; color: var(--text-muted);"><span data-translate="leaderboard_c_other">Top</span> @rank</div>
-                        }
-                    </div>
-                    rank++;
-                }
-            }
-            else
-            {
-                <div class="py-4">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🏆</div>
-                    <h4 style="font-family: var(--font-heading); font-weight: 700; color: var(--text-main);" data-translate="leaderboard_empty_title">Bảng Vàng Đang Chờ Người Xứng Đáng!</h4>
-                    <p style="color: var(--text-muted); margin-bottom: 0;" data-translate="leaderboard_empty_desc">Hãy nhanh tay là thí sinh đầu tiên ghi danh lên đây nhé!</p>
-                </div>
-            }
-        </div>
-    </section>
+    @* Bảng Vàng đã được ẩn để tránh lạm dụng tên không phù hợp. Chỉ Admin mới xem được qua trang /Admin. *@
 </div>
 
 @section Scripts {

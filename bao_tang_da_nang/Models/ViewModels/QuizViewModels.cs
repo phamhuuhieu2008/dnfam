@@ -151,6 +151,10 @@ namespace Bảo_Tàng_Đà_Nẵng.Models.ViewModels
         [MaxLength(200)]
         [Display(Name = "Tên người chơi")]
         public string PlayerName { get; set; } = string.Empty;
+
+        /// <summary>Số câu hỏi người dùng muốn làm (10, 15, 20, 30). Mặc định 30.</summary>
+        [Range(5, 300)]
+        public int QuestionCount { get; set; } = 30;
     }
 
     /// <summary>Màn hình Kết quả sau khi nộp bài.</summary>

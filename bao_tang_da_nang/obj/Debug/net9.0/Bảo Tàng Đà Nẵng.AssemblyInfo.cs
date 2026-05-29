@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Bảo Tàng Đà Nẵng")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ca759eed08708cb660ed1e10e5094644301ef3f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+00fc2ce0d9d95e5e5291073fac66203b57414878")]
 [assembly: System.Reflection.AssemblyProductAttribute("Bảo Tàng Đà Nẵng")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Bảo Tàng Đà Nẵng")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

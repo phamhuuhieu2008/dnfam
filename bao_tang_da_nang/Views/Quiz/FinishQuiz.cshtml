@@ -1,13 +1,179 @@
 @model QuizResultViewModel
 @{
-    ViewData["Title"] = "Kết quả Giải Mã";
+    ViewData["Title"] = "Kết quả Trắc Nghiệm";
+    int stars = Model.AccuracyRate >= 90 ? 3 : (Model.AccuracyRate >= 60 ? 2 : 1);
+    string resultEmoji = stars == 3 ? "🏆" : (stars == 2 ? "⭐" : "💪");
+    string resultMsg = stars == 3 ? "Xuất sắc!" : (stars == 2 ? "Tốt lắm!" : "Cố gắng thêm nhé!");
 }
 
-<div class="kid-quiz-page animate-fadeInUp">
+@section Styles {
+<style>
+    /* ─── Ẩn footer & navbar phụ ─── */
+    .footer-quizkid { display: none !important; }
+
+    /* ─── Card kết quả ─── */
+    .kid-result-card {
+        max-width: 600px;
+        margin: 20px auto 40px auto;
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+
+    /* ─── Header gradient ─── */
+    .kid-result-header {
+        background: linear-gradient(135deg, #D4AF37 0%, #E89100 60%, #C25927 100%);
+        padding: 40px 30px 30px;
+        text-align: center;
+        color: white;
+    }
+    .kid-result-header h2 {
+        font-family: var(--font-heading, 'Nunito', sans-serif) !important;
+        font-weight: 900 !important;
+        font-size: 2rem !important;
+        color: white !important;
+        margin: 0 0 8px 0;
+        line-height: 1.2;
+    }
+    .kid-result-header p {
+        font-family: var(--font-heading, 'Nunito', sans-serif);
+        font-size: 1rem;
+        color: rgba(255,255,255,0.9);
+        margin: 0;
+    }
+
+    /* ─── Stars ─── */
+    .result-stars {
+        font-size: 2.5rem;
+        margin: 12px 0 0 0;
+        letter-spacing: 4px;
+    }
+
+    /* ─── Score bubble ─── */
+    .kid-score-bubble {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: white;
+        margin: -30px auto 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        position: relative;
+        z-index: 2;
+    }
+    .score-number {
+        font-family: var(--font-heading, 'Nunito', sans-serif);
+        font-weight: 900;
+        font-size: 2.2rem;
+        color: #D4AF37;
+        line-height: 1;
+    }
+    .score-unit {
+        font-family: var(--font-heading, 'Nunito', sans-serif);
+        font-weight: 800;
+        font-size: 0.75rem;
+        color: #A27D42;
+        letter-spacing: 1px;
+    }
+
+    /* ─── KPI row ─── */
+    .kid-kpi-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        padding: 20px 20px 0;
+    }
+    .kid-kpi {
+        text-align: center;
+        background: #FAF8F4;
+        border-radius: 16px;
+        padding: 14px 8px;
+    }
+    .kpi-value {
+        font-family: var(--font-heading, 'Nunito', sans-serif);
+        font-weight: 900;
+        font-size: 1.4rem;
+        color: #2C2825;
+    }
+    .kpi-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #8B7355;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 4px;
+    }
+
+    /* ─── Review list ─── */
+    .divider {
+        text-align: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: #A27D42;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 20px 20px 12px;
+        border-top: 2px dashed #EFECE6;
+        margin-top: 20px;
+    }
+    .kid-review-item {
+        padding: 14px 20px;
+        border-bottom: 1px solid #F5F3EF;
+    }
+    .kid-review-item:last-child { border-bottom: none; }
+    .review-question {
+        font-size: 0.92rem;
+        color: #2C2825;
+        font-weight: 600;
+        margin-bottom: 6px;
+        line-height: 1.5;
+    }
+    .review-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.88rem;
+    }
+    .review-meta .score {
+        font-weight: 800;
+        color: #28a745;
+        font-size: 0.9rem;
+    }
+
+    /* ─── Action buttons ─── */
+    .result-actions {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* ─── Mobile ─── */
+    @@media (max-width: 576px) {
+        .kid-result-header { padding: 30px 20px 24px; }
+        .kid-result-header h2 { font-size: 1.6rem !important; }
+        .kid-kpi-row { grid-template-columns: repeat(2, 1fr); }
+        .kid-score-bubble { width: 100px; height: 100px; }
+        .score-number { font-size: 1.9rem; }
+        .kid-review-item { padding: 12px 16px; }
+    }
+</style>
+}
+
+<div class="kid-quiz-page animate-fadeInUp" style="padding: 16px 16px 40px;">
     <div class="kid-result-card">
         <div class="kid-result-header">
-            <h2 class="section-title text-dark mb-0" data-translate="finish_header">🎉 Hoàn thành xuất sắc!</h2>
-            <p class="section-subtitle mt-8" data-translate="finish_subtitle">Em đã hoàn thành chuyến phiêu lưu rồi!</p>
+            <div style="font-size: 3rem; margin-bottom: 8px;">@resultEmoji</div>
+            <h2 data-translate="finish_header">🎉 @resultMsg</h2>
+            <p data-translate="finish_subtitle">Em đã hoàn thành chuyến phiêu lưu rồi!</p>
+            <div class="result-stars">
+                @for (int s = 0; s < stars; s++) { <span>⭐</span> }
+                @for (int s = stars; s < 3; s++) { <span style="opacity:0.35;">⭐</span> }
+            </div>
         </div>
 
         <div class="kid-score-bubble">
@@ -15,73 +181,75 @@
             <div class="score-unit" data-translate="finish_score_unit">ĐIỂM</div>
         </div>
 
-        <div class="px-3">
-            <div class="text-center mb-3" style="font-weight: 800; color: #8B1E19; font-size: 1.05rem;">
-                @Model.PlayerName
-            </div>
+        <div style="text-align: center; padding: 14px 20px 4px; font-weight: 800; color: #8B1E19; font-size: 1.05rem;">
+            @Model.PlayerName
+        </div>
 
-            <div class="kid-kpi-row">
-                <div class="kid-kpi">
-                    <div class="kpi-value">@Model.CorrectAnswers</div>
-                    <div class="kpi-label" data-translate="finish_kpi_correct">Câu đúng</div>
-                </div>
-                <div class="kid-kpi">
-                    <div class="kpi-value">@Model.AccuracyRate%</div>
-                    <div class="kpi-label" data-translate="finish_kpi_accuracy">Chính xác</div>
-                </div>
-                <div class="kid-kpi">
-                    <div class="kpi-value">@Model.TotalQuestions</div>
-                    <div class="kpi-label" data-translate="finish_kpi_total">Tổng câu</div>
-                </div>
-                <div class="kid-kpi">
-                    <div class="kpi-value">@Model.Duration.Minutes:@Model.Duration.Seconds.ToString("D2")</div>
-                    <div class="kpi-label" data-translate="finish_kpi_time">Thời gian</div>
-                </div>
+        <div class="kid-kpi-row">
+            <div class="kid-kpi">
+                <div class="kpi-value">@Model.CorrectAnswers</div>
+                <div class="kpi-label" data-translate="finish_kpi_correct">Câu đúng</div>
+            </div>
+            <div class="kid-kpi">
+                <div class="kpi-value">@Model.AccuracyRate%</div>
+                <div class="kpi-label" data-translate="finish_kpi_accuracy">Chính xác</div>
+            </div>
+            <div class="kid-kpi">
+                <div class="kpi-value">@Model.TotalQuestions</div>
+                <div class="kpi-label" data-translate="finish_kpi_total">Tổng câu</div>
+            </div>
+            <div class="kid-kpi">
+                <div class="kpi-value">@Model.Duration.Minutes:@Model.Duration.Seconds.ToString("D2")</div>
+                <div class="kpi-label" data-translate="finish_kpi_time">Thời gian</div>
             </div>
         </div>
 
         <div class="divider" data-translate="finish_divider">Chi tiết bài làm</div>
 
-        <div class="pb-3">
+        <div>
             @for (int i = 0; i < Model.Answers.Count; i++)
             {
                 var ans = Model.Answers[i];
                 <div class="kid-review-item">
                     <div class="review-question">
-                        <span data-translate="finish_review_q">Câu</span> @(i + 1): 
+                        <span data-translate="finish_review_q">Câu</span> @(i + 1):
                         <span class="lang-text lang-vi">@ans.QuestionContent</span>
                         <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(ans.QuestionContentEn) ? ans.QuestionContent : ans.QuestionContentEn)</span>
                     </div>
-
                     <div class="review-meta">
                         <div>
                             @if (ans.IsCorrect)
                             {
-                                <span style="color: var(--success); font-weight: 800;" data-translate="finish_review_correct">✅ Đúng rồi!</span>
+                                <span style="color: var(--success, #28a745); font-weight: 800;" data-translate="finish_review_correct">✅ Đúng rồi!</span>
                             }
                             else
                             {
-                                <span style="color: var(--error); font-weight: 800;" data-translate="finish_review_wrong">❌ Chưa đúng</span>
-                                <span style="color: var(--text-muted); font-weight: 700;"><span data-translate="finish_review_answer_label"> (Đáp án: </span>
+                                <span style="color: var(--error, #dc3545); font-weight: 800;" data-translate="finish_review_wrong">❌ Chưa đúng</span>
+                                <span style="color: var(--text-muted); font-weight: 700;">
+                                    <span data-translate="finish_review_answer_label"> (Đáp án: </span>
                                     <span class="lang-text lang-vi">@ans.CorrectOption</span>
                                     <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(ans.CorrectOptionTextEn) ? ans.CorrectOption : ans.CorrectOptionTextEn)</span>
-                                )</span>
+                                    )
+                                </span>
                             }
                         </div>
-                        <div class="score">
-                            +@(ans.IsCorrect ? ans.Points : 0) <span data-translate="finish_review_points">điểm</span>
-                        </div>
+                        <div class="score">+@(ans.IsCorrect ? ans.Points : 0) <span data-translate="finish_review_points">điểm</span></div>
                     </div>
                 </div>
             }
         </div>
 
-        <div class="p-3">
-            <a asp-controller="Home" asp-action="Index" class="btn-primary-museum text-center" style="display: block; text-decoration: none; margin-bottom: 12px;" data-translate="finish_home_btn">
+        <div class="result-actions">
+            <a asp-controller="Home" asp-action="Index"
+               class="btn-primary-museum text-center"
+               style="display: block; text-decoration: none; border-radius: 50px; padding: 16px; font-size: 1rem;"
+               data-translate="finish_home_btn">
                 🏠 Về trang chủ
             </a>
-
-            <a asp-controller="Quiz" asp-action="StartSession" class="btn-secondary-museum text-center" style="display: block; text-decoration: none;" data-translate="finish_replay_btn">
+            <a asp-controller="Quiz" asp-action="StartSession"
+               class="btn-secondary-museum text-center"
+               style="display: block; text-decoration: none; border-radius: 50px; padding: 14px; font-size: 1rem;"
+               data-translate="finish_replay_btn">
                 🔁 Chơi lại lần nữa
             </a>
         </div>
@@ -91,7 +259,6 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Retrieve session stats from ViewBag and Model
             const topic = "@Html.Raw(ViewBag.TopicName ?? "Trắc nghiệm Tổng hợp")";
             const score = @Model.TotalScore;
             const correct = @Model.CorrectAnswers;
@@ -99,69 +266,32 @@
             const accuracy = @Model.AccuracyRate;
             const sessionId = @Model.SessionId;
             const date = new Date().toLocaleDateString('vi-VN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit'
             });
 
-            // Get existing history array
             let history = [];
-            try {
-                history = JSON.parse(localStorage.getItem('quizkid_history') || '[]');
-            } catch (e) {
-                console.error("Lỗi đọc lịch sử:", e);
-                history = [];
-            }
+            try { history = JSON.parse(localStorage.getItem('quizkid_history') || '[]'); }
+            catch (e) { history = []; }
+            if (!Array.isArray(history)) history = [];
 
-            if (!Array.isArray(history)) {
-                history = [];
-            }
-
-            // Check if this sessionId already exists to prevent duplicate addition on page reload
             const exists = history.some(item => item.sessionId === sessionId);
-
             if (!exists) {
-                // Add new record to the beginning of the list
-                history.unshift({
-                    sessionId: sessionId,
-                    topic: topic,
-                    score: score,
-                    correct: correct,
-                    total: total,
-                    accuracy: accuracy,
-                    date: date
-                });
-
-                // Keep only the last 50 entries to save space
-                if (history.length > 50) {
-                    history = history.slice(0, 50);
-                }
-
-                // Save back to localStorage
+                history.unshift({ sessionId, topic, score, correct, total, accuracy, date });
+                if (history.length > 50) history = history.slice(0, 50);
                 localStorage.setItem('quizkid_history', JSON.stringify(history));
             }
 
             // Language display toggle
             const currentLang = localStorage.getItem('selectedLanguage') || 'vi';
-            document.querySelectorAll('.lang-text').forEach(el => {
-                el.style.display = 'none';
-            });
-            document.querySelectorAll('.lang-' + currentLang).forEach(el => {
-                el.style.display = 'inline';
-            });
+            document.querySelectorAll('.lang-text').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.lang-' + currentLang).forEach(el => el.style.display = 'inline');
 
             document.addEventListener('langChanged', function(e) {
                 const lang = e.detail.lang;
-                document.querySelectorAll('.lang-text').forEach(el => {
-                    el.style.display = 'none';
-                });
-                document.querySelectorAll('.lang-' + lang).forEach(el => {
-                    el.style.display = 'inline';
-                });
+                document.querySelectorAll('.lang-text').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.lang-' + lang).forEach(el => el.style.display = 'inline');
             });
         });
     </script>
 }
-

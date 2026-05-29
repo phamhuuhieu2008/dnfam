@@ -62,6 +62,7 @@ namespace Bảo_Tàng_Đà_Nẵng
             // ── 5. Nạp dữ liệu tự động ────────────────────────────────────
             try 
             {
+                Console.WriteLine("Đang kiểm tra và khởi tạo dữ liệu...");
                 Bảo_Tàng_Đà_Nẵng.ParseAndSeed.Run();
             }
             catch (Exception ex)

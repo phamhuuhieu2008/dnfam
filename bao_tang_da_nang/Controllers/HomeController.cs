@@ -31,16 +31,15 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? category)
         {
-            // Lấy danh sách các danh mục / chủ đề từ CSDL và đếm số lượng câu hỏi hoạt động
-            var categories = await _db.Questions
-                .Where(q => q.IsActive && !string.IsNullOrEmpty(q.LocationName))
-                .GroupBy(q => q.LocationName)
-                .Select(g => new CategorySummaryViewModel
-                {
-                    Name = g.Key ?? "Khác",
-                    QuestionCount = g.Count()
-                })
-                .ToListAsync();
+            // Lấy danh sách các danh mục / chủ đề từ CSDL. 
+            // Vì CSDL hiện tại lưu 10 đề tài chi tiết, ta sẽ nhóm cứng lại thành 4 chủ đề lớn như cũ.
+            var categories = new List<CategorySummaryViewModel>
+            {
+                new CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", QuestionCount = 30 },
+                new CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người", QuestionCount = 30 },
+                new CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển", QuestionCount = 30 },
+                new CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", QuestionCount = 30 }
+            };
 
             int? userId = HttpContext.Session.GetInt32("UserId");
 

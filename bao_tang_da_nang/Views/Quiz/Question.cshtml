@@ -1,36 +1,141 @@
 @model QuestionViewModel
 @{
     ViewData["Title"] = $"Câu {Model.CurrentIndex}/{Model.TotalQuestions}";
+    ViewData["HideNav"] = true;
+    ViewData["HideFooter"] = true;
     double progressPercent = ((double)Model.CurrentIndex / Model.TotalQuestions) * 100;
 }
 
 @section Styles {
 <style>
-    /* Tối ưu hóa giao diện quiz cho di động */
+    /* ─── Ẩn footer & navbar links khi đang làm bài ─── */
+    .footer-quizkid { display: none !important; }
+    .navbar-quizkid { display: none !important; }
+
+    /* ─── Layout tổng thể ─── */
+    .kid-quiz-page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 16px 16px 110px 16px; /* bottom padding cho nút cố định */
+    }
+
+    /* ─── Toast feedback ─── */
+    .feedback-toast {
+        position: fixed;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+        z-index: 9999;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        white-space: nowrap;
+        max-width: 90vw;
+    }
+    .feedback-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    .feedback-toast.hide {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    .feedback-toast.correct {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+    .feedback-toast.wrong {
+        background: linear-gradient(135deg, #dc3545, #ff6b6b);
+        color: white;
+    }
+
+    /* ─── Nút Tiếp tục cố định dưới cùng ─── */
+    .bottom-action {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: none !important; /* Ghi đè transform: translateX(-50%) từ museum.css */
+        width: 100% !important;
+        z-index: 1000;
+        padding: 12px 16px 16px 16px;
+        background: linear-gradient(to top, rgba(255,255,255,1) 60%, rgba(255,255,255,0));
+        display: none;
+    }
+    .bottom-action .btn-primary-museum {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        display: block;
+        padding: 16px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-align: center;
+        background: linear-gradient(180deg, #F9B621 0%, #E89100 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 8px 20px rgba(232, 145, 0, 0.35), inset 0 -3px 0 rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .bottom-action .btn-primary-museum:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(232, 145, 0, 0.4);
+    }
+    .bottom-action .btn-primary-museum:active {
+        transform: translateY(0);
+    }
+    .bottom-action .btn-primary-museum:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* ─── Mobile responsive ─── */
     @@media (max-width: 768px) {
         .kid-quiz-page {
-            padding: 10px !important;
+            padding: 10px 10px 110px 10px;
         }
         .kid-question-card {
-            padding: 20px 15px !important;
-            margin-bottom: 20px !important;
+            padding: 18px 14px !important;
+            margin-bottom: 12px !important;
+            border-radius: 20px !important;
         }
         .question-content {
-            font-size: 1.15rem !important;
-            line-height: 1.4 !important;
+            font-size: 1.1rem !important;
+            line-height: 1.5 !important;
         }
         .kid-answers-grid {
             grid-template-columns: 1fr !important;
             gap: 10px !important;
         }
         .kid-answer-option {
-            padding: 12px 15px !important;
-            font-size: 0.95rem !important;
+            padding: 14px 16px !important;
+            min-height: 56px !important;
+            border-radius: 16px !important;
+        }
+        .answer-text {
+            font-size: 0.98rem !important;
         }
         .answer-letter {
-            width: 30px !important;
-            height: 30px !important;
-            font-size: 0.9rem !important;
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 1rem !important;
+            border-radius: 11px !important;
+            flex-shrink: 0;
+        }
+        .feedback-toast {
+            font-size: 0.9rem;
+            padding: 10px 18px;
+        }
+        .bottom-action .btn-primary-museum {
+            padding: 15px;
+            font-size: 1.05rem;
         }
     }
 </style>
@@ -105,7 +210,8 @@
     </div>
 </div>
 
-<div class="bottom-action" style="display: none;" id="bottomActionContainer">
+<!-- Nút Tiếp tục cố định ở dưới màn hình -->
+<div class="bottom-action" id="bottomActionContainer">
     <button type="button" class="btn-primary-museum" id="btnNext" data-translate="question_next_btn">
         Tiếp tục <span style="font-size: 1.2em; vertical-align: middle;">→</span>
     </button>
@@ -128,7 +234,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let isAnswered = false;
     let nextUrl = '@Url.Action("Question", "Quiz")';
-    
+    let toastTimer = null;
+
     // Dynamic localization states
     let currentLang = localStorage.getItem('selectedLanguage') || 'vi';
     let isLast = false;
@@ -140,11 +247,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateDynamicElements() {
-        // Update score display text format
         const scoreSuffix = currentLang === 'vi' ? ' điểm' : ' pts';
         scoreDisplay.innerHTML = lastPoints + ` <span data-translate="finish_review_points">${scoreSuffix}</span>`;
         
-        // Update next button visual text if it is the last question
         if (isLast) {
             btnNext.innerHTML = currentLang === 'vi' 
                 ? 'Xem kết quả <span style="font-size: 1.2em; vertical-align: middle;">🏆</span>' 
@@ -152,13 +257,37 @@ document.addEventListener('DOMContentLoaded', function() {
             btnNext.setAttribute('data-is-last', 'true');
         }
 
-        // Toggle question and answer texts
         document.querySelectorAll('.lang-text').forEach(el => {
             el.style.display = 'none';
         });
         document.querySelectorAll('.lang-' + currentLang).forEach(el => {
             el.style.display = 'inline';
         });
+    }
+
+    // Toast với auto-hide sau 3.5 giây
+    function showToast(message, type) {
+        // Clear timer cũ nếu có
+        if (toastTimer) {
+            clearTimeout(toastTimer);
+            toastTimer = null;
+        }
+
+        toast.textContent = message;
+        toast.className = 'feedback-toast ' + type;
+        // Force reflow
+        toast.offsetHeight;
+        toast.classList.add('show');
+
+        // Tự động ẩn sau 3.5s
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            setTimeout(() => {
+                toast.classList.remove('hide');
+                toast.className = 'feedback-toast';
+            }, 300);
+        }, 3500);
     }
 
     options.forEach(opt => {
@@ -214,7 +343,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast(toastMsg, 'correct');
                 } else {
                     this.classList.add('wrong');
-                    document.querySelector(`.answer-option[data-option="${result.correctOption}"]`).classList.add('correct');
+                    const correctEl = document.querySelector(`.answer-option[data-option="${result.correctOption}"]`);
+                    if (correctEl) correctEl.classList.add('correct');
                     const toastMsg = currentLang === 'vi'
                         ? '❌ Sai rồi! Đáp án đúng là ' + result.correctOption
                         : '❌ Incorrect! Correct option is ' + result.correctOption;
@@ -230,8 +360,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateDynamicElements();
                 }
 
+                // Hiện nút Tiếp tục (cố định dưới màn hình)
                 bottomAction.style.display = 'block';
-                bottomAction.style.animation = 'fadeInUp 0.3s ease forwards';
+
             } catch (error) {
                 console.error('Error submitting answer:', error);
                 alert('Lỗi: ' + error.message);
@@ -249,11 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = nextUrl;
     });
 
-    function showToast(message, type) {
-        toast.textContent = message;
-        toast.className = 'feedback-toast ' + type + ' show';
-    }
-    
     // Initial sync
     updateDynamicElements();
 });

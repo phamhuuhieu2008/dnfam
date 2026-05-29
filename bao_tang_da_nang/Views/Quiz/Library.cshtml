@@ -6,10 +6,12 @@
     // Helper function to map topics to our 4 main kid subjects
     string GetSubjectClass(string topicName)
     {
-        if (topicName.Contains("Chủ đề 4") || topicName.Contains("Chủ đề 6")) return "math";
-        if (topicName.Contains("Chủ đề 1") || topicName.Contains("Chủ đề 2") || topicName.Contains("Chủ đề 3")) return "science";
-        if (topicName.Contains("Chủ đề 7") || topicName.Contains("Chủ đề 8") || topicName.Contains("Chủ đề 9")) return "languages";
-        return "art"; // Default/Chủ đề 5, 10
+        var upper = topicName.ToUpper();
+        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("CHỦ ĐỀ 1") || upper.Contains("ĐỊA LÝ")) return "science";
+        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("CHỦ ĐỀ 2") || upper.Contains("THIÊN NHIÊN")) return "math";
+        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("CHỦ ĐỀ 3") || upper.Contains("ĐỊA CHẤT")) return "languages";
+        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("CHỦ ĐỀ 4") || upper.Contains("KHẢO CỔ") || upper.Contains("SA HUỲNH")) return "art";
+        return "science";
     }
 }
 
@@ -67,6 +69,42 @@
             transform: scale(1.05);
             background-color: #C25927;
         }
+
+        /* ─── Topic Filter Bar ─── */
+        .topic-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 0 0 28px 0;
+        }
+        .topic-filter-btn {
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 2px solid #EFECE6;
+            background: white;
+            font-family: var(--font-heading, 'Nunito', sans-serif);
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #805A12;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .topic-filter-btn:hover {
+            border-color: #D4AF37;
+            color: #D4AF37;
+            transform: translateY(-1px);
+        }
+        .topic-filter-btn.active {
+            background: linear-gradient(135deg, #D4AF37, #E89100);
+            border-color: #D4AF37;
+            color: white;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
+        }
+        @@media (max-width: 576px) {
+            .topic-filter-btn { padding: 7px 14px; font-size: 0.8rem; }
+        }
     </style>
 }
 
@@ -80,10 +118,27 @@
             </div>
             
             <form method="get" action="@Url.Action("Library", "Quiz")" class="hero-search-box">
-                <input type="text" name="query" value="@ViewBag.SearchQuery" class="form-control" placeholder="🔍 Tìm kiếm chủ đề bạn yêu thích..." data-translate="hero_search_placeholder">
+                <input type="text" name="query" value="@ViewBag.SearchQuery" class="form-control" placeholder="🔍 Tìm kiếm đề tài bạn yêu thích...">
                 <button type="submit" class="hero-search-btn"><i class="fa-solid fa-arrow-right"></i></button>
             </form>
-            
+
+            <!-- Bộ lọc theo Đề tài -->
+            <div class="topic-filter-bar" id="topicFilterBar">
+                <button class="topic-filter-btn active" data-filter="all" onclick="filterByTopic('all', this)">
+                    📚 Tất cả
+                </button>
+                <button class="topic-filter-btn" data-filter="đề tài 1" onclick="filterByTopic('đề tài 1', this)">Đề tài 1</button>
+                <button class="topic-filter-btn" data-filter="đề tài 2" onclick="filterByTopic('đề tài 2', this)">Đề tài 2</button>
+                <button class="topic-filter-btn" data-filter="đề tài 3" onclick="filterByTopic('đề tài 3', this)">Đề tài 3</button>
+                <button class="topic-filter-btn" data-filter="đề tài 4" onclick="filterByTopic('đề tài 4', this)">Đề tài 4</button>
+                <button class="topic-filter-btn" data-filter="đề tài 5" onclick="filterByTopic('đề tài 5', this)">Đề tài 5</button>
+                <button class="topic-filter-btn" data-filter="đề tài 6" onclick="filterByTopic('đề tài 6', this)">Đề tài 6</button>
+                <button class="topic-filter-btn" data-filter="đề tài 7" onclick="filterByTopic('đề tài 7', this)">Đề tài 7</button>
+                <button class="topic-filter-btn" data-filter="đề tài 8" onclick="filterByTopic('đề tài 8', this)">Đề tài 8</button>
+                <button class="topic-filter-btn" data-filter="đề tài 9" onclick="filterByTopic('đề tài 9', this)">Đề tài 9</button>
+                <button class="topic-filter-btn" data-filter="đề tài 10" onclick="filterByTopic('đề tài 10', this)">Đề tài 10</button>
+            </div>
+
             @if (Model != null && Model.Count > 0)
             {
                 <div class="all-quizzes-grid">
@@ -94,9 +149,9 @@
                         string imageFile = "topic1.png";
                         string displayName = cat.Name;
                         
-                        if (cat.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; displayName = "Thiên Nhiên & Muông Thú"; }
-                        else if (cat.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; displayName = "Khám Phá Đại Dương & Sinh Thái"; }
-                        else if (cat.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic4.png"; displayName = "Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh"; }
+                        if (cat.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 4", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic4.png"; }
                         else if (cat.Name.Contains("ĐỀ TÀI 1", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 1", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic1.png"; }
                         else if (cat.Name.Contains("ĐỀ TÀI 5", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 5", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic5.png"; }
                         else if (cat.Name.Contains("ĐỀ TÀI 6", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 6", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic6.png"; }
@@ -104,27 +159,18 @@
                         else if (cat.Name.Contains("ĐỀ TÀI 8", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 8", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic8.png"; }
                         else if (cat.Name.Contains("ĐỀ TÀI 9", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 9", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic9.png"; }
                         else if (cat.Name.Contains("ĐỀ TÀI 10", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 10", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic10.png"; }
-                        else if (cat.Name.Equals("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; displayName = "TỔNG HỢP"; }
-                        else if (cat.Name.Equals("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; displayName = "CHỦ ĐỀ 2"; }
-                        else if (cat.Name.Equals("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; displayName = "CHỦ ĐỀ 3"; }
+                        else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; }
+                        else if (cat.Name.Contains("làng nghề", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_craft_village.png"; }
+                        else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_club.png"; }
+                        else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_artisan.png"; }
+                        else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_news.png"; }
                         else 
                         {
-                            if (cat.Name.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_craft_village.png"; displayName = "Làng nghề thủ công"; }
-                            else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_club.png"; displayName = "Bảng tin cộng đồng"; }
-                            else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_artisan.png"; displayName = "Góc sáng tạo"; }
-                            else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_news.png"; displayName = "Sự kiện - Tin tức"; }
-                            else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; displayName = "Khám phá bảo tàng"; }
-                            else 
-                            {
-                                // Deterministic fallback for unknown topics
-                                int hash = 0;
-                                for (int i = 0; i < cat.Name.Length; i++) hash = (hash * 31) + cat.Name[i];
-                                hash = Math.Abs(hash) % 5;
-                                string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
-                                string[] fallbackNames = { "Khám phá bảo tàng", "Làng nghề thủ công", "Bảng tin cộng đồng", "Góc sáng tạo", "Sự kiện - Tin tức" };
-                                imageFile = fallbacks[hash];
-                                displayName = fallbackNames[hash];
-                            }
+                            int hash = 0;
+                            for (int i = 0; i < cat.Name.Length; i++) hash = (hash * 31) + cat.Name[i];
+                            hash = Math.Abs(hash) % 5;
+                            string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
+                            imageFile = fallbacks[hash];
                         }
                         
                         <div class="quiz-kid-card mini-topic-card" data-subject="@subjectType">
@@ -139,26 +185,7 @@
                             </div>
                             <div class="quiz-kid-card-body" style="padding: 20px;">
                                 <h3 class="quiz-kid-card-title" style="font-size: 1.15rem !important;">
-                                    @{
-                                        string transKey = "";
-                                        if (displayName.Contains("Chủ đề 1", StringComparison.OrdinalIgnoreCase)) transKey = "topic_1";
-                                        else if (displayName.Contains("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) transKey = "topic_2";
-                                        else if (displayName.Contains("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) transKey = "topic_3";
-                                        else if (displayName.Contains("Chủ đề 4", StringComparison.OrdinalIgnoreCase)) transKey = "topic_4";
-                                        else if (displayName.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) transKey = "topic_general";
-                                        else if (displayName.Contains("làng nghề", StringComparison.OrdinalIgnoreCase)) transKey = "topic_craft";
-                                        else if (displayName.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) transKey = "topic_artisan";
-                                        else if (displayName.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) transKey = "topic_club";
-                                        else if (displayName.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase) || displayName.Contains("Tin tức", StringComparison.OrdinalIgnoreCase)) transKey = "topic_news";
-                                    }
-                                    @if (string.IsNullOrEmpty(transKey))
-                                    {
-                                        <span>@displayName</span>
-                                    }
-                                    else
-                                    {
-                                        <span data-translate="@transKey">@displayName</span>
-                                    }
+                                    <span>@displayName</span>
                                     @if(cat.IsCompleted)
                                     {
                                         <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;" data-translate="completed" data-bs-toggle="tooltip"></i>
@@ -204,6 +231,7 @@
                           .toLowerCase();
             }
 
+            // Lọc theo text tìm kiếm
             function filterTopics(query) {
                 if (!query) {
                     topicCards.forEach(card => card.style.display = 'block');
@@ -248,5 +276,44 @@
                 });
             }
         });
+
+        // Lọc theo Đề tài (filter buttons)
+        function filterByTopic(filter, btn) {
+            // Update active state
+            document.querySelectorAll('.topic-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const topicCards = document.querySelectorAll('.mini-topic-card');
+            const allQuizzesGrid = document.querySelector('.all-quizzes-grid');
+            const noResultsKid = document.querySelector('.no-results-kid');
+
+            function removeDiac(str) {
+                return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+            }
+
+            let hasResults = false;
+            topicCards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    const title = card.querySelector('.quiz-kid-card-title')?.textContent || '';
+                    if (removeDiac(title).includes(removeDiac(filter))) {
+                        card.style.display = 'block';
+                        hasResults = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+
+            if (hasResults) {
+                if (allQuizzesGrid) allQuizzesGrid.style.display = 'grid';
+                if (noResultsKid) noResultsKid.style.display = 'none';
+            } else {
+                if (allQuizzesGrid) allQuizzesGrid.style.display = 'none';
+                if (noResultsKid) noResultsKid.style.display = 'block';
+            }
+        }
     </script>
 }

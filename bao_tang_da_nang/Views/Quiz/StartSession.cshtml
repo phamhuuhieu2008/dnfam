@@ -1,12 +1,133 @@
 @model StartSessionViewModel
 @{
     ViewData["Title"] = "Bắt đầu phiên chơi";
+
+    // Mô tả cho từng đề tài
+    string GetTopicDescription(string topic)
+    {
+        var upper = topic.ToUpper();
+        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("TỔNG QUAN")) return "Khám phá vị trí địa lý, lịch sử hình thành và các công trình kiến trúc độc đáo của Bảo tàng Đà Nẵng.";
+        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("SINH THÁI RỪNG")) return "Tìm hiểu về hệ sinh thái rừng phong phú, các loài động thực vật quý hiếm và khí hậu đặc trưng của Đà Nẵng.";
+        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("ĐỊA CHẤT")) return "Khám phá cấu trúc địa chất kỳ thú, tài nguyên khoáng sản và hệ sinh thái biển đa dạng của vùng biển Đà Nẵng.";
+        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("SA HUỲNH") || upper.Contains("TIỀN - SƠ SỬ")) return "Hành trình ngược thời gian về thời kỳ tiền sử, khám phá những bí ẩn của nền văn hóa Sa Huỳnh huyền bí.";
+        if (upper.Contains("ĐỀ TÀI 5") || upper.Contains("CHAMPA")) return "Tìm hiểu những dấu ấn văn hóa Champa qua hệ thống đền tháp, văn bia chữ Phạn và giếng cổ độc đáo.";
+        if (upper.Contains("ĐỀ TÀI 6")) return "Khám phá Đà Nẵng từ thế kỷ XV đến trước năm 1858 — thời kỳ Đại Việt với nhiều biến cố lịch sử quan trọng.";
+        if (upper.Contains("ĐỀ TÀI 7")) return "Tìm hiểu Đà Nẵng dưới thời Pháp thuộc và phong trào yêu nước, kháng chiến của nhân dân địa phương.";
+        if (upper.Contains("ĐỀ TÀI 8")) return "Những trang sử hào hùng của Đà Nẵng trong cuộc kháng chiến chống Mỹ cứu nước.";
+        if (upper.Contains("ĐỀ TÀI 9")) return "Khám phá văn hóa dân gian, phong tục tập quán và đời sống tinh thần phong phú của người dân Đà Nẵng.";
+        if (upper.Contains("ĐỀ TÀI 10")) return "Đà Nẵng trên con đường đổi mới và hội nhập — từ thành phố chiến tranh đến đô thị năng động hiện đại.";
+        if (upper.Contains("TỔNG HỢP 300")) return "Bộ 300 câu hỏi tổng hợp toàn diện bao phủ tất cả các chủ đề về Bảo tàng và lịch sử Đà Nẵng.";
+        return "Khám phá những câu hỏi thú vị về lịch sử, văn hóa và thiên nhiên Đà Nẵng.";
+    }
+
+    var topicDesc = GetTopicDescription(Model.Topic);
 }
 
-<div class="kid-quiz-page animate-fadeInUp" style="padding-top: 40px; padding-bottom: 60px;">
+@section Styles {
+    <style>
+        .footer-quizkid { display: none !important; }
+
+        /* Slider tùy chỉnh */
+        .question-count-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            background: linear-gradient(to right, #D4AF37 0%, #D4AF37 var(--slider-percent, 100%), #EBEAE5 var(--slider-percent, 100%), #EBEAE5 100%);
+            outline: none;
+            cursor: pointer;
+        }
+        .question-count-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #D4AF37;
+            cursor: pointer;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+            transition: transform 0.15s ease;
+        }
+        .question-count-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .question-count-slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #D4AF37;
+            cursor: pointer;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+        }
+
+        .topic-desc-box {
+            background: linear-gradient(135deg, #FFF9E6, #FFF3CC);
+            border: 2px solid #F6E2A3;
+            border-radius: 20px;
+            padding: 14px 18px;
+            font-size: 0.92rem;
+            color: #705A1A;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+        .topic-desc-box .topic-icon {
+            font-size: 1.4rem;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .count-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .count-pill {
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: 2px solid #EBEAE5;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #805A12;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s ease;
+        }
+        .count-pill:hover, .count-pill.active {
+            background: #D4AF37;
+            border-color: #D4AF37;
+            color: white;
+        }
+
+        .count-display {
+            font-family: var(--font-heading, 'Nunito', sans-serif);
+            font-weight: 900;
+            font-size: 2rem;
+            color: #D4AF37;
+        }
+
+        /* Responsive Mobile Settings */
+        @media (max-width: 768px) {
+            .kid-quiz-card {
+                padding: 24px !important;
+            }
+            .kid-title {
+                font-size: 1.8rem !important;
+            }
+            .count-pills {
+                justify-content: center;
+            }
+        }
+    </style>
+}
+
+<div class="kid-quiz-page animate-fadeInUp" style="padding-top: 30px; padding-bottom: 60px;">
     <div class="text-center mb-4">
         <img src="~/images/lightbulb_mascot.png" alt="Lightbulb Mascot"
-             style="width: 140px; height: 140px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: -15px; position: relative; z-index: 10;" />
+             style="width: 120px; height: 120px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: -10px; position: relative; z-index: 10;" />
         <br />
         <div class="kid-eyebrow d-inline-block"
              style="background-color: #FA9465; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; position: relative; z-index: 11; border: 2px solid white;"
@@ -14,18 +135,13 @@
             <i class="fa-solid fa-magnifying-glass"></i> SẴN SÀNG KHÁM PHÁ
         </div>
         <h1 class="kid-title mt-3"
-            style="font-family: var(--font-heading); font-weight: 900; font-size: 3rem; color: #2C2825;"
+            style="font-family: var(--font-heading); font-weight: 900; font-size: 2.4rem; color: #2C2825;"
             data-translate="start_session_header">Chơi quiz cùng Bảo tàng</h1>
-        <p class="kid-subtitle" style="color: #6C6863; font-weight: 500; font-size: 1.05rem;"
-           data-translate="start_session_subtitle">Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.
-        </p>
     </div>
 
     <div class="kid-quiz-card"
-         style="max-width: 600px; margin: 0 auto; background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); position: relative;">
-        <!-- decorative close button top right like in mockup -->
-        <div
-            style="position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background-color: #FA9465; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 10px rgba(250, 148, 101, 0.4); font-size: 1.2rem;">
+         style="max-width: 600px; margin: 0 auto; background: white; border-radius: 30px; padding: 36px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); position: relative;">
+        <div style="position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background-color: #FA9465; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 10px rgba(250, 148, 101, 0.4); font-size: 1.2rem;">
             <i class="fa-solid fa-star"></i>
         </div>
 
@@ -36,89 +152,28 @@
             </div>
         }
 
+        <!-- Đề tài đã chọn + mô tả -->
         <div class="mb-4">
             <div style="font-size: 0.75rem; color: #A27D42; margin-bottom: 8px; font-weight: 800; text-transform: uppercase;"
                  data-translate="start_session_chosen_topic">
-                Chủ đề em đã chọn
+                Đề tài đã chọn
             </div>
-            <div
-                style="padding: 16px 20px; border: 2px solid #F6E2A3; border-radius: 50px; font-weight: 700; color: #805A12; font-size: 1.05rem; display: flex; align-items: center; gap: 10px;">
+            <div style="padding: 14px 18px; border: 2px solid #F6E2A3; border-radius: 20px; font-weight: 700; color: #805A12; font-size: 1rem; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                 <i class="fa-solid fa-scroll"></i>
-                @{
-                    string displayName = Model.Topic;
-                    string stTransKey = "";
-
-                    if (Model.Topic.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) { displayName = "Thiên Nhiên & Muông Thú"; stTransKey = "topic_2"; }
-                    else if (Model.Topic.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) { displayName = "Khám Phá Đại Dương & Sinh Thái"; stTransKey = "topic_3"; }
-                    else if (Model.Topic.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) { displayName = "Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh"; stTransKey = "topic_4"; }
-                    else if (Model.Topic.Equals("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase))
-                    {
-                        displayName =
-         "TỔNG HỢP"; stTransKey = "topic_general";
-                    }
-                    else if (Model.Topic.Equals("Chủ đề 1", StringComparison.OrdinalIgnoreCase))
-                    {
-                        displayName = "CHỦ ĐỀ 1";
-                        stTransKey = "topic_1";
-                    }
-                    else if (Model.Topic.Equals("Chủ đề 2", StringComparison.OrdinalIgnoreCase))
-                    {
-                        displayName = "CHỦ ĐỀ 2";
-                        stTransKey = "topic_2";
-                    }
-                    else if (Model.Topic.Equals("Chủ đề 3", StringComparison.OrdinalIgnoreCase))
-                    {
-                        displayName = "CHỦ ĐỀ 3";
-                        stTransKey = "topic_3";
-                    }
-                    else if (Model.Topic.Contains("ĐỀ TÀI", StringComparison.OrdinalIgnoreCase) || Model.Topic.Contains("Chủ đề", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Do nothing, use DB name
-                    }
-                    else
-                    {
-                        // Fallback items (Bảo tàng làng nghề, v.v.)
-                        if (Model.Topic.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase))
-                        {
-                            displayName =
-           "Làng nghề thủ công"; stTransKey = "topic_craft";
-                        }
-                        else if (Model.Topic.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { displayName = "Bảng tin cộng đồng"; stTransKey = "topic_club"; }
-                        else if (Model.Topic.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { displayName = "Góc sáng tạo"; stTransKey = "topic_artisan"; }
-                        else if (Model.Topic.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || Model.Topic.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase))
-                        {
-                            displayName = "Sự kiện - Tin tức"; stTransKey =
-                "topic_news";
-                        }
-                        else if (Model.Topic.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { displayName = "Khám phá bảo tàng"; stTransKey = "topic_general"; }
-                        else
-                        {
-                            int hash = 0;
-                            for (int i = 0; i < Model.Topic.Length; i++) hash = (hash * 31) + Model.Topic[i];
-                            hash = Math.Abs(hash) % 5;
-                            string[] fallbackNames = { "Khám phá bảo tàng", "Làng nghề thủ công", "Bảng tin cộng đồng", "Góc sáng tạo", "Sự kiện - Tin tức" };
-                            string[] fallbackKeys = { "topic_general", "topic_craft", "topic_club", "topic_artisan", "topic_news" };
-                            displayName = fallbackNames[hash];
-                            stTransKey = fallbackKeys[hash];
-                        }
-                    }
-                }
-                @if (string.IsNullOrEmpty(stTransKey))
-                {
-                    <span>@displayName</span>
-                }
-                else
-                {
-                    <span data-translate="@stTransKey">@displayName</span>
-                }
+                <span>@Model.Topic</span>
+            </div>
+            <div class="topic-desc-box">
+                <span class="topic-icon">💡</span>@topicDesc
             </div>
         </div>
 
         <form asp-action="StartSession" asp-controller="Quiz" method="post" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Topic" />
+            <input type="hidden" name="QuestionCount" id="hiddenQuestionCount" value="30" />
 
-            <div class="mb-5">
+            <!-- Tên người chơi -->
+            <div class="mb-4">
                 <label asp-for="PlayerName" class="form-label"
                        style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;"
                        data-translate="start_session_label">Tên người chơi</label>
@@ -129,10 +184,37 @@
                     <i class="fa-solid fa-pencil"
                        style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #B5B2AB;"></i>
                 </div>
-                <span asp-validation-for="PlayerName" class="text-danger mt-2 d-block"
-                      style="font-size: 0.9rem; font-weight: 700;"></span>
+                <span asp-validation-for="PlayerName" class="text-danger mt-2 d-block" style="font-size: 0.9rem; font-weight: 700;"></span>
             </div>
 
+            <!-- Chọn số câu hỏi -->
+            <div class="mb-5">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;">
+                        🎯 Số câu hỏi
+                    </div>
+                    <div>
+                        <span class="count-display" id="countDisplay">30</span>
+                        <span style="font-size: 0.85rem; color: #A27D42; font-weight: 700;"> câu</span>
+                    </div>
+                </div>
+
+                <input type="range" class="question-count-slider" id="questionCountSlider"
+                       min="10" max="30" step="5" value="30"
+                       oninput="updateCount(this.value)" />
+
+                <div class="count-pills" id="countPills">
+                    <span class="count-pill" onclick="setCount(10)">10 câu</span>
+                    <span class="count-pill" onclick="setCount(15)">15 câu</span>
+                    <span class="count-pill" onclick="setCount(20)">20 câu</span>
+                    <span class="count-pill active" onclick="setCount(30)">30 câu (Tất cả)</span>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.8rem; color: #A27D42; font-weight: 600;">
+                    💡 Điểm được tính theo % chính xác — <strong>10 hay 30 câu đều công bằng như nhau!</strong>
+                </div>
+            </div>
+
+            <!-- Nút bắt đầu -->
             <div class="d-grid gap-3">
                 <button type="submit" class="btn"
                         style="background: linear-gradient(180deg, #F9B621 0%, #E89100 100%); color: white; padding: 18px; border-radius: 50px; font-weight: 800; font-size: 1.2rem; border: none; box-shadow: 0 10px 20px rgba(232, 145, 0, 0.3), inset 0 -4px 0 rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s ease;"
@@ -151,4 +233,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        const slider = document.getElementById('questionCountSlider');
+        const countDisplay = document.getElementById('countDisplay');
+        const hiddenCount = document.getElementById('hiddenQuestionCount');
+        const pills = document.querySelectorAll('.count-pill');
+
+        function updateCount(val) {
+            val = parseInt(val);
+            countDisplay.textContent = val;
+            hiddenCount.value = val;
+            // Update slider gradient
+            const min = parseInt(slider.min), max = parseInt(slider.max);
+            const pct = ((val - min) / (max - min)) * 100;
+            slider.style.setProperty('--slider-percent', pct + '%');
+            // Sync pills
+            pills.forEach(p => {
+                p.classList.toggle('active', parseInt(p.textContent) === val || 
+                    (p.textContent.includes('Tất cả') && val === 30));
+            });
+        }
+
+        function setCount(val) {
+            slider.value = val;
+            updateCount(val);
+        }
+
+        // Init
+        updateCount(30);
+    </script>
 }

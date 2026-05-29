@@ -109,7 +109,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 .Where(s => s.IsCompleted)
                 .Include(s => s.User)
                 .OrderByDescending(s => s.TotalScore)
-                .ThenBy(s => EF.Functions.DateDiffSecond(s.StartTime, s.EndTime))
+                .ThenBy(s => s.EndTime - s.StartTime)
                 .Take(5)
                 .Select(s => new
                 {

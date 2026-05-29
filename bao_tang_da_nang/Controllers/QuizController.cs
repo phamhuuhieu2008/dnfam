@@ -76,23 +76,19 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 return View(model);
             }
 
-            int questionCount = _config.GetValue<int>("AppSettings:QuestionsPerQuiz", 5);
+            // Dùng số câu người dùng chọn từ slider, giới hạn theo chủ đề
+            int questionCount = model.QuestionCount > 0 ? model.QuestionCount : 30;
 
-            // Tự động lấy số lượng câu hỏi phù hợp
-            if (model.Topic == "Tổng hợp" || 
-                model.Topic == "Bảo tàng làng nghề" ||
-                model.Topic == "Nghệ nhân" ||
-                model.Topic == "Câu lạc bộ")
+            // Giới hạn tối đa theo từng loại chủ đề
+            if (model.Topic.Contains("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase))
             {
-                questionCount = 40;
+                // Bộ 300 câu cho phép lấy tối đa 300
+                questionCount = Math.Min(questionCount, 300);
             }
-            else if (model.Topic == "Tổng hợp 300 câu")
+            else
             {
-                questionCount = 300;
-            }
-            else if (model.Topic == "Chủ đề 1" || model.Topic == "Chủ đề 2" || model.Topic == "Chủ đề 3")
-            {
-                questionCount = 75;
+                // Mỗi đề tài tối đa 30 câu (số câu thực có)
+                questionCount = Math.Min(questionCount, 30);
             }
 
             var questionIds = await GetQuestionIdsByTopicAsync(model.Topic, questionCount);
@@ -181,6 +177,12 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             ViewBag.CategoryDescription = category.Description;
 
             return View(filteredTopics);
+        }
+
+        public IActionResult ForceSeed()
+        {
+            Bảo_Tàng_Đà_Nẵng.ParseAndSeed.Run();
+            return Ok("Force seed executed. Check terminal logs.");
         }
 
         // ════════════════════════════════════════════════════════
@@ -506,17 +508,25 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 {
                     // Lấy tất cả câu hỏi, không filter theo chủ đề
                 }
-                else if (normalizedInput == "Chủ đề 1")
+                else if (normalizedInput.StartsWith("Chủ đề 1"))
                 {
-                    query = query.Where(q => q.LocationName != null && (q.LocationName.Contains("ĐỀ TÀI 1") || q.LocationName.Contains("ĐỀ TÀI 2") || q.LocationName.Contains("ĐỀ TÀI 3")));
+                    // Địa lý & Lịch sử
+                    query = query.Where(q => q.LocationName != null && q.LocationName.Contains("ĐỀ TÀI 1"));
                 }
-                else if (normalizedInput == "Chủ đề 2")
+                else if (normalizedInput.StartsWith("Chủ đề 2"))
                 {
-                    query = query.Where(q => q.LocationName != null && (q.LocationName.Contains("ĐỀ TÀI 4") || q.LocationName.Contains("ĐỀ TÀI 5") || q.LocationName.Contains("ĐỀ TÀI 6") || q.LocationName.Contains("ĐỀ TÀI 7") || q.LocationName.Contains("ĐỀ TÀI 8")));
+                    // Thiên nhiên & Con người
+                    query = query.Where(q => q.LocationName != null && q.LocationName.Contains("ĐỀ TÀI 2"));
                 }
-                else if (normalizedInput == "Chủ đề 3")
+                else if (normalizedInput.StartsWith("Chủ đề 3"))
                 {
-                    query = query.Where(q => q.LocationName != null && (q.LocationName.Contains("ĐỀ TÀI 9") || q.LocationName.Contains("ĐỀ TÀI 10")));
+                    // Địa chất & Biển
+                    query = query.Where(q => q.LocationName != null && q.LocationName.Contains("ĐỀ TÀI 3"));
+                }
+                else if (normalizedInput.StartsWith("Chủ đề 4"))
+                {
+                    // Tiền sơ sử & Sa Huỳnh
+                    query = query.Where(q => q.LocationName != null && q.LocationName.Contains("ĐỀ TÀI 4"));
                 }
                 else
                 {
