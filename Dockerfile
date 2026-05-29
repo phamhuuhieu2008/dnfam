@@ -3,11 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy file .csproj và restore các dependencies
-COPY ["Bảo Tàng Đà Nẵng.csproj", "./"]
-RUN dotnet restore "Bảo Tàng Đà Nẵng.csproj"
+COPY ["bao_tang_da_nang/Bảo Tàng Đà Nẵng.csproj", "bao_tang_da_nang/"]
+RUN dotnet restore "bao_tang_da_nang/Bảo Tàng Đà Nẵng.csproj"
 
 # Copy toàn bộ mã nguồn và tiến hành build
 COPY . .
+WORKDIR /src/bao_tang_da_nang
 RUN dotnet build "Bảo Tàng Đà Nẵng.csproj" -c Release -o /app/build
 
 # Publish ứng dụng
