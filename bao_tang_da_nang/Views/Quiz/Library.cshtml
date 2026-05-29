@@ -1,7 +1,7 @@
 @model List<Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel>
 
 @{
-    ViewData["Title"] = "Kho Trắc Nghiệm Đa Dạng - Alexandria QuizKid";
+    ViewData["Title"] = "Kho Trắc Nghiệm Đa Dạng - Quizz";
     
     // Helper function to map topics to our 4 main kid subjects
     string GetSubjectClass(string topicName)
@@ -44,8 +44,13 @@
             border-radius: 50px;
             border: 2px solid #EFECE6;
             font-size: 1.1rem;
+            color: #2C2825 !important;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             padding-right: 60px;
+        }
+        
+        .hero-search-box .form-control::placeholder {
+            color: #8C847A !important;
         }
         
         .hero-search-box .hero-search-btn {

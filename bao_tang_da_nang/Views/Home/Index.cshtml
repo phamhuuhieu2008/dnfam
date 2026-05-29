@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Trang chủ - Alexandria QuizKid";
+    ViewData["Title"] = "Trang chủ - Quizz";
     var fullName = Context.Session.GetString("UserFullName");
     var categories = ViewBag.Categories as List<Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel>;
     var leaderboard = ViewBag.Leaderboard as List<Bảo_Tàng_Đà_Nẵng.Controllers.PlayerRankViewModel>;
@@ -302,9 +302,6 @@
     <section class="hero-kid container px-4">
         <div class="row align-items-center w-100 mx-0">
             <div class="col-lg-7 col-md-12 hero-kid-content">
-                <div class="hero-proof-badge mb-4" data-translate="hero_badge">
-                    <i class="fa-solid fa-medal"></i> HƠN 10,000 HỌC SINH ĐÃ THAM GIA
-                </div>
                 
                 @if (!string.IsNullOrWhiteSpace(fullName))
                 {
@@ -333,14 +330,9 @@
                 }
                 else
                 {
-                    <h1 class="hero-kid-title" data-translate="hero_title">Khám phá tri thức,<br>vui nhộn cùng <span class="brand-name">QuizKid!</span></h1>
+                    <h1 class="hero-kid-title" data-translate="hero_title">Khám phá tri thức,<br>vui nhộn cùng <span class="brand-name">Quizz!</span></h1>
                     <p class="hero-kid-desc" data-translate="hero_desc">Hệ thống câu hỏi trắc nghiệm tương tác giúp các bạn nhỏ tìm hiểu về Lịch sử, Tự nhiên và Nghệ thuật một cách đầy hứng khởi.</p>
                 }
-
-                <form method="get" action="@Url.Action("Library", "Quiz")" class="hero-search-box">
-                    <input type="text" name="query" class="form-control" placeholder="🔍 Tìm kiếm chủ đề bạn yêu thích..." data-translate="hero_search_placeholder">
-                    <button type="submit" class="hero-search-btn"><i class="fa-solid fa-arrow-right"></i></button>
-                </form>
             </div>
             <div class="col-lg-5 col-md-12 d-none d-lg-flex mascot-container">
                 <div class="mascot-img-wrap">
@@ -471,12 +463,9 @@
     <!-- All Quizzes Section -->
     <section class="quiz-section bg-light-kid pt-2 pb-5" id="allQuizzesSection">
         <div class="container px-4">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-                <div>
-                    <span class="section-kid-eyebrow" data-translate="all_eyebrow">TẤT CẢ THỬ THÁCH</span>
-                    <h2 class="section-kid-title mb-0" data-translate="all_title">Kho Trắc Nghiệm Đa Dạng</h2>
-                </div>
-                <a asp-controller="Quiz" asp-action="Library" class="view-all-link" data-translate="show_all">Hiển thị tất cả</a>
+            <div class="mb-4 text-center">
+                <span class="section-kid-eyebrow" data-translate="all_eyebrow">TẤT CẢ THỬ THÁCH</span>
+                <h2 class="section-kid-title mb-0" data-translate="all_title">Kho Trắc Nghiệm Đa Dạng</h2>
             </div>
             
             <div class="all-quizzes-grid" id="quizzesGrid">
@@ -539,6 +528,9 @@
                 }
             </div>
             
+            <div class="text-center mt-5 mb-2">
+                <a asp-controller="Quiz" asp-action="Library" class="view-all-link" data-translate="show_all" style="font-size: 1.15rem;">Hiển thị tất cả <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
 
         </div>
     </section>
