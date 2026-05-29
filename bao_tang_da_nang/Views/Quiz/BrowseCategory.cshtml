@@ -54,7 +54,7 @@
                                             @if(topic.IsCompleted)
                                             {
                                                 <div style="position: absolute; top: 0; right: 20px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                                                    <i class="fa-solid fa-check"></i> Đã hoàn thành
+                                                    <i class="fa-solid fa-check"></i> <span data-translate="completed">Đã hoàn thành</span>
                                                 </div>
                                             }
                                             @icon
@@ -64,12 +64,12 @@
                                             @topic.Name.ToUpper()
                                             @if(topic.IsCompleted)
                                             {
-                                                <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px; font-size: 1.2rem;"></i>
+                                                <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px; font-size: 1.2rem;" data-translate="completed" data-bs-toggle="tooltip"></i>
                                             }
                                         </h4>
                                         <div class="badge mb-3"
                                              style="background: rgba(212, 175, 55, 0.1); color: var(--gold-primary); padding: 8px 15px; border-radius: 10px; font-weight: 700;">
-                                            📝 @topic.QuestionCount câu hỏi
+                                            📝 @topic.QuestionCount <span data-translate="questions_count">câu hỏi</span>
                                         </div>
                                     </div>
 

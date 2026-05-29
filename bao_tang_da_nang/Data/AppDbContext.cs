@@ -69,10 +69,15 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
                 ));
 
                 entity.Property(q => q.Content).HasMaxLength(1000).IsRequired();
+                entity.Property(q => q.ContentEn).HasMaxLength(1000);
                 entity.Property(q => q.OptionA).HasMaxLength(500).IsRequired();
+                entity.Property(q => q.OptionAEn).HasMaxLength(500);
                 entity.Property(q => q.OptionB).HasMaxLength(500).IsRequired();
+                entity.Property(q => q.OptionBEn).HasMaxLength(500);
                 entity.Property(q => q.OptionC).HasMaxLength(500).IsRequired();
+                entity.Property(q => q.OptionCEn).HasMaxLength(500);
                 entity.Property(q => q.OptionD).HasMaxLength(500).IsRequired();
+                entity.Property(q => q.OptionDEn).HasMaxLength(500);
                 entity.Property(q => q.CorrectOption).HasMaxLength(1).IsFixedLength().IsRequired();
                 entity.Property(q => q.Points).HasDefaultValue(10);
                 entity.Property(q => q.LocationName).HasMaxLength(200);

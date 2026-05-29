@@ -18,21 +18,36 @@ namespace Bảo_Tàng_Đà_Nẵng.Models
         [MaxLength(1000)]
         public string Content { get; set; } = string.Empty;
 
+        [MaxLength(1000)]
+        public string? ContentEn { get; set; }
+
         [Required]
         [MaxLength(500)]
         public string OptionA { get; set; } = string.Empty;
+
+        [MaxLength(500)]
+        public string? OptionAEn { get; set; }
 
         [Required]
         [MaxLength(500)]
         public string OptionB { get; set; } = string.Empty;
 
+        [MaxLength(500)]
+        public string? OptionBEn { get; set; }
+
         [Required]
         [MaxLength(500)]
         public string OptionC { get; set; } = string.Empty;
 
+        [MaxLength(500)]
+        public string? OptionCEn { get; set; }
+
         [Required]
         [MaxLength(500)]
         public string OptionD { get; set; } = string.Empty;
+
+        [MaxLength(500)]
+        public string? OptionDEn { get; set; }
 
         /// <summary>
         /// Đáp án đúng: phải là "A", "B", "C", hoặc "D".

@@ -61,7 +61,8 @@
         }
 
         <div class="question-content">
-            @Model.Content
+            <span class="lang-text lang-vi">@Model.Content</span>
+            <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(Model.ContentEn) ? Model.Content : Model.ContentEn)</span>
         </div>
 
         <div class="question-points">
@@ -72,22 +73,34 @@
     <div class="kid-answers-grid" id="answersGrid">
         <div class="answer-option kid-answer-option" data-option="A">
             <div class="answer-letter">A</div>
-            <div class="answer-text">@Model.OptionA</div>
+            <div class="answer-text">
+                <span class="lang-text lang-vi">@Model.OptionA</span>
+                <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(Model.OptionAEn) ? Model.OptionA : Model.OptionAEn)</span>
+            </div>
         </div>
 
         <div class="answer-option kid-answer-option" data-option="B">
             <div class="answer-letter">B</div>
-            <div class="answer-text">@Model.OptionB</div>
+            <div class="answer-text">
+                <span class="lang-text lang-vi">@Model.OptionB</span>
+                <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(Model.OptionBEn) ? Model.OptionB : Model.OptionBEn)</span>
+            </div>
         </div>
 
         <div class="answer-option kid-answer-option" data-option="C">
             <div class="answer-letter">C</div>
-            <div class="answer-text">@Model.OptionC</div>
+            <div class="answer-text">
+                <span class="lang-text lang-vi">@Model.OptionC</span>
+                <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(Model.OptionCEn) ? Model.OptionC : Model.OptionCEn)</span>
+            </div>
         </div>
 
         <div class="answer-option kid-answer-option" data-option="D">
             <div class="answer-letter">D</div>
-            <div class="answer-text">@Model.OptionD</div>
+            <div class="answer-text">
+                <span class="lang-text lang-vi">@Model.OptionD</span>
+                <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(Model.OptionDEn) ? Model.OptionD : Model.OptionDEn)</span>
+            </div>
         </div>
     </div>
 </div>
@@ -138,6 +151,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 : 'View Results <span style="font-size: 1.2em; vertical-align: middle;">🏆</span>';
             btnNext.setAttribute('data-is-last', 'true');
         }
+
+        // Toggle question and answer texts
+        document.querySelectorAll('.lang-text').forEach(el => {
+            el.style.display = 'none';
+        });
+        document.querySelectorAll('.lang-' + currentLang).forEach(el => {
+            el.style.display = 'inline';
+        });
     }
 
     options.forEach(opt => {

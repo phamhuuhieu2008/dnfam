@@ -5,18 +5,27 @@
 
 <div class="kid-quiz-page animate-fadeInUp" style="padding-top: 40px; padding-bottom: 60px;">
     <div class="text-center mb-4">
-        <img src="~/images/lightbulb_mascot.png" alt="Lightbulb Mascot" style="width: 140px; height: 140px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: -15px; position: relative; z-index: 10;" />
-        <br/>
-        <div class="kid-eyebrow d-inline-block" style="background-color: #FA9465; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; position: relative; z-index: 11; border: 2px solid white;" data-translate="start_session_eyebrow">
+        <img src="~/images/lightbulb_mascot.png" alt="Lightbulb Mascot"
+             style="width: 140px; height: 140px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: -15px; position: relative; z-index: 10;" />
+        <br />
+        <div class="kid-eyebrow d-inline-block"
+             style="background-color: #FA9465; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; position: relative; z-index: 11; border: 2px solid white;"
+             data-translate="start_session_eyebrow">
             <i class="fa-solid fa-magnifying-glass"></i> SẴN SÀNG KHÁM PHÁ
         </div>
-        <h1 class="kid-title mt-3" style="font-family: var(--font-heading); font-weight: 900; font-size: 3rem; color: #2C2825;" data-translate="start_session_header">Chơi quiz cùng Bảo tàng</h1>
-        <p class="kid-subtitle" style="color: #6C6863; font-weight: 500; font-size: 1.05rem;" data-translate="start_session_subtitle">Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.</p>
+        <h1 class="kid-title mt-3"
+            style="font-family: var(--font-heading); font-weight: 900; font-size: 3rem; color: #2C2825;"
+            data-translate="start_session_header">Chơi quiz cùng Bảo tàng</h1>
+        <p class="kid-subtitle" style="color: #6C6863; font-weight: 500; font-size: 1.05rem;"
+           data-translate="start_session_subtitle">Nhập tên của em để bắt đầu hành trình trả lời câu hỏi thật vui nhé.
+        </p>
     </div>
 
-    <div class="kid-quiz-card" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); position: relative;">
+    <div class="kid-quiz-card"
+         style="max-width: 600px; margin: 0 auto; background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); position: relative;">
         <!-- decorative close button top right like in mockup -->
-        <div style="position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background-color: #FA9465; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 10px rgba(250, 148, 101, 0.4); font-size: 1.2rem;">
+        <div
+            style="position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background-color: #FA9465; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 10px rgba(250, 148, 101, 0.4); font-size: 1.2rem;">
             <i class="fa-solid fa-star"></i>
         </div>
 
@@ -28,11 +37,80 @@
         }
 
         <div class="mb-4">
-            <div style="font-size: 0.75rem; color: #A27D42; margin-bottom: 8px; font-weight: 800; text-transform: uppercase;" data-translate="start_session_chosen_topic">
+            <div style="font-size: 0.75rem; color: #A27D42; margin-bottom: 8px; font-weight: 800; text-transform: uppercase;"
+                 data-translate="start_session_chosen_topic">
                 Chủ đề em đã chọn
             </div>
-            <div style="padding: 16px 20px; border: 2px solid #F6E2A3; border-radius: 50px; font-weight: 700; color: #805A12; font-size: 1.05rem; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-scroll"></i> @Model.Topic
+            <div
+                style="padding: 16px 20px; border: 2px solid #F6E2A3; border-radius: 50px; font-weight: 700; color: #805A12; font-size: 1.05rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-scroll"></i>
+                @{
+                    string displayName = Model.Topic;
+                    string stTransKey = "";
+
+                    if (Model.Topic.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) { displayName = "Thiên Nhiên & Muông Thú"; stTransKey = "topic_2"; }
+                    else if (Model.Topic.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) { displayName = "Khám Phá Đại Dương & Sinh Thái"; stTransKey = "topic_3"; }
+                    else if (Model.Topic.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) { displayName = "Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh"; stTransKey = "topic_4"; }
+                    else if (Model.Topic.Equals("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayName =
+         "TỔNG HỢP"; stTransKey = "topic_general";
+                    }
+                    else if (Model.Topic.Equals("Chủ đề 1", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayName = "CHỦ ĐỀ 1";
+                        stTransKey = "topic_1";
+                    }
+                    else if (Model.Topic.Equals("Chủ đề 2", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayName = "CHỦ ĐỀ 2";
+                        stTransKey = "topic_2";
+                    }
+                    else if (Model.Topic.Equals("Chủ đề 3", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayName = "CHỦ ĐỀ 3";
+                        stTransKey = "topic_3";
+                    }
+                    else if (Model.Topic.Contains("ĐỀ TÀI", StringComparison.OrdinalIgnoreCase) || Model.Topic.Contains("Chủ đề", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Do nothing, use DB name
+                    }
+                    else
+                    {
+                        // Fallback items (Bảo tàng làng nghề, v.v.)
+                        if (Model.Topic.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase))
+                        {
+                            displayName =
+           "Làng nghề thủ công"; stTransKey = "topic_craft";
+                        }
+                        else if (Model.Topic.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { displayName = "Bảng tin cộng đồng"; stTransKey = "topic_club"; }
+                        else if (Model.Topic.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { displayName = "Góc sáng tạo"; stTransKey = "topic_artisan"; }
+                        else if (Model.Topic.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || Model.Topic.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase))
+                        {
+                            displayName = "Sự kiện - Tin tức"; stTransKey =
+                "topic_news";
+                        }
+                        else if (Model.Topic.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { displayName = "Khám phá bảo tàng"; stTransKey = "topic_general"; }
+                        else
+                        {
+                            int hash = 0;
+                            for (int i = 0; i < Model.Topic.Length; i++) hash = (hash * 31) + Model.Topic[i];
+                            hash = Math.Abs(hash) % 5;
+                            string[] fallbackNames = { "Khám phá bảo tàng", "Làng nghề thủ công", "Bảng tin cộng đồng", "Góc sáng tạo", "Sự kiện - Tin tức" };
+                            string[] fallbackKeys = { "topic_general", "topic_craft", "topic_club", "topic_artisan", "topic_news" };
+                            displayName = fallbackNames[hash];
+                            stTransKey = fallbackKeys[hash];
+                        }
+                    }
+                }
+                @if (string.IsNullOrEmpty(stTransKey))
+                {
+                    <span>@displayName</span>
+                }
+                else
+                {
+                    <span data-translate="@stTransKey">@displayName</span>
+                }
             </div>
         </div>
 
@@ -41,19 +119,29 @@
             <input type="hidden" asp-for="Topic" />
 
             <div class="mb-5">
-                <label asp-for="PlayerName" class="form-label" style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;" data-translate="start_session_label">Tên người chơi</label>
+                <label asp-for="PlayerName" class="form-label"
+                       style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;"
+                       data-translate="start_session_label">Tên người chơi</label>
                 <div style="position: relative;">
-                    <input asp-for="PlayerName" class="form-control shadow-none" placeholder="Nhập tên của em..." data-translate="start_session_placeholder" autocomplete="name" style="padding: 16px 20px; border-radius: 50px; background-color: #F5F4F0; border: 2px solid #EBEAE5; font-weight: 600; color: #504C49; font-size: 1.05rem; padding-right: 45px;" />
-                    <i class="fa-solid fa-pencil" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #B5B2AB;"></i>
+                    <input asp-for="PlayerName" class="form-control shadow-none" placeholder="Nhập tên của em..."
+                           data-translate="start_session_placeholder" autocomplete="name"
+                           style="padding: 16px 20px; border-radius: 50px; background-color: #F5F4F0; border: 2px solid #EBEAE5; font-weight: 600; color: #504C49; font-size: 1.05rem; padding-right: 45px;" />
+                    <i class="fa-solid fa-pencil"
+                       style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #B5B2AB;"></i>
                 </div>
-                <span asp-validation-for="PlayerName" class="text-danger mt-2 d-block" style="font-size: 0.9rem; font-weight: 700;"></span>
+                <span asp-validation-for="PlayerName" class="text-danger mt-2 d-block"
+                      style="font-size: 0.9rem; font-weight: 700;"></span>
             </div>
 
             <div class="d-grid gap-3">
-                <button type="submit" class="btn" style="background: linear-gradient(180deg, #F9B621 0%, #E89100 100%); color: white; padding: 18px; border-radius: 50px; font-weight: 800; font-size: 1.2rem; border: none; box-shadow: 0 10px 20px rgba(232, 145, 0, 0.3), inset 0 -4px 0 rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s ease;" data-translate="start_session_btn">
+                <button type="submit" class="btn"
+                        style="background: linear-gradient(180deg, #F9B621 0%, #E89100 100%); color: white; padding: 18px; border-radius: 50px; font-weight: 800; font-size: 1.2rem; border: none; box-shadow: 0 10px 20px rgba(232, 145, 0, 0.3), inset 0 -4px 0 rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s ease;"
+                        data-translate="start_session_btn">
                     <i class="fa-solid fa-rocket"></i> BẮT ĐẦU NGAY
                 </button>
-                <a asp-controller="Home" asp-action="Index" class="btn text-center" style="background-color: #EBEAE5; color: #504C49; padding: 14px; border-radius: 50px; font-weight: 700; text-decoration: none; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s ease;" data-translate="start_session_back">
+                <a asp-controller="Home" asp-action="Index" class="btn text-center"
+                   style="background-color: #EBEAE5; color: #504C49; padding: 14px; border-radius: 50px; font-weight: 700; text-decoration: none; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s ease;"
+                   data-translate="start_session_back">
                     <i class="fa-solid fa-house"></i> Quay lại trang chủ
                 </a>
             </div>

@@ -92,27 +92,39 @@
                         string subjectType = GetSubjectClass(cat.Name);
                         
                         string imageFile = "topic1.png";
-                        if (cat.Name.Contains("Chủ đề 1")) imageFile = "topic1.png";
-                        else if (cat.Name.Contains("Chủ đề 2")) imageFile = "topic2.png";
-                        else if (cat.Name.Contains("Chủ đề 3")) imageFile = "topic3.png";
-                        else if (cat.Name.Contains("Chủ đề 4")) imageFile = "topic4.png";
-                        else if (cat.Name.Contains("Chủ đề 5")) imageFile = "topic5.png";
-                        else if (cat.Name.Contains("Chủ đề 6")) imageFile = "topic6.png";
-                        else if (cat.Name.Contains("Chủ đề 7")) imageFile = "topic7.png";
-                        else if (cat.Name.Contains("Chủ đề 8")) imageFile = "topic8.png";
-                        else if (cat.Name.Contains("Chủ đề 9")) imageFile = "topic9.png";
-                        else if (cat.Name.Contains("Chủ đề 10")) imageFile = "topic10.png";
-                        else if (cat.Name.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_craft_village.png";
-                        else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_club.png";
-                        else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_artisan.png";
-                        else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_news.png";
-                        else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) imageFile = "topic_general.png";
-                        // Fallback using deterministic hash if none matches
+                        string displayName = cat.Name;
+                        
+                        if (cat.Name.Contains("ĐỀ TÀI 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; displayName = "Thiên Nhiên & Muông Thú"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; displayName = "Khám Phá Đại Dương & Sinh Thái"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 4", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic4.png"; displayName = "Bí Ẩn Khảo Cổ & Sơ Sử Sa Huỳnh"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 1", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 1", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic1.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 5", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 5", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic5.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 6", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 6", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic6.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 7", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 7", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic7.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 8", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 8", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic8.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 9", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 9", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic9.png"; }
+                        else if (cat.Name.Contains("ĐỀ TÀI 10", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Chủ đề 10", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic10.png"; }
+                        else if (cat.Name.Equals("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; displayName = "TỔNG HỢP"; }
+                        else if (cat.Name.Equals("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic2.png"; displayName = "CHỦ ĐỀ 2"; }
+                        else if (cat.Name.Equals("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic3.png"; displayName = "CHỦ ĐỀ 3"; }
                         else 
                         {
-                            int hash = Math.Abs(cat.Name.GetHashCode()) % 5;
-                            string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
-                            imageFile = fallbacks[hash];
+                            if (cat.Name.Contains("Bảo tàng làng nghề", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_craft_village.png"; displayName = "Làng nghề thủ công"; }
+                            else if (cat.Name.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_club.png"; displayName = "Bảng tin cộng đồng"; }
+                            else if (cat.Name.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_artisan.png"; displayName = "Góc sáng tạo"; }
+                            else if (cat.Name.Contains("Tin tức", StringComparison.OrdinalIgnoreCase) || cat.Name.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_news.png"; displayName = "Sự kiện - Tin tức"; }
+                            else if (cat.Name.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) { imageFile = "topic_general.png"; displayName = "Khám phá bảo tàng"; }
+                            else 
+                            {
+                                // Deterministic fallback for unknown topics
+                                int hash = 0;
+                                for (int i = 0; i < cat.Name.Length; i++) hash = (hash * 31) + cat.Name[i];
+                                hash = Math.Abs(hash) % 5;
+                                string[] fallbacks = { "topic_general.png", "topic_craft_village.png", "topic_club.png", "topic_artisan.png", "topic_news.png" };
+                                string[] fallbackNames = { "Khám phá bảo tàng", "Làng nghề thủ công", "Bảng tin cộng đồng", "Góc sáng tạo", "Sự kiện - Tin tức" };
+                                imageFile = fallbacks[hash];
+                                displayName = fallbackNames[hash];
+                            }
                         }
                         
                         <div class="quiz-kid-card mini-topic-card" data-subject="@subjectType">
@@ -120,24 +132,36 @@
                                 @if(cat.IsCompleted)
                                 {
                                     <div style="position: absolute; top: 10px; right: 10px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                                        <i class="fa-solid fa-check"></i> Đã hoàn thành
+                                        <i class="fa-solid fa-check"></i> <span data-translate="completed">Đã hoàn thành</span>
                                     </div>
                                 }
-                                <img src="~/images/topics/@imageFile" alt="@cat.Name" class="quiz-kid-card-img" style="object-fit: cover; height: 100%; width: 100%;" />
+                                <img src="~/images/topics/@imageFile" alt="@displayName" class="quiz-kid-card-img" style="object-fit: cover; height: 100%; width: 100%;" />
                             </div>
                             <div class="quiz-kid-card-body" style="padding: 20px;">
                                 <h3 class="quiz-kid-card-title" style="font-size: 1.15rem !important;">
                                     @{
-                                        string transKey = "topic_other";
-                                        if (cat.Name.Contains("Chủ đề 1") || cat.Name.Contains("Tổng hợp")) transKey = "topic_1";
-                                        else if (cat.Name.Contains("Chủ đề 2") || cat.Name.Contains("làng nghề")) transKey = "topic_2";
-                                        else if (cat.Name.Contains("Chủ đề 3") || cat.Name.Contains("Nghệ nhân")) transKey = "topic_3";
-                                        else if (cat.Name.Contains("Chủ đề 4") || cat.Name.Contains("Câu lạc bộ")) transKey = "topic_4";
+                                        string transKey = "";
+                                        if (displayName.Contains("Chủ đề 1", StringComparison.OrdinalIgnoreCase)) transKey = "topic_1";
+                                        else if (displayName.Contains("Chủ đề 2", StringComparison.OrdinalIgnoreCase)) transKey = "topic_2";
+                                        else if (displayName.Contains("Chủ đề 3", StringComparison.OrdinalIgnoreCase)) transKey = "topic_3";
+                                        else if (displayName.Contains("Chủ đề 4", StringComparison.OrdinalIgnoreCase)) transKey = "topic_4";
+                                        else if (displayName.Contains("Tổng hợp", StringComparison.OrdinalIgnoreCase)) transKey = "topic_general";
+                                        else if (displayName.Contains("làng nghề", StringComparison.OrdinalIgnoreCase)) transKey = "topic_craft";
+                                        else if (displayName.Contains("Nghệ nhân", StringComparison.OrdinalIgnoreCase)) transKey = "topic_artisan";
+                                        else if (displayName.Contains("Câu lạc bộ", StringComparison.OrdinalIgnoreCase)) transKey = "topic_club";
+                                        else if (displayName.Contains("Sự kiện", StringComparison.OrdinalIgnoreCase) || displayName.Contains("Tin tức", StringComparison.OrdinalIgnoreCase)) transKey = "topic_news";
                                     }
-                                    <span data-translate="@transKey">@cat.Name</span>
+                                    @if (string.IsNullOrEmpty(transKey))
+                                    {
+                                        <span>@displayName</span>
+                                    }
+                                    else
+                                    {
+                                        <span data-translate="@transKey">@displayName</span>
+                                    }
                                     @if(cat.IsCompleted)
                                     {
-                                        <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;"></i>
+                                        <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;" data-translate="completed" data-bs-toggle="tooltip"></i>
                                     }
                                 </h3>
                                 <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 15px;">

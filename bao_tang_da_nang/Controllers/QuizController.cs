@@ -271,10 +271,15 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 QuestionId = question.Id,
                 SessionId = sessionId.Value,
                 Content = question.Content,
+                ContentEn = question.ContentEn,
                 OptionA = question.OptionA,
+                OptionAEn = question.OptionAEn,
                 OptionB = question.OptionB,
+                OptionBEn = question.OptionBEn,
                 OptionC = question.OptionC,
+                OptionCEn = question.OptionCEn,
                 OptionD = question.OptionD,
+                OptionDEn = question.OptionDEn,
                 ImageUrl = question.ImageUrl,
                 LocationName = question.LocationName,
                 Points = question.Points,
@@ -453,8 +458,17 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 Answers = session.SessionDetails.Select(d => new AnswerReviewItem
                 {
                     QuestionContent = d.Question?.Content ?? "",
+                    QuestionContentEn = d.Question?.ContentEn,
                     SelectedOption = d.SelectedOption ?? "-",
+                    SelectedOptionTextEn = d.SelectedOption == "A" ? d.Question?.OptionAEn : 
+                                           d.SelectedOption == "B" ? d.Question?.OptionBEn : 
+                                           d.SelectedOption == "C" ? d.Question?.OptionCEn : 
+                                           d.SelectedOption == "D" ? d.Question?.OptionDEn : null,
                     CorrectOption = d.Question?.CorrectOption ?? "",
+                    CorrectOptionTextEn = d.Question?.CorrectOption == "A" ? d.Question?.OptionAEn : 
+                                          d.Question?.CorrectOption == "B" ? d.Question?.OptionBEn : 
+                                          d.Question?.CorrectOption == "C" ? d.Question?.OptionCEn : 
+                                          d.Question?.CorrectOption == "D" ? d.Question?.OptionDEn : null,
                     IsCorrect = d.IsCorrect,
                     Points = d.Question?.Points ?? 0,
                     LocationName = d.Question?.LocationName

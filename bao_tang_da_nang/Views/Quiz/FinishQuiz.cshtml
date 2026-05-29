@@ -48,7 +48,9 @@
                 var ans = Model.Answers[i];
                 <div class="kid-review-item">
                     <div class="review-question">
-                        <span data-translate="finish_review_q">Câu</span> @(i + 1): @ans.QuestionContent
+                        <span data-translate="finish_review_q">Câu</span> @(i + 1): 
+                        <span class="lang-text lang-vi">@ans.QuestionContent</span>
+                        <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(ans.QuestionContentEn) ? ans.QuestionContent : ans.QuestionContentEn)</span>
                     </div>
 
                     <div class="review-meta">
@@ -60,7 +62,10 @@
                             else
                             {
                                 <span style="color: var(--error); font-weight: 800;" data-translate="finish_review_wrong">❌ Chưa đúng</span>
-                                <span style="color: var(--text-muted); font-weight: 700;"><span data-translate="finish_review_answer_label"> (Đáp án: </span>@ans.CorrectOption)</span>
+                                <span style="color: var(--text-muted); font-weight: 700;"><span data-translate="finish_review_answer_label"> (Đáp án: </span>
+                                    <span class="lang-text lang-vi">@ans.CorrectOption</span>
+                                    <span class="lang-text lang-en" style="display:none;">@(string.IsNullOrEmpty(ans.CorrectOptionTextEn) ? ans.CorrectOption : ans.CorrectOptionTextEn)</span>
+                                )</span>
                             }
                         </div>
                         <div class="score">
@@ -137,6 +142,25 @@
                 // Save back to localStorage
                 localStorage.setItem('quizkid_history', JSON.stringify(history));
             }
+
+            // Language display toggle
+            const currentLang = localStorage.getItem('selectedLanguage') || 'vi';
+            document.querySelectorAll('.lang-text').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.lang-' + currentLang).forEach(el => {
+                el.style.display = 'inline';
+            });
+
+            document.addEventListener('langChanged', function(e) {
+                const lang = e.detail.lang;
+                document.querySelectorAll('.lang-text').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.lang-' + lang).forEach(el => {
+                    el.style.display = 'inline';
+                });
+            });
         });
     </script>
 }

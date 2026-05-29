@@ -91,10 +91,15 @@ namespace Bảo_Tàng_Đà_Nẵng.Models.ViewModels
         public int QuestionId { get; set; }
         public int SessionId { get; set; }
         public string Content { get; set; } = string.Empty;
+        public string? ContentEn { get; set; }
         public string OptionA { get; set; } = string.Empty;
+        public string? OptionAEn { get; set; }
         public string OptionB { get; set; } = string.Empty;
+        public string? OptionBEn { get; set; }
         public string OptionC { get; set; } = string.Empty;
+        public string? OptionCEn { get; set; }
         public string OptionD { get; set; } = string.Empty;
+        public string? OptionDEn { get; set; }
         public string? ImageUrl { get; set; }
         public string? LocationName { get; set; }
         public int Points { get; set; }
@@ -175,8 +180,11 @@ namespace Bảo_Tàng_Đà_Nẵng.Models.ViewModels
     public class AnswerReviewItem
     {
         public string QuestionContent { get; set; } = string.Empty;
+        public string? QuestionContentEn { get; set; }
         public string SelectedOption { get; set; } = string.Empty;
+        public string? SelectedOptionTextEn { get; set; }
         public string CorrectOption { get; set; } = string.Empty;
+        public string? CorrectOptionTextEn { get; set; }
         public bool IsCorrect { get; set; }
         public int Points { get; set; }
         public string? LocationName { get; set; }
