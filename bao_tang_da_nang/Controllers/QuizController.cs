@@ -80,10 +80,16 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             int questionCount = model.QuestionCount > 0 ? model.QuestionCount : 30;
 
             // Giới hạn tối đa theo từng loại chủ đề
+            bool isTonghopMode = model.Topic.StartsWith("Tổng hợp", StringComparison.OrdinalIgnoreCase);
             if (model.Topic.Contains("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase))
             {
                 // Bộ 300 câu cho phép lấy tối đa 300
                 questionCount = Math.Min(questionCount, 300);
+            }
+            else if (isTonghopMode)
+            {
+                // 4 chủ đề Tổng hợp: mỗi chủ đề lấy tối đa 100 câu ngẫu nhiên
+                questionCount = Math.Min(questionCount, 100);
             }
             else
             {
@@ -504,9 +510,17 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 
                 string normalizedInput = Normalize(topic);
 
-                if (normalizedInput == "Tổng hợp 300 câu")
+                // Các chủ đề Tổng hợp 1-4: lấy ngẫu nhiên từ TOÀN BỘ ngân hàng câu hỏi
+                bool isTonghop = normalizedInput.Equals("Tổng hợp 1", StringComparison.OrdinalIgnoreCase) ||
+                                  normalizedInput.Equals("Tổng hợp 2", StringComparison.OrdinalIgnoreCase) ||
+                                  normalizedInput.Equals("Tổng hợp 3", StringComparison.OrdinalIgnoreCase) ||
+                                  normalizedInput.Equals("Tổng hợp 4", StringComparison.OrdinalIgnoreCase) ||
+                                  normalizedInput.Equals("Tổng hợp 300 câu", StringComparison.OrdinalIgnoreCase) ||
+                                  normalizedInput.StartsWith("Tổng hợp", StringComparison.OrdinalIgnoreCase);
+
+                if (isTonghop)
                 {
-                    // Lấy tất cả câu hỏi, không filter theo chủ đề
+                    // Không filter — lấy toàn bộ câu hỏi từ tất cả đề tài
                 }
                 else if (normalizedInput.StartsWith("Chủ đề 1"))
                 {
@@ -530,7 +544,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 }
                 else
                 {
-                    string exactDbTopic = allTopics.FirstOrDefault(t => Normalize(t) == normalizedInput);
+                    string? exactDbTopic = allTopics.FirstOrDefault(t => Normalize(t) == normalizedInput);
 
                     if (exactDbTopic != null)
                     {

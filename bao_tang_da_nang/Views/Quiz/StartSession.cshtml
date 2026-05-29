@@ -20,7 +20,44 @@
         return "Khám phá những câu hỏi thú vị về lịch sử, văn hóa và thiên nhiên Đà Nẵng.";
     }
 
+    string GetTopicDescriptionTranslationKey(string topic)
+    {
+        var upper = topic.ToUpper();
+        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("TỔNG QUAN")) return "topic_desc_1";
+        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("SINH THÁI RỪNG")) return "topic_desc_2";
+        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("ĐỊA CHẤT")) return "topic_desc_3";
+        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("SA HUỲNH") || upper.Contains("TIỀN - SƠ SỬ")) return "topic_desc_4";
+        if (upper.Contains("ĐỀ TÀI 5") || upper.Contains("CHAMPA")) return "topic_desc_5";
+        if (upper.Contains("ĐỀ TÀI 6")) return "topic_desc_6";
+        if (upper.Contains("ĐỀ TÀI 7")) return "topic_desc_7";
+        if (upper.Contains("ĐỀ TÀI 8")) return "topic_desc_8";
+        if (upper.Contains("ĐỀ TÀI 9")) return "topic_desc_9";
+        if (upper.Contains("ĐỀ TÀI 10")) return "topic_desc_10";
+        if (upper.Contains("TỔNG HỢP 300")) return "topic_desc_300";
+        return "topic_desc_general";
+    }
+
+    string GetTopicTranslationKey(string topicName)
+    {
+        if (string.IsNullOrEmpty(topicName)) return "";
+        string upper = topicName.ToUpper();
+        if (upper.Contains("TỔNG HỢP 1")) return "topic_tonghop_1";
+        if (upper.Contains("TỔNG HỢP 2")) return "topic_tonghop_2";
+        if (upper.Contains("TỔNG HỢP 3")) return "topic_tonghop_3";
+        if (upper.Contains("TỔNG HỢP 4")) return "topic_tonghop_4";
+        if (upper.Contains("TỔNG HỢP 300")) return "topic_desc_300";
+        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("ĐỊA LÝ")) return "topic_chude_1";
+        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("THIÊN NHIÊN")) return "topic_chude_2";
+        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("ĐỊA CHẤT")) return "topic_chude_3";
+        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("TIỀN - SƠ SỬ")) return "topic_chude_4";
+        return "topic_general";
+    }
+
     var topicDesc = GetTopicDescription(Model.Topic);
+    var topicDescKey = GetTopicDescriptionTranslationKey(Model.Topic);
+    var topicKey = GetTopicTranslationKey(Model.Topic);
+    int maxQuestions = Model.Topic.StartsWith("Tổng hợp", StringComparison.OrdinalIgnoreCase) ? 100 : 30;
+    int stepCount = maxQuestions == 100 ? 10 : 5;
 }
 
 @section Styles {
@@ -160,17 +197,17 @@
             </div>
             <div style="padding: 14px 18px; border: 2px solid #F6E2A3; border-radius: 20px; font-weight: 700; color: #805A12; font-size: 1rem; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                 <i class="fa-solid fa-scroll"></i>
-                <span>@Model.Topic</span>
+                <span data-translate="@topicKey">@Model.Topic</span>
             </div>
             <div class="topic-desc-box">
-                <span class="topic-icon">💡</span>@topicDesc
+                <span class="topic-icon">💡</span><span data-translate="@topicDescKey">@topicDesc</span>
             </div>
         </div>
 
         <form asp-action="StartSession" asp-controller="Quiz" method="post" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Topic" />
-            <input type="hidden" name="QuestionCount" id="hiddenQuestionCount" value="30" />
+            <input type="hidden" name="QuestionCount" id="hiddenQuestionCount" value="@maxQuestions" />
 
             <!-- Tên người chơi -->
             <div class="mb-4">
@@ -190,28 +227,38 @@
             <!-- Chọn số câu hỏi -->
             <div class="mb-5">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;">
+                    <div style="font-size: 0.75rem; font-weight: 800; color: #A27D42; text-transform: uppercase;" data-translate="start_session_question_count_label">
                         🎯 Số câu hỏi
                     </div>
                     <div>
-                        <span class="count-display" id="countDisplay">30</span>
-                        <span style="font-size: 0.85rem; color: #A27D42; font-weight: 700;"> câu</span>
+                        <span class="count-display" id="countDisplay">@maxQuestions</span>
+                        <span style="font-size: 0.85rem; color: #A27D42; font-weight: 700;" data-translate="start_session_question_unit"> câu</span>
                     </div>
                 </div>
 
-                <input type="range" class="question-count-slider" id="questionCountSlider"
-                       min="10" max="30" step="5" value="30"
-                       oninput="updateCount(this.value)" />
+                @if (maxQuestions == 100)
+                {
+                    <div style="padding: 16px; background-color: #F5F4F0; border-radius: 20px; border: 2px solid #EBEAE5; text-align: center; color: #805A12; font-weight: 700; font-size: 0.95rem;">
+                        <i class="fa-solid fa-lock" style="margin-right: 5px;"></i> <span data-translate="start_session_fixed_100">Chủ đề này thi cố định 100 câu hỏi tổng hợp.</span>
+                    </div>
+                    <input type="hidden" id="questionCountSlider" value="100" />
+                }
+                else
+                {
+                    <input type="range" class="question-count-slider" id="questionCountSlider"
+                           min="10" max="@maxQuestions" step="@stepCount" value="@maxQuestions"
+                           oninput="updateCount(this.value)" />
 
-                <div class="count-pills" id="countPills">
-                    <span class="count-pill" onclick="setCount(10)">10 câu</span>
-                    <span class="count-pill" onclick="setCount(15)">15 câu</span>
-                    <span class="count-pill" onclick="setCount(20)">20 câu</span>
-                    <span class="count-pill active" onclick="setCount(30)">30 câu (Tất cả)</span>
-                </div>
-                <div style="margin-top: 8px; font-size: 0.8rem; color: #A27D42; font-weight: 600;">
-                    💡 Điểm được tính theo % chính xác — <strong>10 hay 30 câu đều công bằng như nhau!</strong>
-                </div>
+                    <div class="count-pills" id="countPills">
+                        <span class="count-pill" onclick="setCount(10)"><span data-translate="start_session_pill_10">10 câu</span></span>
+                        <span class="count-pill" onclick="setCount(15)"><span data-translate="start_session_pill_15">15 câu</span></span>
+                        <span class="count-pill" onclick="setCount(20)"><span data-translate="start_session_pill_20">20 câu</span></span>
+                        <span class="count-pill active" onclick="setCount(30)"><span data-translate="start_session_pill_30">30 câu (Tất cả)</span></span>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 0.8rem; color: #A27D42; font-weight: 600;" data-translate="start_session_fairness_hint">
+                        💡 Điểm được tính theo % chính xác — <strong>10 hay 30 câu đều công bằng như nhau!</strong>
+                    </div>
+                }
             </div>
 
             <!-- Nút bắt đầu -->
@@ -241,16 +288,21 @@
 
         function updateCount(val) {
             val = parseInt(val);
-            countDisplay.textContent = val;
-            hiddenCount.value = val;
-            // Update slider gradient
-            const min = parseInt(slider.min), max = parseInt(slider.max);
-            const pct = ((val - min) / (max - min)) * 100;
-            slider.style.setProperty('--slider-percent', pct + '%');
+            if (countDisplay) countDisplay.textContent = val;
+            if (hiddenCount) hiddenCount.value = val;
+            
+            // Update slider gradient if it's a range input
+            if (slider && slider.type === 'range') {
+                const min = parseInt(slider.min), max = parseInt(slider.max);
+                const pct = ((val - min) / (max - min)) * 100;
+                slider.style.setProperty('--slider-percent', pct + '%');
+            }
+            
             // Sync pills
             pills.forEach(p => {
                 p.classList.toggle('active', parseInt(p.textContent) === val || 
-                    (p.textContent.includes('Tất cả') && val === 30));
+                    (p.textContent.includes('Tất cả') && val === 30) ||
+                    (p.textContent.includes('Tất cả') && val === 100));
             });
         }
 
@@ -260,6 +312,6 @@
         }
 
         // Init
-        updateCount(30);
+        updateCount(@maxQuestions);
     </script>
 }

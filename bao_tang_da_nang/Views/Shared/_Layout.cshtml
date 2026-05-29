@@ -36,9 +36,9 @@
     @if (ViewData["HideNav"] == null || !(bool)ViewData["HideNav"]!)
     {
         <nav class="navbar navbar-expand-lg navbar-quizkid">
-            <div class="container px-4">
-                <a class="brand-wrapper" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/dnfam.png" alt="dnfam logo" style="height: 50px; width: auto; object-fit: contain;" />
+            <div class="container-fluid px-4">
+                <a class="brand-wrapper me-3" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/dnfam.png" alt="dnfam logo" style="height: 45px; max-width: 220px; width: auto; object-fit: contain;" />
                 </a>
 
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" 
@@ -48,7 +48,7 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="quizkidNav">
-                    <ul class="navbar-nav mx-auto nav-links-quizkid">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 nav-links-quizkid" style="gap: 25px;">
                         <li class="nav-item">
                             <a class="nav-link-kid science-link" data-category="science" data-translate="nav_science">Khoa học</a>
                         </li>
@@ -63,12 +63,12 @@
                         </li>
                     </ul>
 
-                    <div class="nav-search-quizkid d-flex align-items-center me-3">
+                    <div class="nav-search-quizkid d-flex align-items-center me-3 mb-2 mb-lg-0">
                         <form action="@Url.Action("Library", "Quiz")" method="get" class="input-group">
                             <button type="submit" class="input-group-text bg-transparent border-0" style="cursor: pointer;">
                                 <i class="fa-solid fa-magnifying-glass" style="color: #805A12;"></i>
                             </button>
-                            <input type="text" name="query" id="categorySearchInput" class="form-control" placeholder="Tìm kiếm bộ Quiz..." data-translate="nav_search_placeholder">
+                            <input type="text" name="query" id="categorySearchInput" class="form-control" placeholder="Tìm kiếm..." data-translate="nav_search_placeholder">
                         </form>
                     </div>
 
@@ -80,10 +80,10 @@
 
                         @if (Context.Session.GetString("UserFullName") != null)
                         {
-                            <span class="score-badge mr-2">
+                            <span class="score-badge me-2" style="font-size: 0.85rem; font-weight: 600; color: #805A12; white-space: nowrap;">
                                 <i class="fa-solid fa-star text-warning me-1"></i> @(Context.Session.GetInt32("CurrentScore") ?? 0) <span data-translate="finish_review_points">điểm</span>
                             </span>
-                            <a asp-controller="Auth" asp-action="Logout" class="text-decoration-none text-muted fw-semibold" style="font-size: 0.85rem;" data-translate="logout_btn">
+                            <a asp-controller="Auth" asp-action="Logout" class="text-decoration-none text-muted fw-semibold" style="font-size: 0.85rem; white-space: nowrap;" data-translate="logout_btn">
                                 <i class="fa-solid fa-sign-out-alt"></i> Thoát
                             </a>
                         }
@@ -334,6 +334,14 @@
                     "topic_2": "Chủ đề 2",
                     "topic_3": "Chủ đề 3",
                     "topic_4": "Chủ đề 4",
+                    "topic_tonghop_1": "Tổng hợp 1",
+                    "topic_tonghop_2": "Tổng hợp 2",
+                    "topic_tonghop_3": "Tổng hợp 3",
+                    "topic_tonghop_4": "Tổng hợp 4",
+                    "topic_chude_1": "Chủ đề 1: Địa lý & Lịch sử Bảo tàng",
+                    "topic_chude_2": "Chủ đề 2: Thiên nhiên & Con người",
+                    "topic_chude_3": "Chủ đề 3: Địa chất & Hệ sinh thái biển",
+                    "topic_chude_4": "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh",
                     "topic_general": "Tổng hợp",
                     "topic_craft": "Bảo tàng làng nghề",
                     "topic_artisan": "Nghệ nhân",
@@ -430,6 +438,29 @@
                     "start_session_subtitle": "Enter your name to start a fun quiz journey.",
                     "start_session_chosen_topic": "Selected topic",
                     "start_session_label": "Player Name",
+                    "start_session_question_count_label": "🎯 Number of Questions",
+                    "start_session_question_unit": "questions",
+                    "start_session_fixed_100": "This topic is fixed at 100 questions.",
+                    "start_session_pill_10": "10 questions",
+                    "start_session_pill_15": "15 questions",
+                    "start_session_pill_20": "20 questions",
+                    "start_session_pill_30": "30 questions (All)",
+                    "start_session_fairness_hint": "💡 Score is calculated by % correctness — <strong>10 or 30 questions are equally fair!</strong>",
+                    "topic_desc_1": "Explore geography, history and unique architecture of Da Nang Museum.",
+                    "topic_desc_2": "Learn about the rich forest ecosystem, rare flora and fauna, and unique climate.",
+                    "topic_desc_3": "Explore the fascinating geological structure, minerals and marine ecosystem.",
+                    "topic_desc_4": "Journey back to prehistoric times, discover the mysteries of Sa Huynh culture.",
+                    "topic_desc_5": "Learn about Champa cultural marks through towers, Sanskrit inscriptions and ancient wells.",
+                    "topic_desc_6": "Discover Da Nang from the 15th century to 1858 — the Dai Viet period.",
+                    "topic_desc_7": "Learn about Da Nang under French rule and local patriotic movements.",
+                    "topic_desc_8": "The heroic history of Da Nang during the resistance war against America.",
+                    "topic_desc_9": "Explore folk culture, customs and spiritual life of Da Nang people.",
+                    "topic_desc_10": "Da Nang on the path of innovation — from a war city to a dynamic metropolis.",
+                    "topic_desc_300": "Comprehensive 300-question set covering all topics of Da Nang Museum and history.",
+                    "topic_desc_general": "Discover interesting questions about the history, culture and nature of Da Nang.",
+                    "question_points_prefix": "⭐ Each correct answer gives",
+                    "question_points_suffix": "points",
+                    "question_next_btn": "Next <span style=\"font-size: 1.2em; vertical-align: middle;\">→</span>",
                     "start_session_placeholder": "Example: Minh Anh",
                     "start_session_btn": "🚀 Start Now",
                     "start_session_back": "🏠 Back to Home",
@@ -473,6 +504,14 @@
                     "topic_2": "Topic 2: Nature & Humans",
                     "topic_3": "Topic 3: Geology & Marine Ecosystem",
                     "topic_4": "Topic 4: Prehistory & Sa Huynh",
+                    "topic_tonghop_1": "General 1",
+                    "topic_tonghop_2": "General 2",
+                    "topic_tonghop_3": "General 3",
+                    "topic_tonghop_4": "General 4",
+                    "topic_chude_1": "Topic 1: Geography & Museum History",
+                    "topic_chude_2": "Topic 2: Nature & Humans",
+                    "topic_chude_3": "Topic 3: Geology & Marine Ecosystem",
+                    "topic_chude_4": "Topic 4: Prehistory & Sa Huynh",
                     "topic_general": "General",
                     "topic_craft": "Craft Villages",
                     "topic_artisan": "Artisans",
@@ -500,10 +539,12 @@
                 });
                 
                 // Update language toggle button visual text
-                if (lang === 'vi') {
-                    langText.innerHTML = '<img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> EN';
-                } else {
-                    langText.innerHTML = '<img src="https://flagcdn.com/w20/vn.png" width="20" alt="VI" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> VI';
+                if (langText) {
+                    if (lang === 'vi') {
+                        langText.innerHTML = '<img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> EN';
+                    } else {
+                        langText.innerHTML = '<img src="https://flagcdn.com/w20/vn.png" width="20" alt="VI" style="border-radius: 2px; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"> VI';
+                    }
                 }
                 localStorage.setItem('selectedLanguage', lang);
                 

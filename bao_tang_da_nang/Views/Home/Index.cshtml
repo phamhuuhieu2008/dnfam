@@ -9,10 +9,14 @@
     {
         categories = new List<Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel>
         {
-            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", QuestionCount = 75 },
-            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người", QuestionCount = 75 },
-            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển", QuestionCount = 75 },
-            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", QuestionCount = 75 }
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", QuestionCount = 30 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người", QuestionCount = 30 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển", QuestionCount = 30 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", QuestionCount = 30 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Tổng hợp 1", QuestionCount = 100 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Tổng hợp 2", QuestionCount = 100 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Tổng hợp 3", QuestionCount = 100 },
+            new Bảo_Tàng_Đà_Nẵng.Controllers.CategorySummaryViewModel { Name = "Tổng hợp 4", QuestionCount = 100 }
         };
     }
 
@@ -20,11 +24,31 @@
     string GetSubjectClass(string topicName)
     {
         var upper = topicName.ToUpper();
-        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("CHỦ ĐỀ 1") || upper.Contains("ĐỊA LÝ")) return "science";
-        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("CHỦ ĐỀ 2") || upper.Contains("THIÊN NHIÊN")) return "math";
-        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("CHỦ ĐỀ 3") || upper.Contains("ĐỊA CHẤT")) return "languages";
-        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("CHỦ ĐỀ 4") || upper.Contains("KHẢO CỔ") || upper.Contains("SA HUỲNH")) return "art";
+        if (upper.Contains("ĐỀ TÀI 1") || upper.Contains("CHỦ ĐỀ 1") || upper.Contains("ĐỊA LÝ") || upper.Contains("TỔNG HỢP 1")) return "science";
+        if (upper.Contains("ĐỀ TÀI 2") || upper.Contains("CHỦ ĐỀ 2") || upper.Contains("THIÊN NHIÊN") || upper.Contains("TỔNG HỢP 2")) return "math";
+        if (upper.Contains("ĐỀ TÀI 3") || upper.Contains("CHỦ ĐỀ 3") || upper.Contains("ĐỊA CHẤT") || upper.Contains("TỔNG HỢP 3")) return "languages";
+        if (upper.Contains("ĐỀ TÀI 4") || upper.Contains("CHỦ ĐỀ 4") || upper.Contains("KHẢO CỔ") || upper.Contains("SA HUỲNH") || upper.Contains("TỔNG HỢP 4")) return "art";
         return "science";
+    }
+
+    string GetTranslationKey(string topicName)
+    {
+        if (topicName.Contains("Tổng hợp 1")) return "topic_tonghop_1";
+        if (topicName.Contains("Tổng hợp 2")) return "topic_tonghop_2";
+        if (topicName.Contains("Tổng hợp 3")) return "topic_tonghop_3";
+        if (topicName.Contains("Tổng hợp 4")) return "topic_tonghop_4";
+        if (topicName.Contains("Chủ đề 1")) return "topic_chude_1";
+        if (topicName.Contains("Chủ đề 2")) return "topic_chude_2";
+        if (topicName.Contains("Chủ đề 3")) return "topic_chude_3";
+        if (topicName.Contains("Chủ đề 4")) return "topic_chude_4";
+        return "";
+    }
+
+    Microsoft.AspNetCore.Html.IHtmlContent GetTranslationAttr(string topicName)
+    {
+        var key = GetTranslationKey(topicName);
+        if (!string.IsNullOrEmpty(key)) return Html.Raw($"data-translate=\"{key}\"");
+        return Html.Raw("");
     }
 
     var random = new Random();
@@ -347,7 +371,7 @@
         <h2 class="section-kid-title" data-translate="subject_title">Tổng Hợp Câu Hỏi</h2>
         
         <div class="row g-4 mt-2">
-            @foreach (var cat in categories)
+            @foreach (var cat in categories.Where(c => c.Name.StartsWith("Tổng hợp", StringComparison.OrdinalIgnoreCase)))
             {
                 string subjectType = GetSubjectClass(cat.Name);
                 string iconClass = "fa-solid fa-layer-group";
@@ -361,8 +385,8 @@
                     <a asp-controller="Quiz" asp-action="StartSession" asp-route-topic="@cat.Name" class="text-decoration-none d-block h-100">
                         <div class="subject-card @cardClass h-100" data-subject="@subjectType">
                             <div class="subject-icon-box"><i class="@iconClass"></i></div>
-                            <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;">@cat.Name.ToUpper()</h3>
-                            <p class="subject-desc">@cat.QuestionCount câu hỏi</p>
+                            <h3 class="subject-name" style="font-size: 1.1rem; line-height: 1.4;" @GetTranslationAttr(cat.Name)>@cat.Name.ToUpper()</h3>
+                            <p class="subject-desc">@cat.QuestionCount <span data-translate="questions_count">câu hỏi</span></p>
                         </div>
                     </a>
                 </div>
@@ -469,7 +493,7 @@
             </div>
             
             <div class="all-quizzes-grid" id="quizzesGrid">
-                @foreach (var cat in categories.Take(4))
+                @foreach (var cat in categories.Where(c => c.Name.StartsWith("Chủ đề", StringComparison.OrdinalIgnoreCase)))
                 {
                     string subjectType = GetSubjectClass(cat.Name);
                     
@@ -511,7 +535,7 @@
                         </div>
                         <div class="quiz-kid-card-body" style="padding: 20px;">
                             <h3 class="quiz-kid-card-title" style="font-size: 1.15rem !important;">
-                                <span>@cat.Name</span>
+                                <span @GetTranslationAttr(cat.Name)>@cat.Name</span>
                                 @if(cat.IsCompleted)
                                 {
                                     <i class="fa-solid fa-circle-check text-success" title="Đã hoàn thành" style="margin-left: 5px;" data-translate="completed" data-bs-toggle="tooltip"></i>

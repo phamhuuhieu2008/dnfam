@@ -27,15 +27,8 @@ namespace Bảo_Tàng_Đà_Nẵng
             // Đảm bảo database và bảng được tạo trên Postgres
             db.Database.EnsureCreated();
 
-            // Luôn xóa và seed lại để đảm bảo đúng 10 đề tài × 30 câu = 300 câu
+            // Always force seed when this is called to ensure English data is loaded
             var existingCount = db.Questions.Count();
-            bool hasOldTopics = db.Questions.Any(q => q.LocationName != null && q.LocationName.Contains("Chủ đề"));
-            
-            if (existingCount == 300 && !hasOldTopics)
-            {
-                Console.WriteLine($"Đã có đúng 300 câu hỏi và đúng định dạng ĐỀ TÀI. Bỏ qua bước nạp tự động...");
-                return;
-            }
 
             Console.WriteLine($"[SEED] Đang xóa {existingCount} câu cũ và seed lại toàn bộ...");
             // Xóa câu hỏi cũ và các record liên quan
@@ -73,64 +66,73 @@ namespace Bảo_Tàng_Đà_Nẵng
                 }
             }
 
-            var topicBlocks = Regex.Split(questionsText, @"(ĐỀ TÀI\s*\d+:.*)");
-            int totalQuestions = 0;
+            var linesEn = File.ReadAllLines("questions_clean_en.txt");
             
-            for (int i = 1; i < topicBlocks.Length; i += 2)
+            string currentTopicTitle = "";
+            string currentTopicKey = "";
+            Question currentQ = null;
+            int totalQuestions = 0;
+
+            for (int i = 0; i < lines.Length; i++)
             {
-                var topicTitle = topicBlocks[i].Trim();
-                var topicContent = topicBlocks[i + 1];
+                var line = lines[i].Trim();
+                var lineEn = i < linesEn.Length ? linesEn[i].Trim() : line;
+                
+                if (line == "BẢNG ĐÁP ÁN TRA CỨU") break; // Stop reading questions
 
-                var topicKeyMatch = Regex.Match(topicTitle, @"ĐỀ TÀI\s*\d+");
-                var topicKey = topicKeyMatch.Success ? topicKeyMatch.Value : "";
-                var answers = answersDict.ContainsKey(topicKey) ? answersDict[topicKey] : new Dictionary<string, string>();
-
-                var qBlocks = Regex.Split(topicContent, @"(Câu\s*\d+:.*)");
-                for (int j = 1; j < qBlocks.Length; j += 2)
+                if (line.StartsWith("ĐỀ TÀI"))
                 {
-                    var qHeader = qBlocks[j].Trim();
-                    var qNumMatch = Regex.Match(qHeader, @"Câu\s*(\d+):");
-                    if (!qNumMatch.Success) continue;
+                    currentTopicTitle = line;
+                    var matchKey = Regex.Match(line, @"ĐỀ TÀI\s*\d+");
+                    currentTopicKey = matchKey.Success ? matchKey.Value : "";
+                }
+                else if (line.StartsWith("Câu ") && line.Contains(":"))
+                {
+                    if (currentQ != null && !string.IsNullOrEmpty(currentQ.OptionA))
+                    {
+                        db.Questions.Add(currentQ);
+                    }
                     
-                    var qNum = qNumMatch.Groups[1].Value;
-                    var qContent = qHeader.Substring(qHeader.IndexOf(":") + 1).Trim();
-                    var optsText = qBlocks[j + 1];
+                    var qNumMatch = Regex.Match(line, @"Câu\s*(\d+):");
+                    var qNum = qNumMatch.Success ? qNumMatch.Groups[1].Value : "";
+                    
+                    var correctAnsLetter = "A";
+                    if (answersDict.ContainsKey(currentTopicKey) && answersDict[currentTopicKey].ContainsKey(qNum))
+                    {
+                        correctAnsLetter = answersDict[currentTopicKey][qNum];
+                    }
 
-                    var correctAnsLetter = answers.ContainsKey(qNum) ? answers[qNum] : "A";
+                    var qContent = line.Substring(line.IndexOf(":") + 1).Trim();
+                    var qContentEn = lineEn.Contains(":") ? lineEn.Substring(lineEn.IndexOf(":") + 1).Trim() : lineEn;
+                    // Fix Google Translate sometimes removing or keeping the number
+                    if (qContentEn.StartsWith("Question ", StringComparison.OrdinalIgnoreCase)) 
+                    {
+                        int colonIdx = qContentEn.IndexOf(":");
+                        if (colonIdx > 0) qContentEn = qContentEn.Substring(colonIdx + 1).Trim();
+                    }
 
                     totalQuestions++;
-                    string mappedTopicName = topicTitle; // Use the exact 10 topic names from the text file
-
-                    var question = new Question
+                    currentQ = new Question
                     {
-                        LocationName = mappedTopicName,
+                        LocationName = currentTopicTitle,
                         Content = qContent,
+                        ContentEn = qContentEn,
                         Points = 10,
-                        IsActive = true
+                        IsActive = true,
+                        CorrectOption = correctAnsLetter
                     };
-
-                    var optMatches = Regex.Matches(optsText, @"([A-D])\.\s*(.*?)(?=(?:[A-D]\.|$))", RegexOptions.Singleline);
-                    foreach (Match m in optMatches)
-                    {
-                        var letter = m.Groups[1].Value;
-                        var content = m.Groups[2].Value.Trim();
-
-                        if (letter == "A") question.OptionA = content;
-                        else if (letter == "B") question.OptionB = content;
-                        else if (letter == "C") question.OptionC = content;
-                        else if (letter == "D") question.OptionD = content;
-
-                        if (letter == correctAnsLetter)
-                        {
-                            question.CorrectOption = letter;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(question.OptionA) && !string.IsNullOrEmpty(question.CorrectOption))
-                    {
-                        db.Questions.Add(question);
-                    }
                 }
+                else if (currentQ != null)
+                {
+                    if (line.StartsWith("A. ")) { currentQ.OptionA = line.Substring(3).Trim(); currentQ.OptionAEn = lineEn.Length >= 3 ? lineEn.Substring(3).Trim() : lineEn; }
+                    else if (line.StartsWith("B. ")) { currentQ.OptionB = line.Substring(3).Trim(); currentQ.OptionBEn = lineEn.Length >= 3 ? lineEn.Substring(3).Trim() : lineEn; }
+                    else if (line.StartsWith("C. ")) { currentQ.OptionC = line.Substring(3).Trim(); currentQ.OptionCEn = lineEn.Length >= 3 ? lineEn.Substring(3).Trim() : lineEn; }
+                    else if (line.StartsWith("D. ")) { currentQ.OptionD = line.Substring(3).Trim(); currentQ.OptionDEn = lineEn.Length >= 3 ? lineEn.Substring(3).Trim() : lineEn; }
+                }
+            }
+            if (currentQ != null && !string.IsNullOrEmpty(currentQ.OptionA))
+            {
+                db.Questions.Add(currentQ);
             }
 
             db.SaveChanges();

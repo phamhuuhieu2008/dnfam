@@ -38,7 +38,11 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 new CategorySummaryViewModel { Name = "Chủ đề 1: Địa lý & Lịch sử Bảo tàng", QuestionCount = 30 },
                 new CategorySummaryViewModel { Name = "Chủ đề 2: Thiên nhiên & Con người", QuestionCount = 30 },
                 new CategorySummaryViewModel { Name = "Chủ đề 3: Địa chất & Hệ sinh thái biển", QuestionCount = 30 },
-                new CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", QuestionCount = 30 }
+                new CategorySummaryViewModel { Name = "Chủ đề 4: Tiền - Sơ sử & Sa Huỳnh", QuestionCount = 30 },
+                new CategorySummaryViewModel { Name = "Tổng hợp 1", QuestionCount = 100 },
+                new CategorySummaryViewModel { Name = "Tổng hợp 2", QuestionCount = 100 },
+                new CategorySummaryViewModel { Name = "Tổng hợp 3", QuestionCount = 100 },
+                new CategorySummaryViewModel { Name = "Tổng hợp 4", QuestionCount = 100 }
             };
 
             int? userId = HttpContext.Session.GetInt32("UserId");
