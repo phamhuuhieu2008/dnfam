@@ -9,14 +9,14 @@ namespace Bảo_Tàng_Đà_Nẵng
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ── 1. Database: Entity Framework Core + SQL Server ──────────
+            // ── 1. Database: Entity Framework Core + PostgreSQL ──────────
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
-                    sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
                         maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null
+                        errorCodesToAdd: null
                     )
                 )
             );

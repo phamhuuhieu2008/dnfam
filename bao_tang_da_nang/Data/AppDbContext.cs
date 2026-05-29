@@ -37,14 +37,14 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
                 // Check constraint: Role chỉ nhận "Admin" hoặc "Player"
                 entity.ToTable(t => t.HasCheckConstraint(
                     "CK_Users_Role",
-                    "[Role] IN ('Admin', 'Player')"
+                    "\"Role\" IN ('Admin', 'Player')"
                 ));
 
                 entity.Property(u => u.Username).HasMaxLength(100).IsRequired();
                 entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
                 entity.Property(u => u.FullName).HasMaxLength(200).IsRequired();
                 entity.Property(u => u.Role).HasMaxLength(20).IsRequired().HasDefaultValue("Player");
-                entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(u => u.IsActive).HasDefaultValue(true);
             });
 
@@ -59,13 +59,13 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
                 // Check constraint: CorrectOption chỉ nhận A, B, C, D
                 entity.ToTable(t => t.HasCheckConstraint(
                     "CK_Questions_CorrectOption",
-                    "[CorrectOption] IN ('A', 'B', 'C', 'D')"
+                    "\"CorrectOption\" IN ('A', 'B', 'C', 'D')"
                 ));
 
                 // Check constraint: Points phải > 0
                 entity.ToTable(t => t.HasCheckConstraint(
                     "CK_Questions_Points",
-                    "[Points] > 0"
+                    "\"Points\" > 0"
                 ));
 
                 entity.Property(q => q.Content).HasMaxLength(1000).IsRequired();
@@ -93,7 +93,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
                 entity.ToTable("QuizSessions");
                 entity.HasKey(s => s.Id);
 
-                entity.Property(s => s.StartTime).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(s => s.StartTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(s => s.TotalScore).HasDefaultValue(0);
                 entity.Property(s => s.IsCompleted).HasDefaultValue(false);
 
@@ -130,12 +130,12 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
                 // Check constraint: SelectedOption hợp lệ
                 entity.ToTable(t => t.HasCheckConstraint(
                     "CK_SessionDetails_SelectedOption",
-                    "[SelectedOption] IS NULL OR [SelectedOption] IN ('A', 'B', 'C', 'D')"
+                    "\"SelectedOption\" IS NULL OR \"SelectedOption\" IN ('A', 'B', 'C', 'D')"
                 ));
 
                 entity.Property(d => d.SelectedOption).HasMaxLength(1).IsFixedLength();
                 entity.Property(d => d.IsCorrect).HasDefaultValue(false);
-                entity.Property(d => d.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(d => d.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 // Relationship: SessionDetail → QuizSession (N:1)
                 entity.HasOne(d => d.QuizSession)

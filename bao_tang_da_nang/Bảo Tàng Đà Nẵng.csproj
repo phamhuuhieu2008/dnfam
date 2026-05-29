@@ -18,6 +18,7 @@
 
     <!-- BCrypt.Net để hash/verify mật khẩu an toàn -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

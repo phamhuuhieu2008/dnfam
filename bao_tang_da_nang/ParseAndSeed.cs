@@ -20,9 +20,12 @@ namespace Bảo_Tàng_Đà_Nẵng
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseNpgsql(config.GetConnectionString("DefaultConnection"));
 
             using var db = new AppDbContext(optionsBuilder.Options);
+
+            // Đảm bảo database và bảng được tạo trên Postgres
+            db.Database.EnsureCreated();
 
             if (db.Questions.Any())
             {
@@ -31,8 +34,8 @@ namespace Bảo_Tàng_Đà_Nẵng
             }
 
             // Xóa câu hỏi cũ và các record liên quan nếu cần
-            db.Database.ExecuteSqlRaw("DELETE FROM SessionDetails");
-            db.Database.ExecuteSqlRaw("DELETE FROM QuizSessions");
+            db.Database.ExecuteSqlRaw("DELETE FROM \"SessionDetails\"");
+            db.Database.ExecuteSqlRaw("DELETE FROM \"QuizSessions\"");
             db.Questions.RemoveRange(db.Questions);
             db.SaveChanges();
 

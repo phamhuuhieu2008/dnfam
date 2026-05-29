@@ -671,3 +671,5 @@ C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\Bảo T
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\ref\Bảo Tàng Đà Nẵng.dll
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\i2lddge7dy-{0}-5mdkgro679-5mdkgro679.gz
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\njoh4aum4k-{0}-jw2uj6xqw3-jw2uj6xqw3.gz
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Npgsql.dll
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
