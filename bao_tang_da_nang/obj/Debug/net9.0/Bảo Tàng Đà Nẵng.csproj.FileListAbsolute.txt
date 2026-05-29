@@ -674,3 +674,6 @@ C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compres
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Npgsql.dll
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\bin\Debug\net9.0\questions_clean.txt
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\9k8cyq3byp-{0}-z2p2adhfzx-z2p2adhfzx.gz
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\6r02vbbb1w-{0}-4vigc8z8ju-4vigc8z8ju.gz
+C:\Users\ADMIN\Downloads\baotangdanang\bao_tang_da_nang\obj\Debug\net9.0\compressed\rwo2xltlew-{0}-qeta2u4dyu-qeta2u4dyu.gz

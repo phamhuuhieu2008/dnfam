@@ -16,6 +16,8 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuizSession> QuizSessions { get; set; }
         public DbSet<SessionDetail> SessionDetails { get; set; }
+        public DbSet<AdminEmail> AdminEmails { get; set; }
+        public DbSet<AdminOtp> AdminOtps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -151,6 +153,43 @@ namespace Bảo_Tàng_Đà_Nẵng.Data
                       .HasForeignKey(d => d.QuestionId)
                       .OnDelete(DeleteBehavior.Restrict)
                       .HasConstraintName("FK_SessionDetails_Questions");
+            });
+
+            // ════════════════════════════════════════════════════════
+            // ENTITY: AdminEmail
+            // ════════════════════════════════════════════════════════
+            modelBuilder.Entity<AdminEmail>(entity =>
+            {
+                entity.ToTable("AdminEmails");
+                entity.HasKey(e => e.Id);
+
+                // Unique constraint: mỗi email chỉ xuất hiện một lần
+                entity.HasIndex(e => e.Email)
+                      .IsUnique()
+                      .HasDatabaseName("UQ_AdminEmails_Email");
+
+                entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
+                entity.Property(e => e.FullName).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.AddedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+            });
+
+            // ════════════════════════════════════════════════════════
+            // ENTITY: AdminOtp
+            // ════════════════════════════════════════════════════════
+            modelBuilder.Entity<AdminOtp>(entity =>
+            {
+                entity.ToTable("AdminOtps");
+                entity.HasKey(o => o.Id);
+
+                // Index để tra cứu nhanh OTP theo email
+                entity.HasIndex(o => o.Email)
+                      .HasDatabaseName("IX_AdminOtps_Email");
+
+                entity.Property(o => o.Email).HasMaxLength(255).IsRequired();
+                entity.Property(o => o.OtpCode).HasMaxLength(6).IsRequired();
+                entity.Property(o => o.IsUsed).HasDefaultValue(false);
+                entity.Property(o => o.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
         }
     }

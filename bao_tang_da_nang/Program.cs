@@ -1,4 +1,5 @@
 using Bảo_Tàng_Đà_Nẵng.Data;
+using Bảo_Tàng_Đà_Nẵng.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bảo_Tàng_Đà_Nẵng
@@ -34,7 +35,10 @@ namespace Bảo_Tàng_Đà_Nẵng
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
 
-            // ── 3. MVC Controllers + Views ────────────────────────────────
+            // ── 3. Email Service (gửi OTP qua Gmail SMTP) ────────────────
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+            // ── 4. MVC Controllers + Views ────────────────────────────────
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();

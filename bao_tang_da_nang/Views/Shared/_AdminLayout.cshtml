@@ -77,11 +77,14 @@
             margin-right: 12px;
             width: 20px;
             text-align: center;
-            color: var(--gold-light);
-            font-size: 1.1rem;
-        }
-        #sidebar ul li.active > a i {
             color: var(--gold-primary);
+            font-size: 1.1rem;
+            opacity: 0.65;
+            transition: opacity 0.2s ease;
+        }
+        #sidebar ul li.active > a i, #sidebar ul li a:hover i {
+            color: var(--gold-primary);
+            opacity: 1;
         }
         #content {
             width: 100%;
@@ -178,6 +181,7 @@
             <ul class="list-unstyled components">
                 @{
                     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+                    var isSuperAdmin = Context.Session.GetString("IsSuperAdmin") == "1";
                 }
                 <li class="@(currentAction == "Index" ? "active" : "")">
                     <a asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-chart-pie"></i> Tổng quan</a>
@@ -188,6 +192,19 @@
                 <li class="@(currentAction == "Users" ? "active" : "")">
                     <a asp-controller="Admin" asp-action="Users"><i class="fa-solid fa-user-shield"></i> Quản lý Người dùng</a>
                 </li>
+                @if (isSuperAdmin)
+                {
+                    <li style="margin-top: 8px; padding: 0 16px;">
+                        <div style="height:1px; background:var(--glass-border); margin-bottom:8px;"></div>
+                    </li>
+                    <li class="@(currentAction == "AdminAccounts" ? "active" : "")">
+                        <a asp-controller="Admin" asp-action="AdminAccounts">
+                            <i class="fa-solid fa-shield-halved" style="color: #8B1E19;"></i>
+                            <span>Quản lý Admin</span>
+                            <span style="font-size:0.65rem; background:linear-gradient(135deg,#8B1E19,#805A12); color:#FFF8E8; border-radius:8px; padding:1px 7px; margin-left:4px; font-weight:700; vertical-align:middle;">SUPER</span>
+                        </a>
+                    </li>
+                }
             </ul>
             <div style="padding: 20px;">
                 <a asp-controller="Home" asp-action="Index" class="btn-secondary-museum w-100 mb-3 py-2" style="font-size: 0.9rem;">

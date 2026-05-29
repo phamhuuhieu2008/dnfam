@@ -1,4 +1,6 @@
 using Bảo_Tàng_Đà_Nẵng.Data;
+using Bảo_Tàng_Đà_Nẵng.Models;
+using Bảo_Tàng_Đà_Nẵng.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -8,15 +10,20 @@ using System.Text.Json.Serialization;
 
 namespace Bảo_Tàng_Đà_Nẵng.Controllers
 {
-    // Filter kiểm tra quyền Admin
+    // Filter kiểm tra quyền Admin (hỗ trợ nhiều action public)
     public class AdminAuthorizeAttribute : ActionFilterAttribute
     {
+        // Danh sách action không cần xác thực đầy đủ
+        private static readonly HashSet<string> PublicActions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Gate", "GateEmail", "GateOtp"
+        };
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var action = context.ActionDescriptor.RouteValues["action"];
+            var action = context.ActionDescriptor.RouteValues["action"] ?? "";
 
-            // Cho phép truy cập trang nhập PIN
-            if (string.Equals(action, "Gate", StringComparison.OrdinalIgnoreCase))
+            if (PublicActions.Contains(action))
             {
                 base.OnActionExecuting(context);
                 return;
@@ -41,24 +48,34 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
         private readonly AppDbContext _db;
         private readonly IConfiguration _config;
         private readonly IWebHostEnvironment _env;
+        private readonly IEmailService _emailService;
 
         private const string SESSION_ADMIN_UNLOCKED = "AdminUnlocked";
+        private const string SESSION_PIN_VERIFIED    = "AdminPinVerified";
+        private const string SESSION_PENDING_EMAIL   = "AdminPendingEmail";
 
-        public AdminController(AppDbContext db, IConfiguration config, IWebHostEnvironment env)
+        public AdminController(AppDbContext db, IConfiguration config, IWebHostEnvironment env, IEmailService emailService)
         {
             _db = db;
             _config = config;
             _env = env;
+            _emailService = emailService;
         }
+
+        // ════════════════════════════════════════════════════════
+        // BƯỚC 1: NHẬP MÃ PIN
+        // ════════════════════════════════════════════════════════
 
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Gate()
         {
             if (HttpContext.Session.GetString(SESSION_ADMIN_UNLOCKED) == "1" || HttpContext.Session.GetString("UserRole") == "Admin")
-            {
                 return RedirectToAction(nameof(Index));
-            }
+
+            // Nếu đã xác thực PIN, chuyển sang bước 2
+            if (HttpContext.Session.GetString(SESSION_PIN_VERIFIED) == "1")
+                return RedirectToAction(nameof(GateEmail));
 
             return View();
         }
@@ -77,7 +94,7 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
             var adminPin = _config["AppSettings:AdminPin"];
             if (string.IsNullOrWhiteSpace(adminPin))
             {
-                TempData["ErrorMsg"] = "Hệ thống chưa cấu hình mã số truy cập. Vui lòng kiểm tra cấu hình server.";
+                TempData["ErrorMsg"] = "Hệ thống chưa cấu hình mã số truy cập.";
                 return View();
             }
 
@@ -87,9 +104,280 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 return View();
             }
 
+            // PIN đúng → lưu session và chuyển sang bước 2
+            HttpContext.Session.SetString(SESSION_PIN_VERIFIED, "1");
+            return RedirectToAction(nameof(GateEmail));
+        }
+
+        // ════════════════════════════════════════════════════════
+        // BƯỚC 2: NHẬP GMAIL ĐỂ NHẬN OTP
+        // ════════════════════════════════════════════════════════
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult GateEmail()
+        {
+            if (HttpContext.Session.GetString(SESSION_ADMIN_UNLOCKED) == "1" || HttpContext.Session.GetString("UserRole") == "Admin")
+                return RedirectToAction(nameof(Index));
+
+            // Phải qua bước 1 trước
+            if (HttpContext.Session.GetString(SESSION_PIN_VERIFIED) != "1")
+                return RedirectToAction(nameof(Gate));
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> GateEmail(string email)
+        {
+            // Kiểm tra đã qua bước 1 chưa
+            if (HttpContext.Session.GetString(SESSION_PIN_VERIFIED) != "1")
+                return RedirectToAction(nameof(Gate));
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                TempData["ErrorMsg"] = "Vui lòng nhập địa chỉ Gmail.";
+                return View();
+            }
+
+            email = email.Trim().ToLowerInvariant();
+
+            // Kiểm tra email có trong danh sách được cấp quyền không
+            var adminEmail = await _db.AdminEmails
+                .FirstOrDefaultAsync(e => e.Email.ToLower() == email && e.IsActive);
+
+            var superAdminEmail = _config["AppSettings:SuperAdminEmail"]?.Trim().ToLowerInvariant();
+            if (adminEmail == null && !string.IsNullOrEmpty(superAdminEmail) && email == superAdminEmail)
+            {
+                // Tự động tạo và lưu Super Admin vào DB nếu chưa tồn tại
+                adminEmail = new AdminEmail
+                {
+                    Email = superAdminEmail,
+                    FullName = "Super Admin",
+                    IsActive = true,
+                    AddedAt = DateTime.UtcNow
+                };
+                _db.AdminEmails.Add(adminEmail);
+                await _db.SaveChangesAsync();
+            }
+
+            // Luôn hiện thông báo giống nhau để tránh lộ thông tin
+            if (adminEmail == null)
+            {
+                TempData["ErrorMsg"] = "Email không hợp lệ hoặc chưa được cấp quyền truy cập. Vui lòng liên hệ Super Admin.";
+                return View();
+            }
+
+            // Xóa các OTP cũ chưa dùng của email này
+            var oldOtps = _db.AdminOtps.Where(o => o.Email == email && !o.IsUsed);
+            _db.AdminOtps.RemoveRange(oldOtps);
+
+            // Sinh OTP mới 6 số
+            var otpCode = new Random().Next(100000, 999999).ToString();
+            var otp = new AdminOtp
+            {
+                Email     = email,
+                OtpCode   = otpCode,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(5),
+                IsUsed    = false,
+                CreatedAt = DateTime.UtcNow
+            };
+            _db.AdminOtps.Add(otp);
+            await _db.SaveChangesAsync();
+
+            // Gửi OTP qua Gmail
+            try
+            {
+                await _emailService.SendOtpAsync(email, adminEmail.FullName, otpCode);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMsg"] = $"Không thể gửi OTP. Lỗi: {ex.Message}. Vui lòng kiểm tra cấu hình Gmail SMTP.";
+                return View();
+            }
+
+            // Lưu email đang chờ vào session và chuyển bước 3
+            HttpContext.Session.SetString(SESSION_PENDING_EMAIL, email);
+            TempData["SuccessMsg"] = $"Mã OTP đã được gửi đến {email}. Vui lòng kiểm tra hộp thư.";
+            return RedirectToAction(nameof(GateOtp));
+        }
+
+        // ════════════════════════════════════════════════════════
+        // BƯỚC 3: NHẬP MÃ OTP
+        // ════════════════════════════════════════════════════════
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult GateOtp()
+        {
+            if (HttpContext.Session.GetString(SESSION_ADMIN_UNLOCKED) == "1" || HttpContext.Session.GetString("UserRole") == "Admin")
+                return RedirectToAction(nameof(Index));
+
+            if (HttpContext.Session.GetString(SESSION_PIN_VERIFIED) != "1")
+                return RedirectToAction(nameof(Gate));
+
+            var pendingEmail = HttpContext.Session.GetString(SESSION_PENDING_EMAIL);
+            if (string.IsNullOrEmpty(pendingEmail))
+                return RedirectToAction(nameof(GateEmail));
+
+            ViewBag.PendingEmail = pendingEmail;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> GateOtp(string otpCode)
+        {
+            if (HttpContext.Session.GetString(SESSION_PIN_VERIFIED) != "1")
+                return RedirectToAction(nameof(Gate));
+
+            var pendingEmail = HttpContext.Session.GetString(SESSION_PENDING_EMAIL);
+            if (string.IsNullOrEmpty(pendingEmail))
+                return RedirectToAction(nameof(GateEmail));
+
+            ViewBag.PendingEmail = pendingEmail;
+
+            if (string.IsNullOrWhiteSpace(otpCode) || otpCode.Length != 6 || !otpCode.All(char.IsDigit))
+            {
+                TempData["ErrorMsg"] = "Mã OTP phải gồm đúng 6 chữ số.";
+                return View();
+            }
+
+            // Tìm OTP hợp lệ trong DB
+            var otp = await _db.AdminOtps
+                .Where(o => o.Email == pendingEmail && o.OtpCode == otpCode.Trim() && !o.IsUsed)
+                .OrderByDescending(o => o.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (otp == null)
+            {
+                TempData["ErrorMsg"] = "Mã OTP không đúng. Vui lòng kiểm tra lại.";
+                return View();
+            }
+
+            if (otp.IsExpired)
+            {
+                otp.IsUsed = true;
+                await _db.SaveChangesAsync();
+                TempData["ErrorMsg"] = "Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.";
+                HttpContext.Session.Remove(SESSION_PENDING_EMAIL);
+                return RedirectToAction(nameof(GateEmail));
+            }
+
+            // OTP hợp lệ → đánh dấu đã dùng và mở khóa Admin
+            otp.IsUsed = true;
+            await _db.SaveChangesAsync();
+
+            // Kiểm tra có phải Super Admin không
+            var superAdminEmail = _config["AppSettings:SuperAdminEmail"]?.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(superAdminEmail) && pendingEmail == superAdminEmail)
+                HttpContext.Session.SetString("IsSuperAdmin", "1");
+
+            // Xóa session tạm thời
+            HttpContext.Session.Remove(SESSION_PIN_VERIFIED);
+            HttpContext.Session.Remove(SESSION_PENDING_EMAIL);
+
+            // Mở khóa Admin
             HttpContext.Session.SetString(SESSION_ADMIN_UNLOCKED, "1");
-            TempData["SuccessMsg"] = "Xác thực quản trị thành công.";
+            TempData["SuccessMsg"] = "Xác thực quản trị thành công. Chào mừng!";
             return RedirectToAction(nameof(Index));
+        }
+
+        // ════════════════════════════════════════════════════════
+        // QUẢN LÝ TÀI KHOẢN ADMIN (chỉ Super Admin)
+        // ════════════════════════════════════════════════════════
+
+        [HttpGet]
+        public async Task<IActionResult> AdminAccounts()
+        {
+            if (HttpContext.Session.GetString("IsSuperAdmin") != "1")
+            {
+                TempData["ErrorMsg"] = "Bạn không có quyền truy cập trang này.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var adminEmails = await _db.AdminEmails
+                .OrderByDescending(e => e.AddedAt)
+                .ToListAsync();
+
+            return View(adminEmails);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GrantAdmin(string email, string fullName)
+        {
+            if (HttpContext.Session.GetString("IsSuperAdmin") != "1")
+                return Forbid();
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName))
+            {
+                TempData["ErrorMsg"] = "Vui lòng nhập đầy đủ Email và Họ tên.";
+                return RedirectToAction(nameof(AdminAccounts));
+            }
+
+            email = email.Trim().ToLowerInvariant();
+            fullName = fullName.Trim();
+
+            // Kiểm tra email đã tồn tại chưa
+            var existing = await _db.AdminEmails.FirstOrDefaultAsync(e => e.Email == email);
+            if (existing != null)
+            {
+                if (existing.IsActive)
+                {
+                    TempData["ErrorMsg"] = $"Email '{email}' đã được cấp quyền Admin.";
+                }
+                else
+                {
+                    // Kích hoạt lại
+                    existing.IsActive = true;
+                    existing.FullName = fullName;
+                    await _db.SaveChangesAsync();
+                    TempData["SuccessMsg"] = $"Đã kích hoạt lại quyền Admin cho '{email}'.";
+                }
+                return RedirectToAction(nameof(AdminAccounts));
+            }
+
+            var adminEmail = new AdminEmail
+            {
+                Email     = email,
+                FullName  = fullName,
+                IsActive  = true,
+                AddedAt   = DateTime.UtcNow
+            };
+            _db.AdminEmails.Add(adminEmail);
+            await _db.SaveChangesAsync();
+
+            TempData["SuccessMsg"] = $"Đã cấp quyền Admin cho '{email}' ({fullName}) thành công!";
+            return RedirectToAction(nameof(AdminAccounts));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RevokeAdmin(int id)
+        {
+            if (HttpContext.Session.GetString("IsSuperAdmin") != "1")
+                return Forbid();
+
+            var adminEmail = await _db.AdminEmails.FindAsync(id);
+            if (adminEmail == null) return NotFound();
+
+            // Không cho phép thu hồi quyền của Super Admin
+            var superAdminEmail = _config["AppSettings:SuperAdminEmail"]?.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(superAdminEmail) && adminEmail.Email == superAdminEmail)
+            {
+                TempData["ErrorMsg"] = "Không thể thu hồi quyền của Super Admin.";
+                return RedirectToAction(nameof(AdminAccounts));
+            }
+
+            adminEmail.IsActive = false;
+            await _db.SaveChangesAsync();
+
+            TempData["SuccessMsg"] = $"Đã thu hồi quyền Admin của '{adminEmail.Email}'.";
+            return RedirectToAction(nameof(AdminAccounts));
         }
 
         public async Task<IActionResult> Index()
@@ -120,6 +408,18 @@ namespace Bảo_Tàng_Đà_Nẵng.Controllers
                 .ToListAsync();
 
             ViewBag.TopPlayers = topPlayers;
+
+            // Thống kê số lượng câu hỏi theo chuyên mục di sản (LocationName)
+            var questionStats = await _db.Questions
+                .GroupBy(q => q.LocationName)
+                .Select(g => new
+                {
+                    Category = g.Key ?? "Chưa phân loại",
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            ViewBag.QuestionStats = questionStats;
 
             return View();
         }

@@ -1,0 +1,194 @@
+@{
+    ViewData["Title"] = "Xác thực quản trị - Bước 3";
+    ViewData["HideNav"] = true;
+    var pendingEmail = ViewBag.PendingEmail as string ?? "";
+    var maskedEmail = MaskEmail(pendingEmail);
+}
+
+@functions {
+    static string MaskEmail(string email) {
+        if (string.IsNullOrEmpty(email)) return "";
+        var parts = email.Split('@');
+        if (parts.Length != 2) return email;
+        var name = parts[0];
+        var masked = name.Length <= 2 ? name : name[0] + new string('*', name.Length - 2) + name[^1];
+        return $"{masked}@{parts[1]}";
+    }
+}
+
+<div class="auth-page animate-fadeInUp">
+    <div class="auth-logo">
+        <div class="logo-icon">🔑</div>
+        <h1>Nhập mã OTP</h1>
+        <p>Mã xác thực đã được gửi tới email của bạn</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 28px;">
+        <div style="display:flex; align-items:center; gap: 6px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--success); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.8rem; font-weight:700;">✓</div>
+            <span style="font-size:0.8rem; color: var(--success); font-weight:600;">PIN</span>
+        </div>
+        <div style="width:36px; height:2px; background: var(--gold-primary); opacity:0.6;"></div>
+        <div style="display:flex; align-items:center; gap: 6px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--success); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.8rem; font-weight:700;">✓</div>
+            <span style="font-size:0.8rem; color: var(--success); font-weight:600;">Gmail</span>
+        </div>
+        <div style="width:36px; height:2px; background: var(--gold-primary); opacity:0.4;"></div>
+        <div style="display:flex; align-items:center; gap: 6px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--gold-primary); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.8rem; font-weight:700;">3</div>
+            <span style="font-size:0.8rem; color: var(--gold-primary); font-weight:600;">OTP</span>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <h2>Mã xác thực OTP</h2>
+            <p>Kiểm tra Gmail <strong>@maskedEmail</strong> và nhập mã 6 chữ số</p>
+        </div>
+
+        <div class="auth-card-body">
+            @if (TempData["ErrorMsg"] != null)
+            {
+                <div class="alert-museum error">
+                    <span>⚠️</span>
+                    <span>@TempData["ErrorMsg"]</span>
+                </div>
+            }
+            @if (TempData["SuccessMsg"] != null)
+            {
+                <div class="alert-museum success">
+                    <span>✅</span>
+                    <span>@TempData["SuccessMsg"]</span>
+                </div>
+            }
+
+            <form asp-controller="Admin" asp-action="GateOtp" method="post" id="otpForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="pendingEmail" value="@pendingEmail" />
+
+                <div class="form-group">
+                    <label class="form-label" style="text-align:center; display:block; margin-bottom: 16px;">
+                        <i class="fa-solid fa-clock me-1" style="color:var(--gold-primary);"></i>
+                        Mã có hiệu lực trong <strong id="countdown" style="color:var(--primary);">5:00</strong>
+                    </label>
+
+                    <!-- OTP Input chia ô -->
+                    <div id="otp-boxes" style="display:flex; gap:10px; justify-content:center; margin-bottom: 8px;">
+                        <input type="text" maxlength="1" class="otp-digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off" style="width:52px; height:62px; text-align:center; font-size:1.8rem; font-weight:700; border-radius:10px; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.9); color: var(--text-dark); transition: border-color 0.2s;" />
+                        <input type="text" maxlength="1" class="otp-digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off" style="width:52px; height:62px; text-align:center; font-size:1.8rem; font-weight:700; border-radius:10px; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.9); color: var(--text-dark); transition: border-color 0.2s;" />
+                        <input type="text" maxlength="1" class="otp-digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off" style="width:52px; height:62px; text-align:center; font-size:1.8rem; font-weight:700; border-radius:10px; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.9); color: var(--text-dark); transition: border-color 0.2s;" />
+                        <input type="text" maxlength="1" class="otp-digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off" style="width:52px; height:62px; text-align:center; font-size:1.8rem; font-weight:700; border-radius:10px; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.9); color: var(--text-dark); transition: border-color 0.2s;" />
+                        <input type="text" maxlength="1" class="otp-digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off" style="width:52px; height:62px; text-align:center; font-size:1.8rem; font-weight:700; border-radius:10px; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.9); color: var(--text-dark); transition: border-color 0.2s;" />
+                        <input type="text" maxlength="1" class="otp-digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off" style="width:52px; height:62px; text-align:center; font-size:1.8rem; font-weight:700; border-radius:10px; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.9); color: var(--text-dark); transition: border-color 0.2s;" />
+                    </div>
+
+                    <!-- Hidden input gộp mã -->
+                    <input type="hidden" name="otpCode" id="otpCode" />
+                </div>
+
+                <div class="mt-24">
+                    <button type="submit" id="btnVerify" class="btn-primary-museum" disabled>
+                        <i class="fa-solid fa-shield-halved me-2"></i>Xác thực OTP
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer-link mt-16" style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                <a asp-controller="Admin" asp-action="GateEmail">← Gửi lại mã OTP</a>
+                <a asp-controller="Admin" asp-action="Gate" style="font-size: 0.8rem; opacity: 0.6;">Bắt đầu lại từ đầu</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function() {
+    const inputs = document.querySelectorAll('.otp-digit-input');
+    const hiddenInput = document.getElementById('otpCode');
+    const submitBtn = document.getElementById('btnVerify');
+    const form = document.getElementById('otpForm');
+
+    // Focus ô đầu tiên
+    if (inputs.length) inputs[0].focus();
+
+    function updateHidden() {
+        let val = '';
+        inputs.forEach(i => val += (i.value || ''));
+        hiddenInput.value = val;
+        submitBtn.disabled = val.length !== 6;
+
+        inputs.forEach((inp, idx) => {
+            const isFocused = document.activeElement === inp;
+            inp.style.borderColor = (inp.value && !isFocused)
+                ? 'var(--gold-primary)'
+                : isFocused
+                    ? 'var(--primary)'
+                    : 'var(--glass-border)';
+        });
+    }
+
+    inputs.forEach((inp, idx) => {
+        inp.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(-1);
+            if (this.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+            updateHidden();
+        });
+
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !this.value && idx > 0) {
+                inputs[idx - 1].focus();
+                inputs[idx - 1].value = '';
+                updateHidden();
+            }
+        });
+
+        inp.addEventListener('focus', () => {
+            inp.style.borderColor = 'var(--primary)';
+            inp.select();
+        });
+        inp.addEventListener('blur', updateHidden);
+
+        // Hỗ trợ paste OTP
+        inp.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+            paste.split('').slice(0, 6).forEach((ch, i) => {
+                if (inputs[i]) inputs[i].value = ch;
+            });
+            const nextEmpty = Array.from(inputs).findIndex(i => !i.value);
+            if (nextEmpty >= 0) inputs[nextEmpty].focus();
+            else inputs[inputs.length - 1].focus();
+            updateHidden();
+        });
+    });
+
+    // Submit khi đủ 6 chữ số
+    form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span>&nbsp; Đang xác thực...';
+    });
+
+    // Đếm ngược 5 phút
+    let remaining = 300;
+    const countdownEl = document.getElementById('countdown');
+    const timer = setInterval(function() {
+        remaining--;
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        countdownEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+        if (remaining <= 60) countdownEl.style.color = '#dc2626';
+        if (remaining <= 0) {
+            clearInterval(timer);
+            countdownEl.textContent = 'Hết hạn';
+            submitBtn.disabled = true;
+            const box = document.querySelector('.alert-museum') || document.createElement('div');
+            box.className = 'alert-museum error';
+            box.innerHTML = '<span>⏰</span><span>Mã OTP đã hết hạn. Vui lòng <a href="/Admin/GateEmail">gửi lại mã mới</a>.</span>';
+            document.querySelector('.auth-card-body').prepend(box);
+        }
+    }, 1000);
+})();
+</script>
+}

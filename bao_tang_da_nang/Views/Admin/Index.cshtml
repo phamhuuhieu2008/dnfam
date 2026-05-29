@@ -15,42 +15,71 @@
     <div class="row g-4 mb-5">
         <div class="col-md-3">
             <a asp-action="Users" class="text-decoration-none">
-                <div class="museum-card p-4 text-center" style="cursor: pointer; transition: transform 0.2s;">
+                <div class="museum-card p-4 text-center" style="cursor: pointer; transition: transform 0.2s; border-color: rgba(128, 90, 18, 0.2);">
                     <div style="font-size: 2rem; color: var(--primary);"><i class="fa-solid fa-users"></i></div>
-                    <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.TotalUsers</h3>
-                    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Người chơi</div>
+                    <h3 style="font-size: 2.2rem; font-family: 'Playfair Display', serif; color: var(--gold-primary); font-weight: 700; margin: 10px 0;">@ViewBag.TotalUsers</h3>
+                    <div style="font-size: 0.85rem; color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Người chơi</div>
                 </div>
             </a>
         </div>
         <div class="col-md-3">
             <a asp-action="Questions" class="text-decoration-none">
-                <div class="museum-card p-4 text-center" style="cursor: pointer; transition: transform 0.2s;">
+                <div class="museum-card p-4 text-center" style="cursor: pointer; transition: transform 0.2s; border-color: rgba(212, 175, 55, 0.4);">
                     <div style="font-size: 2rem; color: var(--accent);"><i class="fa-solid fa-layer-group"></i></div>
-                    <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.TotalQuestions</h3>
-                    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Câu hỏi</div>
+                    <h3 style="font-size: 2.2rem; font-family: 'Playfair Display', serif; color: var(--gold-primary); font-weight: 700; margin: 10px 0;">@ViewBag.TotalQuestions</h3>
+                    <div style="font-size: 0.85rem; color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Câu hỏi</div>
                 </div>
             </a>
         </div>
         <div class="col-md-3">
-            <div class="museum-card p-4 text-center">
+            <div class="museum-card p-4 text-center" style="border-color: rgba(39, 174, 96, 0.3);">
                 <div style="font-size: 2rem; color: var(--success);"><i class="fa-solid fa-gamepad"></i></div>
-                <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.TotalSessions</h3>
-                <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Lượt chơi</div>
+                <h3 style="font-size: 2.2rem; font-family: 'Playfair Display', serif; color: var(--gold-primary); font-weight: 700; margin: 10px 0;">@ViewBag.TotalSessions</h3>
+                <div style="font-size: 0.85rem; color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Lượt chơi</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="museum-card p-4 text-center">
+            <div class="museum-card p-4 text-center" style="border-color: rgba(224, 122, 63, 0.3);">
                 <div style="font-size: 2rem; color: var(--secondary);"><i class="fa-solid fa-check-circle"></i></div>
-                <h3 style="font-size: 2rem; font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 10px 0;">@ViewBag.CompletedSessions</h3>
-                <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Lượt hoàn thành</div>
+                <h3 style="font-size: 2.2rem; font-family: 'Playfair Display', serif; color: var(--gold-primary); font-weight: 700; margin: 10px 0;">@ViewBag.CompletedSessions</h3>
+                <div style="font-size: 0.85rem; color: #4b5563; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Lượt hoàn thành</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-5">
+        <!-- Top 5 Players Bar Chart -->
+        <div class="col-lg-6">
+            <div class="museum-card p-4 h-100">
+                <h3 class="section-title mb-4" style="font-size: 1.25rem; text-align: left; background: none; -webkit-text-fill-color: initial; color: var(--gold-primary); font-weight: 700;">
+                    <i class="fa-solid fa-chart-column me-2 text-danger"></i>Thống kê Điểm số Top 5 Người chơi
+                </h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions by Category Doughnut Chart -->
+        <div class="col-lg-6">
+            <div class="museum-card p-4 h-100">
+                <h3 class="section-title mb-4" style="font-size: 1.25rem; text-align: left; background: none; -webkit-text-fill-color: initial; color: var(--gold-primary); font-weight: 700;">
+                    <i class="fa-solid fa-chart-pie me-2 text-danger"></i>Phân bố Câu hỏi theo Chuyên mục di sản
+                </h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <!-- Top Players -->
+        <!-- Top Players Table -->
         <div class="col-12">
-            <h3 class="section-title mb-3" style="font-size: 1.2rem; text-align: left;">Top 5 Người chơi xuất sắc</h3>
+            <h3 class="section-title mb-3" style="font-size: 1.25rem; text-align: left; background: none; -webkit-text-fill-color: initial; color: var(--gold-primary); font-weight: 700;">
+                <i class="fa-solid fa-trophy me-2" style="color: var(--accent);"></i>Bảng xếp hạng Top 5 Người chơi xuất sắc
+            </h3>
             <div class="museum-card p-0 overflow-hidden">
                 <div class="table-responsive" style="border: none;">
                     <table class="table table-hover mb-0" style="font-size: 0.95rem;">
@@ -58,7 +87,7 @@
                             <tr>
                                 <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Hạng</th>
                                 <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Họ và Tên</th>
-                                <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Điểm</th>
+                                <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Điểm số</th>
                                 <th class="px-4 py-3" style="color: var(--text-muted); font-weight: 600;">Ngày chơi</th>
                             </tr>
                         </thead>
@@ -94,3 +123,138 @@
         </div>
     </div>
 </div>
+
+@using System.Text.Json;
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // --- Data for Top 5 Players (Bar Chart) ---
+            const topPlayersData = @Html.Raw(JsonSerializer.Serialize(ViewBag.TopPlayers));
+            const playerNames = topPlayersData.map(p => p.FullName);
+            const playerScores = topPlayersData.map(p => p.TotalScore);
+
+            // --- Data for Question Stats (Doughnut Chart) ---
+            const questionStatsData = @Html.Raw(JsonSerializer.Serialize(ViewBag.QuestionStats));
+            const categories = questionStatsData.map(q => q.Category);
+            const questionCounts = questionStatsData.map(q => q.Count);
+
+            // Render Vertical Bar Chart
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: playerNames,
+                    datasets: [{
+                        label: 'Điểm số',
+                        data: playerScores,
+                        backgroundColor: [
+                            'rgba(139, 30, 25, 0.85)',   // Đỏ bã trầu
+                            'rgba(128, 90, 18, 0.85)',   // Vàng đồng đậm
+                            'rgba(224, 122, 63, 0.85)',  // Cam đất
+                            'rgba(39, 174, 96, 0.85)',   // Xanh lá success
+                            'rgba(90, 101, 119, 0.85)'   // Xám muted
+                        ],
+                        borderColor: [
+                            '#8B1E19',
+                            '#805A12',
+                            '#E07A3F',
+                            '#27AE60',
+                            '#5A6577'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Điểm: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    weight: '500'
+                                },
+                                color: '#333'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    weight: '600'
+                                },
+                                color: '#333'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Render Doughnut Chart
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: questionCounts,
+                        backgroundColor: [
+                            '#8B1E19', // Đỏ bã trầu
+                            '#805A12', // Vàng đồng đậm
+                            '#E07A3F', // Cam đất
+                            '#27AE60', // Xanh lá
+                            '#2980B9', // Xanh dương
+                            '#9B59B6'  // Tím
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF',
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    family: 'Inter',
+                                    size: 11,
+                                    weight: '600'
+                                },
+                                color: '#333',
+                                padding: 15
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        });
+    </script>
+}
